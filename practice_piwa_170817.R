@@ -10,9 +10,12 @@ str(test) #y.4 and Noise.4 and Wind.4 and Sky.4 JDate.4 are factors and shouldn'
 piwa.abund<- csvToUMF("piwa_abund.csv", long = FALSE, type = "unmarkedFramePCount")
     ##type may need to change for occupancy (occuRN, pcountOpen, or whichever used) ##
 summary(piwa.abund)
+#obsCovs(piwa.abund)= scale (obsCovs(piwa.abund))
+#siteCovs(piwa.abund)= scale (siteCovs(piwa.abund))
 
 ?pcount
 
+#no K and no mixture type set (NB or P or ZIP) yet
 null.piwa <- pcount(~1 ~1, piwa.abund)
 #global.piwa <- pcount(~ Noise + Wind + Sky + Jdate ~ Treatment + BA + Nsnags
  #                     + Ccover + Ldepth + TreeHt + Age + TimeSinceB + Herbicide

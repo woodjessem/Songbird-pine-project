@@ -9,8 +9,12 @@ piwa.abund3<- csvToUMF("piwa_abund3.csv", long = FALSE, type = "unmarkedFramePCo
 ##type may need to change for occupancy (occuRN, pcountOpen, or whichever used) ##
 summary(piwa.abund3)
 
+#obsCovs(piwa.abund)= scale (obsCovs(piwa.abund))
+#siteCovs(piwa.abund)= scale (siteCovs(piwa.abund))
+
 ?pcount
 
+#no K and no mixture type set (NB or P or ZIP) yet
 null.piwa <- pcount(~1 ~1, piwa.abund3)
 global.piwa <- pcount(~ Noise + Wind + Sky + Jdate ~ Treatment + BA + Nsnags
                       + Ccover + Ldepth + TreeHt + Age + TimeSinceB + Herbicide
