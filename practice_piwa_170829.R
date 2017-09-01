@@ -6,23 +6,31 @@ test <-read.csv("piwa_abund.csv")
 summary(test)
 str(test) #y.4 and Noise.4 and Wind.4 and Sky.4 JDate.4 are factors and shouldn't be
 #stringsAsFactors=FALSE, but this only works for reading, not for below.
+var(test[2:5])
+mean(test[2:4])
+mean(test$y.3)
 
 piwa.abund<- csvToUMF("piwa_abund.csv", long = FALSE, type = "unmarkedFramePCount")
     ##type may need to change for occupancy (occuRN, pcountOpen, or whichever used) ##
+#library(plyr)
+#piwa.abund$Treatment2<-revalue(piwa.abund$Treatment, c("0B"="0","1B"="1","2B"="2","3B"="3"))
 summary(piwa.abund)
+str(piwa.abund)
 obsCovs(piwa.abund)= scale(obsCovs(piwa.abund))
-#siteCovs(piwa.abund)= scale(siteCovs(piwa.abund))
+siteCovs(piwa.abund)= scale(siteCovs(piwa.abund)) #didn't like it -
+   #site, treatment, time since, last B and T are all factors right now...
+
 
 ?pcount
 
 #detection covariates first
-det.null.piwa <- pcount(~1 ~1, piwa.abund)
-det.weather.piwa <- pcount(~ Wind + Sky ~1, piwa.abund)
-det.global.piwa <- pcount(~ Jdate + Wind + Sky + Noise ~1, piwa.abund)
-det.sound.piwa <- pcount(~ Noise + Wind ~1, piwa.abund)
-det.date.piwa <- pcount(~ Jdate ~1, piwa.abund)
-det.detect.piwa <- pcount(~ Jdate + Noise ~1, piwa.abund)
-det.notdate.piwa <-pcount(~ Wind + Sky + Noise ~1, piwa.abund)
+det.null.piwa <- pcount(~1 ~1, piwa.abund, mixture="P")
+det.weather.piwa <- pcount(~ Wind + Sky ~1, piwa.abund, mixture="P")
+det.global.piwa <- pcount(~ Jdate + Wind + Sky + Noise ~1, piwa.abund, mixture="P")
+det.sound.piwa <- pcount(~ Noise + Wind ~1, piwa.abund, mixture="P")
+det.date.piwa <- pcount(~ Jdate ~1, piwa.abund, mixture="P")
+det.detect.piwa <- pcount(~ Jdate + Noise ~1, piwa.abund, mixture="P")
+det.notdate.piwa <-pcount(~ Wind + Sky + Noise ~1, piwa.abund, mixture="P")
 
 fms <- fitList(det.null.piwa, det.weather.piwa, det.global.piwa,
                det.sound.piwa, det.date.piwa, det.detect.piwa, det.notdate.piwa)
@@ -43,22 +51,21 @@ ms1.piwa
 
 #site covariates next
 
-#no K and no mixture type set (NB or P or ZIP) yet
-null.piwa <- pcount(~1 ~1, piwa.abund)
+null.piwa <- pcount(~1 ~1, piwa.abund, mixture="P")
 global.piwa <- pcount(~ 1 ~ Treatment + BA + Nsnags
                       + Ccover + Ldepth + TreeHt + Age + TimeSinceB + Herbicide
-                      , piwa.abund)
-local.piwa <- pcount(~ 1 ~ BA + Ccover + TreeHt + Ldepth, piwa.abund)
-lh.piwa <- pcount(~ 1 ~ Ccover + TreeHt + BA, piwa.abund)
-#landscape.piwa <- pcount(~ 1 ~ cov 5 + 6, piwa.abund)
-treatment.piwa <- pcount(~ 1 ~ Treatment + BA + TimeSinceB + Herbicide, piwa.abund)
+                      , piwa.abund, mixture="P")
+local.piwa <- pcount(~ 1 ~ BA + Ccover + TreeHt + Ldepth, piwa.abund, mixture="P")
+lh.piwa <- pcount(~ 1 ~ Ccover + TreeHt + BA, piwa.abund, mixture="P")
+#landscape.piwa <- pcount(~ 1 ~ cov 5 + 6, piwa.abund, mixture="P")
+treatment.piwa <- pcount(~ 1 ~ Treatment + BA + TimeSinceB + Herbicide, piwa.abund, mixture="P")
 
 fms2 <- fitList(null.piwa, global.piwa, local.piwa, lh.piwa, treatment.piwa)
 ms2.piwa <- modSel(fms2)
 ms2.piwa@Full
 ms2.piwa
 
-##OLD: wind, sky, noise
+##OLD: wind, sky, noise ## ## ## ## DO NOT RUN THROUGH LINE 86!! ## ## ## ## ##
 #no K and no mixture type set (NB or P or ZIP) yet
 null2.piwa <- pcount(~ Wind + Sky + Noise ~1, piwa.abund)
 global2.piwa <- pcount(~ Wind + Sky + Noise ~ Treatment + BA + Nsnags
