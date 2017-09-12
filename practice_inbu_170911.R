@@ -59,7 +59,7 @@ global.inbu <- pcount(~ 1 ~ Treatment + BA + Nsnags
                       + Ccover + Ldepth + TreeHt + Age + TimeSinceB + TimeSinceT + Herbicide
                       , inbu.abund, mixture="P", K=15)
 local.inbu <- pcount(~ 1 ~ BA + Ccover + TreeHt + Ldepth, inbu.abund, mixture="P", K=15)
-lh.inbu <- pcount(~ 1 ~ Ccover + TreeHt + BA + Nsnags, inbu.abund, mixture="P", K=15)
+lh.inbu <- pcount(~ 1 ~ TreeHt + Age, inbu.abund, mixture="P", K=15)
 ##landscape.inbu <- pcount(~ 1 ~ cov 5 + 6, inbu.abund, mixture="P")
 treatment.inbu <- pcount(~ 1 ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide, inbu.abund, mixture="P", K=15)
 disturbance.inbu <- pcount(~ 1 ~ TimeSinceB + TimeSinceT,
@@ -89,6 +89,8 @@ ms3.inbu <- modSel(fms3)
 ms3.inbu
 #ms3.inbu@Full
 disturbance2.inbu
+confint(disturbance2.inbu,type="state",method="normal")
+confint(disturbance2.inbu,type="det",method="normal")
 
 #ms3 summary: disturbance (time since B & T) best model
 #  null is second best model but it and rest above d2.

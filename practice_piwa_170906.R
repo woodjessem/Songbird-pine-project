@@ -118,6 +118,9 @@ ms4.piwa
 #ms4.piwa@Full
 #same order as unscaled covariates, but now lower overall AIC values; higher weights.
 
+#confint(disturbance2.inbu,type="state",method="normal")
+#confint(disturbance2.inbu,type="det",method="normal")
+
 
 #see help for package "xlsReadWrite" in old notes, if need be#
 #write.table(ms1.cawr@Full, file="C:/Users/path.type",sep="\t")

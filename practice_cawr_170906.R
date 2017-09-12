@@ -84,6 +84,8 @@ fms3 <- fitList(null2.cawr, global2.cawr, local2.cawr, lh2.cawr, treatment2.cawr
 ms3.cawr <- modSel(fms3)
 ms3.cawr@Full
 ms3.cawr
+#confint(disturbance2.inbu,type="state",method="normal")
+#confint(disturbance2.inbu,type="det",method="normal")
 
 
 #see help for package "xlsReadWrite" in old notes, if need be#

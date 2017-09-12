@@ -54,7 +54,7 @@ ms1.bhnu@Full
 ##site covariates next
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#null detection covariates (aka NOT using the knowledge gained above)
+#null detection covariates (actually best one from above)
 null.bhnu <- pcount(~1 ~1, bhnu.abund, mixture="P", K=15)
 global.bhnu <- pcount(~ 1 ~ Treatment + BA + Nsnags
                       + Ccover + Ldepth + TreeHt + Age + TimeSinceB + TimeSinceT + Herbicide
@@ -92,6 +92,8 @@ ms3.bhnu
 #ms3.bhnu@Full
 
 disturbance2.bhnu
+confint(disturbance2.bhnu,type="state",method="normal")
+confint(disturbance2.bhnu,type="det",method="normal")
 
 #ms3 summary (using Jdate): null highest, disturbance second @ 0.82
 #  next closest local @ 2.12.
