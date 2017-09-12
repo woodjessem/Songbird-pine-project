@@ -68,6 +68,7 @@ local.piwa <- pcount(~ 1 ~ BA + Ccover + TreeHt + Ldepth, piwa.abund, mixture="P
 lh.piwa <- pcount(~ 1 ~ Ccover + TreeHt + BA, piwa.abund, mixture="P", K=15)
 #landscape.piwa <- pcount(~ 1 ~ cov 5 + 6, piwa.abund, mixture="P", K=15)
 treatment.piwa <- pcount(~ 1 ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide, piwa.abund, mixture="P", K=15)
+disturbance3.piwa <- pcount(~ 1 ~ TimeSinceB + TimeSinceT, piwa.abund,mixture = "P", K=15)
 
 fms2 <- fitList(null.piwa, global.piwa, local.piwa, lh.piwa, treatment.piwa)
 ms2.piwa <- modSel(fms2)
@@ -85,6 +86,8 @@ local2.piwa <- pcount(~ Wind + Sky + Noise ~ BA + Ccover + TreeHt + Ldepth, piwa
 lh2.piwa <- pcount(~ Wind + Sky + Noise ~ Ccover + TreeHt + BA, piwa.abund)
 #landscape.piwa <- pcount(~ Wind + Sky + Noise ~ cov 5 + 6, piwa.abund)
 treatment2.piwa <- pcount(~ Wind + Sky + Noise ~ Treatment + BA + TimeSinceB + Herbicide, piwa.abund)
+disturbance3.piwa <- pcount(~ Wind + Sky + Noise ~ TimeSinceB + TimeSinceT,
+                            piwa.abund, mixture = "P", K=15)
 
 fms3 <- fitList(null2.piwa, global2.piwa, local2.piwa, lh2.piwa, treatment2.piwa)
 ms3.piwa <- modSel(fms3)
@@ -106,8 +109,8 @@ lh3.piwa <- pcount(~ Jdate ~ Ccover + TreeHt + BA, piwa.abund, K=15)
 #landscape.piwa <- pcount(~ Jdate ~ cov 5 + 6, piwa.abund, K=15)
 treatment3.piwa <- pcount(~ Jdate ~ Treatment + BA + TimeSinceB +
                             TimeSinceT + Herbicide, piwa.abund, K=15)
-disturbance3.piwa <- pcount(~ Jdate ~ TimeSinceB + TimeSinceT + Herbicide,
-                             piwa.abund, K=15)
+disturbance3.piwa <- pcount(~ Jdate ~ TimeSinceB + TimeSinceT,
+                             piwa.abund, mixture = "P", K=15)
 
 fms4 <- fitList(null3.piwa, global3.piwa, local3.piwa, lh3.piwa, treatment3.piwa, disturbance3.piwa)
 ms4.piwa <- modSel(fms4)

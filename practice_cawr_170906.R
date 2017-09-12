@@ -6,7 +6,7 @@ test2 <-read.csv("cawr_abund.csv")
 summary(test2)
 str(test2)
 var(test2[2:5])
-mean(test2[2:4])
+#mean(test2[2:4])
 mean(test2$y.3)
 
 cawr.abund<- csvToUMF("cawr_abund.csv", long = FALSE, type = "unmarkedFramePCount")
@@ -60,8 +60,8 @@ local.cawr <- pcount(~ 1 ~ BA + Ccover + TreeHt + Ldepth, cawr.abund, mixture="P
 lh.cawr <- pcount(~ 1 ~ Ccover + TreeHt + BA + Nsnags, cawr.abund, mixture="P", K=15)
 ##landscape.cawr <- pcount(~ 1 ~ cov 5 + 6, cawr.abund, mixture="P")
 treatment.cawr <- pcount(~ 1 ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide, cawr.abund, mixture="P", K=15)
-disturbance.cawr <- pcount(~ Jdate ~ TimeSinceB + TimeSinceT + Herbicide,
-                            cawr.abund, K=15)
+disturbance.cawr <- pcount(~ 1 ~ TimeSinceB + TimeSinceT,
+                            cawr.abund, mixture = "P", K=15)
 
 fms2 <- fitList(null.cawr, global.cawr, local.cawr, lh.cawr, treatment.cawr, disturbance.cawr)
 ms2.cawr <- modSel(fms2)
@@ -77,8 +77,8 @@ local2.cawr <- pcount(~ Jdate + Noise ~ BA + Ccover + TreeHt + Ldepth, cawr.abun
 lh2.cawr <- pcount(~ Jdate + Noise ~ Ccover + TreeHt + BA + Nsnags, cawr.abund, mixture="P", K=15)
 #landscape.cawr <- pcount(~ Jdate + Noise ~ cov 5 + 6, cawr.abund, mixture="P", K=15)
 treatment2.cawr <- pcount(~ Jdate + Noise ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide, cawr.abund, mixture="P", K=15)
-disturbance2.cawr <- pcount(~ Jdate ~ TimeSinceB + TimeSinceT + Herbicide,
-                           cawr.abund, K=15)
+disturbance2.cawr <- pcount(~ Jdate + Noise ~ TimeSinceB + TimeSinceT,
+                           cawr.abund,mixture = "P", K=15)
 
 fms3 <- fitList(null2.cawr, global2.cawr, local2.cawr, lh2.cawr, treatment2.cawr, disturbance2.cawr)
 ms3.cawr <- modSel(fms3)
