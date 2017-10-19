@@ -99,4 +99,5 @@ confint(disturbance2.bhnu,type="det",method="normal")
 #  next closest local @ 2.12.
 
 #see help for package "xlsReadWrite" in old notes, if need be#
-#write.table(ms1.bhnu@Full, file="C:/Users/path.type",sep="\t")
+write.table(ms2.bhnu@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/bhnu_top_models_ms2.xls",sep="\t")
+write.table(ms3.bhnu@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/bhnu_top_models_ms3.xls",sep="\t")

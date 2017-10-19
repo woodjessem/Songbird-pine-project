@@ -96,4 +96,4 @@ confint(disturbance2.inbu,type="det",method="normal")
 #  null is second best model but it and rest above d2.
 
 #see help for package "xlsReadWrite" in old notes, if need be#
-#write.table(ms1.inbu@Full, file="C:/Users/path.type",sep="\t")
+write.table(ms3.inbu@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/inbu_top_models.xls",sep="\t")

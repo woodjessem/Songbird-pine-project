@@ -1,0 +1,18 @@
+	model	formula	lam(Age)	SElam(Age)	lam(BA)	SElam(BA)	lam(Ccover)	SElam(Ccover)	lam(Herbicide)	SElam(Herbicide)	lam(Int)	SElam(Int)	lam(Ldepth)	SElam(Ldepth)	lam(Nsnags)	SElam(Nsnags)	lam(TimeSinceB)	SElam(TimeSinceB)	lam(TimeSinceT)	SElam(TimeSinceT)	lam(Treatment1B)	SElam(Treatment1B)	lam(Treatment2B)	SElam(Treatment2B)	lam(Treatment3B)	SElam(Treatment3B)	lam(TreeHt)	SElam(TreeHt)	p(Int)	SEp(Int)	p(Jdate)	SEp(Jdate)	Converge	CondNum	negLogLike	nPars	n	AIC	delta	AICwt	Rsq	cumltvWt
+1	null2.bhnu	~Jdate ~ 1	NA	NA	NA	NA	NA	NA	NA	NA	1.221103099	0.572819958	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	-1.949780038	0.663891274	0.126975745	0.131787319	0	74.43346394	143.6937642	3	51	293.3875284	0	0.451079278	NA	0.451079278
+6	disturbance2.bhnu	~Jdate ~ TimeSinceB + TimeSinceT	NA	NA	NA	NA	NA	NA	NA	NA	1.482117173	0.700908963	NA	NA	NA	NA	-0.273115662	0.165434921	0.010622334	0.144140721	NA	NA	NA	NA	NA	NA	NA	NA	-2.283378727	0.788650459	0.105145265	0.128213587	0	124.0950686	142.1051744	5	51	294.2103488	0.822820371	0.298937022	NA	0.7500163
+3	local2.bhnu	~Jdate ~ BA + Ccover + TreeHt + Ldepth	NA	NA	-0.186852173	0.253093459	-0.028222696	0.232918973	NA	NA	1.369413381	0.52721951	-0.159012468	0.145608503	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	-0.094443301	0.147099974	-2.168339842	0.592645286	0.118810457	0.129976901	0	118.5166579	140.7529865	7	51	295.505973	2.118444565	0.156400625	NA	0.906416925
+4	lh2.bhnu	~Jdate ~ TreeHt + Ccover + BA + Nsnags + Age	-0.158223008	0.189038208	-0.2231562	0.265989791	-0.14403518	0.232781234	NA	NA	1.298576222	0.496972695	NA	NA	0.149585256	0.119318329	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	0.024297487	0.195490792	-2.090878385	0.560774254	0.125963185	0.131968136	0	107.1367754	140.5163458	8	51	297.0326917	3.645163243	0.072898021	NA	0.979314946
+5	treatment2.bhnu	~Jdate ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide	NA	NA	-0.151551031	0.138547595	NA	NA	0.108446742	0.293321901	3.518224479	2.670501073	NA	NA	NA	NA	-1.369834571	1.474085194	0.004599514	0.153431925	-2.85573929	3.41498878	-2.991604844	3.480571248	-2.652721957	3.529658089	NA	NA	-2.244214607	0.542084448	0.117024621	0.128928128	0	7885.247031	139.899139	10	51	299.798278	6.410749587	0.018288424	NA	0.99760337
+2	global2.bhnu	~Jdate ~ Treatment + BA + Nsnags + Ccover + Ldepth + TreeHt + Age + TimeSinceB + TimeSinceT + Herbicide	-0.355697847	0.229672688	-0.239618342	0.261820756	-0.053604835	0.225095979	0.026544538	0.301576051	1.690315703	3.169136197	-0.00407287	0.183822204	0.225815107	0.141092932	-0.553276846	1.74523146	0.0879898	0.150441411	-0.747063278	4.016713817	-0.751049455	4.045250873	-0.031314079	4.187262565	-0.074663119	0.264158817	-2.198631778	0.437501971	0.136745916	0.131310808	0	17338.14227	136.9313438	15	51	303.8626876	10.4751592	0.00239663	NA	1
+																																										
+																																										
+																	-0.107680741																									
+																	-0.438550583																									
+																																										
+																																										
+																	"confint(disturbance2.bhnu,type=""state"",method=""normal"")"																									
+																	                     0.025      0.975																									
+																	lam(Int)         0.1083608 2.85587350																									
+																	lam(TimeSinceB) -0.5973621 0.05113082																									
+																	lam(TimeSinceT) -0.2718883 0.29313296																									
