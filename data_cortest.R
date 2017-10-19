@@ -181,7 +181,7 @@ cor.test(test$Ldepth, test$Ccover) #r is 0.305 #high-ISH but still under 0.5
 #cor.test(test$Ldepth, test$Ldepth) #r is 
 cor.test(test$Ldepth, test$TreeHt) #r is 0.000
 cor.test(test$Ldepth, test$Age)    #r is -0.267
-cor.test(test$Ldepth, test$Nburns) #r is -0.484 # high but just under 0.5 - correct proxy
+cor.test(test$Ldepth, test$Nburns) #r is -0.484 # high but just under 0.5 - right proxy?
 cor.test(test$Ldepth, test$Nthins)  #r is -0.192
 cor.test(test$Ldepth, test$TimeSinceB) #r is 0.366 # high-ISH but under 0.5 -makes sense
 cor.test(test$Ldepth, test$TimeSinceT) #r is 0.152
@@ -190,7 +190,7 @@ cor.test(test$Ldepth, test$HWdens_50) #r is -0.151
 cor.test(test$Ldepth, test$HWdens_100) #r is 0.025
 cor.test(test$Ldepth, test$FG_herb)   #r is -0.509 # AHA! indirect rel bw fire and forbes/grasses?!
 cor.test(test$Ldepth, test$FG_shrub)  #r is -0.267 #maybe above?
-cor.test(test$Ldepth, test$NHW_saplings)  #r is 0.260 #
+cor.test(test$Ldepth, test$NHW_saplings)  #r is 0.260
 cor.test(test$Ldepth, test$NP_over_20cm)  #r is 0.174
 cor.test(test$Ldepth, test$Rel_HW2P_canopy) #r is 0.183
 cor.test(test$Ldepth, test$Rel_HW2P_shrubcover) #r is -0.131
@@ -205,7 +205,7 @@ cor.test(test$TreeHt, test$Nsnags) #r is -0.051
 cor.test(test$TreeHt, test$Ccover) #r is 0.139
 cor.test(test$TreeHt, test$Ldepth) #r is 0.000
 #cor.test(test$TreeHt, test$TreeHt) #r is 
-cor.test(test$TreeHt, test$Age)    #r is 0.594 # over 0.5 - highly correlated - ACKNOWLEDGE
+cor.test(test$TreeHt, test$Age)    #r is 0.594     # over 0.5 - high - ACKNOWLEDGE
 cor.test(test$TreeHt, test$Nburns) #r is 0.266
 cor.test(test$TreeHt, test$Nthins)  #r is 0.438 # close to 0.5 - ACKNOWLEDGE THIS AGING corr
 cor.test(test$TreeHt, test$TimeSinceB) #r is -0.082
@@ -280,7 +280,7 @@ cor.test(test$Nthins, test$Nsnags) #r is -0.296
 cor.test(test$Nthins, test$Ccover) #r is -0.467 #close - acknowledge this man. link
 cor.test(test$Nthins, test$Ldepth) #r is -0.192
 cor.test(test$Nthins, test$TreeHt) #r is 0.438 #close - acknowledge this timing link
-cor.test(test$Nthins, test$Age)    #r is 0.702
+cor.test(test$Nthins, test$Age)    #r is 0.702  #ACKNOWLEDGE - unavoidable
 cor.test(test$Nthins, test$Nburns) #r is 0.494  #close - acknowledge
 #cor.test(test$Nthins, test$Nthins)  #r is 
 cor.test(test$Nthins, test$TimeSinceB) #r is -0.387  #close-ish
@@ -295,7 +295,6 @@ cor.test(test$Nthins, test$NP_over_20cm)  #r is -0.374  #high-ISH
 cor.test(test$Nthins, test$Rel_HW2P_canopy) #r is -0.202
 cor.test(test$Nthins, test$Rel_HW2P_shrubcover) #r is -0.063
 
-# ---------- pause and recover! this was a lot! ---------- #
 
 #TimeSinceB by each
 #cor.test(test$TimeSinceB, test$Treatment) #non-numeric
@@ -400,7 +399,7 @@ cor.test(test$HWdens_50, test$Rel_HW2P_shrubcover) #r is 0.416  #high
 #HWdens_100 by each
 #cor.test(test$HWdens_100, test$Treatment) #non-numeric
 cor.test(test$HWdens_100, test$Herbicide) # r is -0.135
-#cor.test(test$HWdens_100, test$LastB) # r is 
+cor.test(test$HWdens_100, test$LastB) # r is -0.029
 cor.test(test$HWdens_100, test$LastT) #r is 0.037
 cor.test(test$HWdens_100, test$BA)     #r is -0.272
 cor.test(test$HWdens_100, test$Nsnags) #r is -0.150
@@ -490,12 +489,12 @@ cor.test(test$NHW_saplings, test$TimeSinceB) #r is 0.025
 cor.test(test$NHW_saplings, test$TimeSinceT) #r is -0.031
 cor.test(test$NHW_saplings, test$HWdens_10)  #r is 0.189
 cor.test(test$NHW_saplings, test$HWdens_50) #r is 0.293
-cor.test(test$NHW_saplings, test$HWdens_100) #r is 0.522  #high
+cor.test(test$NHW_saplings, test$HWdens_100) #r is 0.522   #high
 cor.test(test$NHW_saplings, test$FG_herb)   #r is -0.065
 cor.test(test$NHW_saplings, test$FG_shrub)  #r is -0.224
 #cor.test(test$NHW_saplings, test$NHW_saplings)  #r is 
 cor.test(test$NHW_saplings, test$NP_over_20cm)  #r is -0.187
-cor.test(test$NHW_saplings, test$Rel_HW2P_canopy) #r is 0.501  #high
+cor.test(test$NHW_saplings, test$Rel_HW2P_canopy) #r is 0.501   #high
 cor.test(test$NHW_saplings, test$Rel_HW2P_shrubcover) #r is 0.305
 
 
