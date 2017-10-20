@@ -20,7 +20,7 @@ obsCovs(ybch.abund)= scale (obsCovs(ybch.abund))
 #select particular site covariates to scale below
 #(note: NOT ALL - not treatment, herbicide, or years ones)
 sc <- siteCovs(ybch.abund)
-sc[,c(4:23)] <- scale(sc[, c(4:23)])
+sc[,c(5:26)] <- scale(sc[, c(5:26)])
 siteCovs(ybch.abund) <- sc
 
 #test for NB or Poisson - most should use Poisson
@@ -73,32 +73,39 @@ ms2.ybch
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-#only appropriate detection covariates (Jdate + Noise)
-null2.ybch <- pcount(~ Jdate + Noise ~1, ybch.abund, mixture="P", K=15)
-global2.ybch <- pcount(~ Jdate + Noise ~ Treatment + BA + Nsnags
-                       + Ccover + Ldepth + TreeHt + Age + TimeSinceB + TimeSinceT + Herbicide
-                       + HWdens_10 + HWdens_50 + HWdens_100 + FG_herb + FG_shrub + NHW_saplings
-                       + NP_over_20cm + Rel_HW2P_canopy + Rel_HW2P_shrubcover
-                       , ybch.abund, mixture="P", K=15)
-local2.ybch <- pcount(~ Jdate + Noise ~ BA + Ccover + TreeHt + Ldepth, ybch.abund, mixture="P", K=15)
-lh2.ybch <- pcount(~ Jdate + Noise ~ BA + Ccover + TimeSinceT + FG_herb, ybch.abund, mixture="P", K=15)
-#landscape.ybch <- pcount(~ Jdate + Noise ~ cov 5 + 6, ybch.abund, mixture="P", K=15)
-treatment2.ybch <- pcount(~ Jdate + Noise ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide, ybch.abund, mixture="P", K=15)
+# appropriate detection covariates (Jdate + Noise)
+null2.ybch <- pcount(~ Jdate + Noise ~1, ybch.abund, mixture="P", K=20)
+global2.ybch <- pcount(~ Jdate + Noise ~ Treatment + Herbicide + BA + Nsnags +Ccover
+                       + Ldepth + TreeHt + Age + Nburns + Nthins + TimeSinceB + TimeSinceT
+                       + HWdens_50 + FG_herb + FG_shrub + NHW_saplings + NP_over_20cm
+                       + Rel_HW2P_canopy + LCR
+                       , ybch.abund, mixture="P", K=20)
+local2.ybch <- pcount(~ Jdate + Noise ~ BA + Ccover + TreeHt + Ldepth, ybch.abund, mixture="P", K=20)
+lh2.ybch <- pcount(~ Jdate + Noise ~ BA + Ccover + FG_herb + NHW_saplings, ybch.abund, mixture="P", K=20)
+#landscape.ybch <- pcount(~ Jdate + Noise ~ cov 5 + 6, ybch.abund, mixture="P", K=20)
+treatment2.ybch <- pcount(~ Jdate + Noise ~ Treatment + Nthins, ybch.abund, mixture ="P", K=20)
+management2.ybch <- pcount(~ Jdate + Noise ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide, ybch.abund, mixture="P", K=15)
 disturbance2.ybch <- pcount(~ Jdate + Noise ~ TimeSinceB + TimeSinceT,
-                            ybch.abund, mixture = "P", K=15)
+                            ybch.abund, mixture = "P", K=20)
 
-fms3 <- fitList(null2.ybch, global2.ybch, local2.ybch, lh2.ybch, treatment2.ybch, disturbance2.ybch)
+fms3 <- fitList(null2.ybch, global2.ybch, local2.ybch, lh2.ybch, treatment2.ybch,
+                management2.ybch, disturbance2.ybch)
 ms3.ybch <- modSel(fms3)
 ms3.ybch
 #ms3.ybch@Full
-local2.ybch
 lh2.ybch
+local2.ybch
 disturbance2.ybch
 
 # 10/11/2017 update: after adding in the 9 new variables,
 #  and putting ONE variable in lh model, all of a sudden,
 # life history is best (-BA, -CCover, -TimeSinceT, +FG_herb,)
 # local is next best, but at 3.30
+
+# 10/20/2017 update: after adding 2 variables and replacing/consolidating some,
+#  and adding NHW_saplings (midstory) variable to LH,
+# lh2 still best, but local also fits above d2 cutoff!
+
 
 #see help for package "xlsReadWrite" in old notes, if need be#
 write.table(ms3.ybch@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/ybch_top_models_ms3.xls",sep="\t")

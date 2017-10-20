@@ -1,5 +1,5 @@
 #PRWA (foliage gleaner, insects, shrub/tree nester 1-45', open wood warbler, ESS/second growth brushy/bushy habitat)
-# covariates: age, time since B, grasses, understory growth, shrub density, 
+# covariates: grasses, understory growth, midstory shrub density, 
 library("unmarked")
 setwd("C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds")
 
@@ -20,7 +20,7 @@ obsCovs(prwa.abund)= scale (obsCovs(prwa.abund))
 #select particular site covariates to scale below
 #(note: NOT ALL - not treatment, herbicide, or years ones)
 sc <- siteCovs(prwa.abund)
-sc[,c(4:23)] <- scale(sc[, c(4:23)])
+sc[,c(5:26)] <- scale(sc[, c(5:26)])
 siteCovs(prwa.abund) <- sc
 
 #test for NB or Poisson - most should use Poisson
@@ -72,49 +72,56 @@ ms2.prwa
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-#more appropriate detection covariates (JDate first)
-null2.prwa <- pcount(~ Jdate + Noise ~1, prwa.abund, mixture="NB", K=15)
-global2.prwa <- pcount(~ Jdate + Noise ~ Treatment + BA + Nsnags
-                       + Ccover + Ldepth + TreeHt + Age + TimeSinceB + TimeSinceT + Herbicide
-                       + HWdens_10 + HWdens_50 + HWdens_100 + FG_herb + FG_shrub + NHW_saplings
-                       + NP_over_20cm + Rel_HW2P_canopy + Rel_HW2P_shrubcover
-                       , prwa.abund, mixture="NB", K=15)
-local2.prwa <- pcount(~ Jdate + Noise ~ BA + Ccover + TreeHt + Ldepth, prwa.abund, mixture="NB", K=15)
-lh2.prwa <- pcount(~ Jdate + Noise ~ Age + TimeSinceB + BA + FG_herb + HWdens_10 + HWdens_50, prwa.abund, mixture="NB", K=15)
-#landscape.prwa <- pcount(~ Jdate + Noise ~ cov 5 + 6, prwa.abund, mixture="NB", K=15)
-treatment2.prwa <- pcount(~ Jdate + Noise ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide, prwa.abund, mixture="NB", K=15)
-disturbance2.prwa <- pcount(~ Jdate + Noise ~ TimeSinceB + TimeSinceT, prwa.abund, mixture="NB", K=15)
+#more appropriate detection covariates (JDate first)  #NB
+null2.prwa <- pcount(~ Jdate ~1, prwa.abund, mixture="NB", K=20)
+global2.prwa <- pcount(~ Jdate ~ Treatment + Herbicide + BA + Nsnags +Ccover
+                       + Ldepth + TreeHt + Age + Nburns + Nthins + TimeSinceB + TimeSinceT
+                       + HWdens_50 + FG_herb + FG_shrub + NHW_saplings + NP_over_20cm
+                       + Rel_HW2P_canopy + LCR
+                       , prwa.abund, mixture="NB", K=20)
+local2.prwa <- pcount(~ Jdate ~ BA + Ccover + TreeHt + Ldepth, prwa.abund, mixture="NB", K=20)
+lh2.prwa <- pcount(~ Jdate ~ Age + TimeSinceB + FG_herb + HWdens_50 + NHW_saplings, prwa.abund, mixture="NB", K=20)
+#landscape.prwa <- pcount(~ Jdate ~ cov 5 + 6, prwa.abund, mixture="NB", K=20)
+treatment2.prwa <- pcount(~ Jdate ~ Treatment + Nthins, prwa.abund, mixture ="NB", K=20)
+management2.prwa <- pcount(~ Jdate ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide, prwa.abund, mixture="NB", K=20)
+disturbance2.prwa <- pcount(~ Jdate ~ TimeSinceB + TimeSinceT, prwa.abund, mixture="NB", K=20)
 
-fms3 <- fitList(null2.prwa, global2.prwa, local2.prwa, lh2.prwa, treatment2.prwa, disturbance2.prwa)
-ms3.prwa <- modSel(fms3)
+fms3 <- fitList(null2.prwa, local2.prwa, lh2.prwa, treatment2.prwa, management2.prwa, disturbance2.prwa)
+ms3.prwa <- modSel(fms3) #note this does not include global
 ms3.prwa
 #ms3.prwa@Full
 lh2.prwa
+null.prwa
 
-#ms3 summary:(with Jdate only): null was best, life history second best but @ 2.87
-## ms3 update 10/11/2017 (added in 9 new variables to global & FG_herb to lh):
-# now, life history (-Age, +TimeSinceB, -BA, +FG_herb, +HWdens_10, +HWdens_50) is best,
-# local is next best but at 3.3!
+## ms3 update 10/20/2017 (added new variables to global & FG_herb + midstory to lh):
+# now, life history (-Age, +TimeSinceB, +FG_herb, +HWdens_50, -NHW_saplings) is best,
+# dispersion is 0.173, SE 0.989, z 0.175, and P > 0.861
+ # null second best at 0.53
 
 #just as good detection covariates (global instead! from third best model)
-null3.prwa <- pcount(~ Jdate + Wind + Sky + Noise ~1, prwa.abund, mixture="NB", K=15)
-global3.prwa <- pcount(~ Jdate + Wind + Sky + Noise ~ Treatment + BA + Nsnags
-                       + Ccover + Ldepth + TreeHt + Age + TimeSinceB + TimeSinceT + Herbicide
-                       + HWdens_10 + HWdens_50 + HWdens_100 + FG_herb + FG_shrub + NHW_saplings
-                       + NP_over_20cm + Rel_HW2P_canopy + Rel_HW2P_shrubcover
-                       , prwa.abund, mixture="NB", K=15)
-local3.prwa <- pcount(~ Jdate + Wind + Sky + Noise ~ BA + Ccover + TreeHt + Ldepth, prwa.abund, mixture="NB", K=15)
-lh3.prwa <- pcount(~ Jdate + Wind + Sky + Noise ~ Age + TimeSinceB + BA + FG_herb + HWdens_10 + HWdens_50, prwa.abund, mixture="NB", K=15)
-#landscape3.prwa <- pcount(~ Jdate + Wind + Sky + Noise ~ cov 5 + 6, prwa.abund, mixture="NB", K=15)
-treatment3.prwa <- pcount(~ Jdate + Wind + Sky + Noise ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide, prwa.abund, mixture="NB", K=15)
+null3.prwa <- pcount(~ Jdate + Wind + Sky + Noise ~1, prwa.abund, mixture="NB", K=20)
+global3.prwa <- pcount(~ Jdate + Wind + Sky + Noise ~ Treatment + Herbicide + BA + Nsnags +Ccover
+                       + Ldepth + TreeHt + Age + Nburns + Nthins + TimeSinceB + TimeSinceT
+                       + HWdens_50 + FG_herb + FG_shrub + NHW_saplings + NP_over_20cm
+                       + Rel_HW2P_canopy + LCR
+                       , prwa.abund, mixture="NB", K=20)
+local3.prwa <- pcount(~ Jdate + Wind + Sky + Noise ~ BA + Ccover + TreeHt + Ldepth, prwa.abund, mixture="NB", K=20)
+lh3.prwa <- pcount(~ Jdate + Wind + Sky + Noise ~ Age + TimeSinceB + FG_herb + HWdens_50 + NHW_saplings, prwa.abund, mixture="NB", K=20)
+#landscape3.prwa <- pcount(~ Jdate + Wind + Sky + Noise ~ cov 5 + 6, prwa.abund, mixture="NB", K=20)
+treatment3.prwa <- pcount(~ Jdate + Wind + Sky + Noise ~ Treatment + Nthins, prwa.abund, mixture ="NB", K=20)
+management3.prwa <- pcount(~ Jdate + Wind + Sky + Noise ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide, prwa.abund, mixture="NB", K=20)
 disturbance3.prwa <- pcount(~ Jdate + Wind + Sky + Noise ~ TimeSinceB + TimeSinceT, 
-                            prwa.abund, mixture="NB", K=15)
+                            prwa.abund, mixture="NB", K=20)
 
-fms4 <- fitList(null3.prwa, local3.prwa, lh3.prwa, treatment3.prwa, disturbance3.prwa) #had to take out global
-ms4.prwa <- modSel(fms4)
+fms4 <- fitList(null3.prwa, local3.prwa, lh3.prwa, treatment3.prwa, management3.prwa, disturbance3.prwa) #had to take out global
+ms4.prwa <- modSel(fms4) #no global
 ms4.prwa
 
-#ms4: null best, life history second best @ 0.73, but this excluded global.
+#ms4: null best, life history second best @ 0.96, but this excluded global.
+lh3.prwa
+# (-Age, +TimeSinceB, +FG_herb, +HWdens_50, -NHW_saplings)
+#dispersion: 0.172 1.05 0.164    0.87
 
 #see help for package "xlsReadWrite" in old notes, if need be#
-#write.table(ms1.prwa@Full, file="C:/Users/path.type",sep="\t")
+write.table(ms3.prwa@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/prwa_top_models_ms3.xls",sep="\t")
+write.table(ms4.prwa@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/prwa_top_models_ms4.xls",sep="\t")

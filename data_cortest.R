@@ -9,7 +9,6 @@ var(test[2:5])
 mean(test$y.3)
 
 ## DON'T SCALE YET ##
-
 #scale all observation covariates (covs of detection)
 obsCovs(test)= scale (obsCovs(test))
 #siteCovs(ybch.abund)= scale (siteCovs(ybch.abund))
@@ -43,6 +42,7 @@ cor.test(test$Herbicide, test$NHW_saplings)  #r is -0.205
 cor.test(test$Herbicide, test$NP_over_20cm)  #r is -0.192
 cor.test(test$Herbicide, test$Rel_HW2P_canopy) #r is -0.390   #highest but still not 0.5 #cool
 cor.test(test$Herbicide, test$Rel_HW2P_shrubcover) #r is -0.118
+cor.test(test$Herbicide, test$LCR) #r is 0.006
 
 #LastBurn by each
 #cor.test(test$LastB, test$Treatment) #non-numeric
@@ -68,6 +68,7 @@ cor.test(test$LastB, test$NHW_saplings)  #r is -0.120
 cor.test(test$LastB, test$NP_over_20cm)  #r is -0.067
 cor.test(test$LastB, test$Rel_HW2P_canopy) #r is -0.232
 cor.test(test$LastB, test$Rel_HW2P_shrubcover) #r is -0.106
+cor.test(test$LastB, test$LCR) #r is 0.312  #kinda
 
 #LastThin by each
 #cor.test(test$LastT, test$Treatment) #non-numeric
@@ -93,6 +94,7 @@ cor.test(test$LastT, test$NHW_saplings)  #r is -0.114
 cor.test(test$LastT, test$NP_over_20cm)  #r is 0.104
 cor.test(test$LastT, test$Rel_HW2P_canopy) #r is 0.040
 cor.test(test$LastT, test$Rel_HW2P_shrubcover) #r is -0.067
+cor.test(test$LastT, test$LCR) #r is 0.053
 
 #BA by each
 #cor.test(test$BA, test$Treatment) #non-numeric
@@ -118,6 +120,7 @@ cor.test(test$BA, test$NHW_saplings)  #r is -0.035
 cor.test(test$BA, test$NP_over_20cm)  #r is 0.608 #high - over 0.5 ! makes sense !
 cor.test(test$BA, test$Rel_HW2P_canopy) #r is 0.213
 cor.test(test$BA, test$Rel_HW2P_shrubcover) #r is -0.070
+cor.test(test$BA, test$LCR) #r is 0.142
 
 #Nsnags by each
 #cor.test(test$Nsnags, test$Treatment) #non-numeric
@@ -143,7 +146,7 @@ cor.test(test$Nsnags, test$NHW_saplings)  #r is -0.171
 cor.test(test$Nsnags, test$NP_over_20cm)  #r is 0.184
 cor.test(test$Nsnags, test$Rel_HW2P_canopy) #r is -0.021
 cor.test(test$Nsnags, test$Rel_HW2P_shrubcover) #r is -0.158
-
+cor.test(test$Nsnags, test$LCR) #r is -0.091
 
 #Ccover by each
 #cor.test(test$Ccover, test$Treatment) #non-numeric
@@ -169,6 +172,7 @@ cor.test(test$Ccover, test$NHW_saplings)  #r is 0.056
 cor.test(test$Ccover, test$NP_over_20cm)  #r is 0.508 # it's 0.5 - acknowledge but makes sense
 cor.test(test$Ccover, test$Rel_HW2P_canopy) #r is 0.258 # as should be
 cor.test(test$Ccover, test$Rel_HW2P_shrubcover) #r is -0.089
+cor.test(test$Ccover, test$LCR) #r is -0.041  #haha... so weird that not correlated...
 
 #Ldepth by each
 #cor.test(test$Ldepth, test$Treatment) #non-numeric
@@ -194,6 +198,7 @@ cor.test(test$Ldepth, test$NHW_saplings)  #r is 0.260
 cor.test(test$Ldepth, test$NP_over_20cm)  #r is 0.174
 cor.test(test$Ldepth, test$Rel_HW2P_canopy) #r is 0.183
 cor.test(test$Ldepth, test$Rel_HW2P_shrubcover) #r is -0.131
+cor.test(test$Ldepth, test$LCR) #r is -0.207
 
 #TreeHt by each
 #cor.test(test$TreeHt, test$Treatment) #non-numeric
@@ -219,6 +224,7 @@ cor.test(test$TreeHt, test$NHW_saplings)  #r is 0.215
 cor.test(test$TreeHt, test$NP_over_20cm)  #r is -0.187
 cor.test(test$TreeHt, test$Rel_HW2P_canopy) #r is 0.252
 cor.test(test$TreeHt, test$Rel_HW2P_shrubcover) #r is 0.092
+cor.test(test$TreeHt, test$LCR) #r is -0.630  #YES - CORRELATED - ACKNOWLEDGE
 
 #Age by each
 #cor.test(test$Age, test$Treatment) #non-numeric
@@ -244,6 +250,7 @@ cor.test(test$Age, test$NHW_saplings)  #r is 0.164
 cor.test(test$Age, test$NP_over_20cm)  #r is -0.487 # high - makes sense though - redundant proxy?
 cor.test(test$Age, test$Rel_HW2P_canopy) #r is -0.020
 cor.test(test$Age, test$Rel_HW2P_shrubcover) #r is -0.101
+cor.test(test$Age, test$LCR) #r is -0.383  #high-ISH
 
 #Nburns by each
 #cor.test(test$Nburns, test$Treatment) #non-numeric
@@ -269,6 +276,7 @@ cor.test(test$Nburns, test$NHW_saplings)  #r is -0.168
 cor.test(test$Nburns, test$NP_over_20cm)  #r is -0.332
 cor.test(test$Nburns, test$Rel_HW2P_canopy) #r is -0.402  #high-ish, close to 0.5
 cor.test(test$Nburns, test$Rel_HW2P_shrubcover) #r is 0.060
+cor.test(test$Nburns, test$LCR) #r is -0.106
 
 #Nthins by each
 #cor.test(test$Nthins, test$Treatment) #non-numeric
@@ -294,7 +302,7 @@ cor.test(test$Nthins, test$NHW_saplings)  #r is 0.080
 cor.test(test$Nthins, test$NP_over_20cm)  #r is -0.374  #high-ISH
 cor.test(test$Nthins, test$Rel_HW2P_canopy) #r is -0.202
 cor.test(test$Nthins, test$Rel_HW2P_shrubcover) #r is -0.063
-
+cor.test(test$Nthins, test$LCR) #r is -0.359 
 
 #TimeSinceB by each
 #cor.test(test$TimeSinceB, test$Treatment) #non-numeric
@@ -320,6 +328,7 @@ cor.test(test$TimeSinceB, test$NHW_saplings)  #r is 0.025
 cor.test(test$TimeSinceB, test$NP_over_20cm)  #r is 0.317  #high-ISH
 cor.test(test$TimeSinceB, test$Rel_HW2P_canopy) #r is 0.419   #high-ISH 
 cor.test(test$TimeSinceB, test$Rel_HW2P_shrubcover) #r is -0.010
+cor.test(test$TimeSinceB, test$LCR) #r is 0.103
   
 #TimeSinceT by each
 #cor.test(test$TimeSinceT, test$Treatment) #non-numeric
@@ -345,6 +354,7 @@ cor.test(test$TimeSinceT, test$NHW_saplings)  #r is -0.031
 cor.test(test$TimeSinceT, test$NP_over_20cm)  #r is -0.029
 cor.test(test$TimeSinceT, test$Rel_HW2P_canopy) #r is 0.164
 cor.test(test$TimeSinceT, test$Rel_HW2P_shrubcover) #r is 0.041
+cor.test(test$TimeSinceT, test$LCR) #r is 0.137
 
 #HWdens_10 by each
 #cor.test(test$HWdens_10, test$Treatment) #non-numeric
@@ -370,6 +380,7 @@ cor.test(test$HWdens_10, test$NHW_saplings)  #r is 0.189
 cor.test(test$HWdens_10, test$NP_over_20cm)  #r is -0.278
 cor.test(test$HWdens_10, test$Rel_HW2P_canopy) #r is 0.046
 cor.test(test$HWdens_10, test$Rel_HW2P_shrubcover) #r is 0.327  #high-ISH; good! should be
+cor.test(test$HWdens_10, test$LCR) #r is -0.125
 
 #HWdens_50 by each
 #cor.test(test$HWdens_50, test$Treatment) #non-numeric
@@ -395,6 +406,34 @@ cor.test(test$HWdens_50, test$NHW_saplings)  #r is 0.293  #high-ISH
 cor.test(test$HWdens_50, test$NP_over_20cm)  #r is 0.285
 cor.test(test$HWdens_50, test$Rel_HW2P_canopy) #r is -0.003
 cor.test(test$HWdens_50, test$Rel_HW2P_shrubcover) #r is 0.416  #high
+cor.test(test$HWdens_50, test$LCR) #r is -0.274
+
+#inserted test of combined 10_50 layer:
+#basically, this would replace using just the 50cm layer alone, but is it necessary?
+cor.test(test$combo_1050, test$Herbicide) # r is -0.097
+cor.test(test$combo_1050, test$LastB) # r is -0.089
+cor.test(test$combo_1050, test$LastT) #r is -0.025
+cor.test(test$combo_1050, test$BA) #r is -0.470  **  #high
+cor.test(test$combo_1050, test$Nsnags) #r is -0.232
+cor.test(test$combo_1050, test$Ccover) #r is -0.401  #high
+cor.test(test$combo_1050, test$Ldepth) #r is -0.139
+cor.test(test$combo_1050, test$TreeHt) #r is 0.195
+cor.test(test$combo_1050, test$Age) #r is 0.345  #ish
+cor.test(test$combo_1050, test$Nburns) #r is 0.440  #high
+cor.test(test$combo_1050, test$Nthins) #r is 0.358  #high
+cor.test(test$combo_1050, test$TimeSinceB) #r is -0.362 #high
+cor.test(test$combo_1050, test$TimeSinceT) #r is -0.038
+cor.test(test$combo_1050, test$HWdens_10) #r is 0.92  #TOTALLY but wouldnt include
+cor.test(test$combo_1050, test$HWdens_50) #r is 0.91  #TOTALLY but wouldnt include
+cor.test(test$combo_1050, test$HWdens_100) #r is 0.614  #yes, but wouldn't include
+cor.test(test$combo_1050, test$FG_herb) #r is 0.4 but need to differentiate
+cor.test(test$combo_1050, test$FG_shrub) #r is -0.292
+cor.test(test$combo_1050, test$NHW_saplings) #r is 0.260
+cor.test(test$combo_1050, test$NP_over_20cm) #r is -0.308
+cor.test(test$combo_1050, test$Rel_HW2P_canopy) #r is 0.022
+cor.test(test$combo_1050, test$Rel_HW2P_shrubcover) #r is 0.402 # high
+cor.test(test$combo_1050, test$LCR) #r is -0.215
+
 
 #HWdens_100 by each
 #cor.test(test$HWdens_100, test$Treatment) #non-numeric
@@ -420,7 +459,7 @@ cor.test(test$HWdens_100, test$NHW_saplings)  #r is 0.523
 cor.test(test$HWdens_100, test$NP_over_20cm)  #r is -0.218
 cor.test(test$HWdens_100, test$Rel_HW2P_canopy) #r is 0.088
 cor.test(test$HWdens_100, test$Rel_HW2P_shrubcover) #r is 0.493  #high - close to 0.5
-
+cor.test(test$HWdens_100, test$LCR) #r is -0.360  #odd?
 
 #FG_herb by each
 #cor.test(test$FG_herb, test$Treatment) #non-numeric
@@ -446,6 +485,7 @@ cor.test(test$FG_herb, test$NHW_saplings)  #r is -0.065
 cor.test(test$FG_herb, test$NP_over_20cm)  #r is -0.206
 cor.test(test$FG_herb, test$Rel_HW2P_canopy) #r is -0.268
 cor.test(test$FG_herb, test$Rel_HW2P_shrubcover) #r is 0.128
+cor.test(test$FG_herb, test$LCR) #r is 0.079
 
 #FG_shrub by each
 #cor.test(test$FG_shrub, test$Treatment) #non-numeric
@@ -471,6 +511,7 @@ cor.test(test$FG_shrub, test$NHW_saplings)  #r is -0.224
 cor.test(test$FG_shrub, test$NP_over_20cm)  #r is 0.054
 cor.test(test$FG_shrub, test$Rel_HW2P_canopy) #r is -0.123
 cor.test(test$FG_shrub, test$Rel_HW2P_shrubcover) #r is -0.223
+cor.test(test$FG_shrub, test$LCR) #r is 0.254
 
 #NHW_saplings by each
 #cor.test(test$NHW_saplings, test$Treatment) #non-numeric
@@ -496,6 +537,34 @@ cor.test(test$NHW_saplings, test$FG_shrub)  #r is -0.224
 cor.test(test$NHW_saplings, test$NP_over_20cm)  #r is -0.187
 cor.test(test$NHW_saplings, test$Rel_HW2P_canopy) #r is 0.501   #high
 cor.test(test$NHW_saplings, test$Rel_HW2P_shrubcover) #r is 0.305
+cor.test(test$NHW_saplings, test$LCR) #r is -0.360 #ish
+
+#inserted test of HW_Shrub(2) layer:
+#basically, this would be a cover-based alternative to the count-based NHW_saplings layer
+cor.test(test$HW_shrub, test$Herbicide) # r is -0.366  #ish
+cor.test(test$HW_shrub, test$LastB) # r is -0.112
+cor.test(test$HW_shrub, test$LastT) #r is 0.131
+cor.test(test$HW_shrub, test$BA) #r is -0.145
+cor.test(test$HW_shrub, test$Nsnags) #r is -0.062
+cor.test(test$HW_shrub, test$Ccover) #r is -0.026
+cor.test(test$HW_shrub, test$Ldepth) #r is 0.003
+cor.test(test$HW_shrub, test$TreeHt) #r is 0.332  #ish
+cor.test(test$HW_shrub, test$Age) #r is 0.139
+cor.test(test$HW_shrub, test$Nburns) #r is -0.018
+cor.test(test$HW_shrub, test$Nthins) #r is -0.036
+cor.test(test$HW_shrub, test$TimeSinceB) #r is -0.044
+cor.test(test$HW_shrub, test$TimeSinceT) #r is -0.081
+cor.test(test$HW_shrub, test$HWdens_10) #r is 0.382  #ish but wouldnt use
+cor.test(test$HW_shrub, test$HWdens_50) #r is 0.563  #high
+cor.test(test$HW_shrub, test$HWdens_100) #r is 0.778  #highly - but wouldnt use
+cor.test(test$HW_shrub, test$HW_dens_1050)  #r is 0.511 #high
+cor.test(test$HW_shrub, test$FG_herb) #r is 0.212
+cor.test(test$HW_shrub, test$FG_shrub) #r is -0.167
+cor.test(test$HW_shrub, test$NHW_saplings) #r is 0.526 #wouldn't include
+cor.test(test$HW_shrub, test$NP_over_20cm) #r is -0.096
+cor.test(test$HW_shrub, test$Rel_HW2P_canopy) #r is 0.442 #high
+cor.test(test$HW_shrub, test$Rel_HW2P_shrubcover) #r is 0.477 #high but scrapped variable
+cor.test(test$HW_shrub, test$LCR) #r is -0.328  #ish
 
 
 #NP_over_20cm by each
@@ -522,6 +591,7 @@ cor.test(test$NP_over_20cm, test$NHW_saplings)  #r is -0.187
 #cor.test(test$NP_over_20cm, test$NP_over_20cm)  #r is 
 cor.test(test$NP_over_20cm, test$Rel_HW2P_canopy) #r is 0.027
 cor.test(test$NP_over_20cm, test$Rel_HW2P_shrubcover) #r is -0.213
+cor.test(test$NP_over_20cm, test$LCR) #r is -0.021
 
 
 #Rel_HW2P_canopy by each
@@ -548,6 +618,7 @@ cor.test(test$Rel_HW2P_canopy, test$NHW_saplings)  #r is 0.501  #high
 cor.test(test$Rel_HW2P_canopy, test$NP_over_20cm)  #r is 0.027
 #cor.test(test$Rel_HW2P_canopy, test$Rel_HW2P_canopy) #r is 
 cor.test(test$Rel_HW2P_canopy, test$Rel_HW2P_shrubcover) #r is 0.290
+cor.test(test$Rel_HW2P_canopy, test$LCR) #r is -0.120
 
 #Rel_HW2P_shrubcover by each
 #cor.test(test$Rel_HW2P_shrubcover, test$Treatment) #non-numeric
@@ -572,4 +643,31 @@ cor.test(test$Rel_HW2P_shrubcover, test$FG_shrub)  #r is -0.223
 cor.test(test$Rel_HW2P_shrubcover, test$NHW_saplings)  #r is 0.305
 cor.test(test$Rel_HW2P_shrubcover, test$NP_over_20cm)  #r is -0.213
 cor.test(test$Rel_HW2P_shrubcover, test$Rel_HW2P_canopy) #r is 0.290
-#cor.test(test$Rel_HW2P_shrubcover, test$Rel_HW2P_shrubcover) #r is 
+#cor.test(test$Rel_HW2P_shrubcover, test$Rel_HW2P_shrubcover) #r is
+cor.test(test$Rel_HW2P_shrubcover, test$LCR) #r is -0.097
+
+#LCR by each
+#cor.test(test$LCR, test$Treatment) #non-numeric
+cor.test(test$LCR, test$Herbicide) # r is 0.006
+cor.test(test$LCR, test$LastB) # r is 0.312
+cor.test(test$LCR, test$LastT) #r is 0.053
+cor.test(test$LCR, test$BA)     #r is 0.142
+cor.test(test$LCR, test$Nsnags) #r is -0.091
+cor.test(test$LCR, test$Ccover) #r is -0.041
+cor.test(test$LCR, test$Ldepth) #r is -0.207
+cor.test(test$LCR, test$TreeHt) #r is -0.630  #CORRELATED ! ACK!
+cor.test(test$LCR, test$Age)    #r is -0.383  #ish
+cor.test(test$LCR, test$Nburns) #r is -0.106
+cor.test(test$LCR, test$Nthins)  #r is -0.359  #ish
+cor.test(test$LCR, test$TimeSinceB) #r is 0.103
+cor.test(test$LCR, test$TimeSinceT) #r is 0.137
+cor.test(test$LCR, test$HWdens_10)  #r is -0.125
+cor.test(test$LCR, test$HWdens_50) #r is -0.274
+cor.test(test$LCR, test$HWdens_100) #r is -0.360  #ish
+cor.test(test$LCR, test$FG_herb)   #r is 0.079
+cor.test(test$LCR, test$FG_shrub)  #r is 0.254
+cor.test(test$LCR, test$NHW_saplings)  #r is -0.360  #ish
+cor.test(test$LCR, test$NP_over_20cm)  #r is -0.021
+cor.test(test$LCR, test$Rel_HW2P_canopy) #r is -0.120
+cor.test(test$LCR, test$Rel_HW2P_shrubcover) #r is -0.097
+#cor.test(test$LCR, test$LCR) #r is 
