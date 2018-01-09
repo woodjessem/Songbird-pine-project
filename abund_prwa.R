@@ -20,7 +20,7 @@ obsCovs(prwa.abund)= scale (obsCovs(prwa.abund))
 #select particular site covariates to scale below
 #(note: NOT ALL - not treatment, herbicide, or years ones)
 sc <- siteCovs(prwa.abund)
-sc[,c(5:26)] <- scale(sc[, c(5:26)])
+sc[,c(5:60)] <- scale(sc[, c(5:60)]) #from 26 to 60 now with landscape variables
 siteCovs(prwa.abund) <- sc
 
 #test for NB or Poisson - most should use Poisson
@@ -81,17 +81,30 @@ global2.prwa <- pcount(~ Jdate ~ Treatment + Herbicide + BA + Nsnags +Ccover
                        , prwa.abund, mixture="NB", K=20)
 local2.prwa <- pcount(~ Jdate ~ BA + Ccover + TreeHt + Ldepth, prwa.abund, mixture="NB", K=20)
 lh2.prwa <- pcount(~ Jdate ~ Age + TimeSinceB + FG_herb + HWdens_50 + NHW_saplings, prwa.abund, mixture="NB", K=20)
-#landscape.prwa <- pcount(~ Jdate ~ cov 5 + 6, prwa.abund, mixture="NB", K=20)
+landmetrics.prwa <- pcount (~ Jdate ~ Parea + ShapeIndex + PAratio + FracDimIndex + CoreAreaIndex, prwa.abund, mixture="NB",K=20)
+landscape500.prwa <- pcount(~ Jdate ~ Evergreen500m + Grass500m + HighDev500m + Schrubs500m, prwa.abund, mixture="NB", K=20)
+landscape1.prwa <- pcount(~ Jdate ~ Evergreen1km + Grass1km + HighDev1km + Schrubs1km, prwa.abund, mixture="NB", K=20)
+landscape5.prwa <- pcount(~ Jdate ~ Evergreen5km + Grass5km + HighDev5km + Schrubs5km, prwa.abund, mixture="NB", K=20)
+landscape30.prwa <- pcount(~ Jdate ~ Evergreen30km + Grass30km + HighDev30km + Schrubs30km, prwa.abund, mixture="NB", K=20)
 treatment2.prwa <- pcount(~ Jdate ~ Treatment + Nthins, prwa.abund, mixture ="NB", K=20)
 management2.prwa <- pcount(~ Jdate ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide, prwa.abund, mixture="NB", K=20)
 disturbance2.prwa <- pcount(~ Jdate ~ TimeSinceB + TimeSinceT, prwa.abund, mixture="NB", K=20)
 
-fms3 <- fitList(null2.prwa, local2.prwa, lh2.prwa, treatment2.prwa, management2.prwa, disturbance2.prwa)
+fms3 <- fitList(null2.prwa, local2.prwa, lh2.prwa, landmetrics.prwa, landscape500.prwa, landscape1.prwa, 
+                landscape5.prwa, landscape30.prwa, treatment2.prwa, management2.prwa, disturbance2.prwa)
 ms3.prwa <- modSel(fms3) #note this does not include global
 ms3.prwa
-#ms3.prwa@Full
+ms3.prwa@Full
+landscape5.prwa
+landscape1.prwa
+landscape500.prwa
 lh2.prwa
 null.prwa
+
+#12/04 update added landscape models and 3 now come before life history! exported see below.
+write.table(ms3.prwa@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/prwa_top_models_ms3_with_landscape.xls",sep="\t")
+#write.table(##, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/prwa_top_models_ms3_with_landscape.xls",sep="\t")
+
 
 ## ms3 update 10/20/2017 (added new variables to global & FG_herb + midstory to lh):
 # now, life history (-Age, +TimeSinceB, +FG_herb, +HWdens_50, -NHW_saplings) is best,
