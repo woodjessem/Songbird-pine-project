@@ -123,6 +123,47 @@ confint(landscape5.prwa, type="state",method="normal")
 write.table(ms3.prwa@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/prwa_top_models_ms3_with_landscape.xls",sep="\t")
 #write.table(##, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/prwa_top_models_ms3_with_landscape.xls",sep="\t")
 
+################### copied and pasted from parboot help
+prwa.abund<- csvToUMF("prwa_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+#data(linetran)
+#(dbreaksLine <- c(0, 5, 10, 15, 20))
+#lengths <- linetran$Length
+
+#ltUMF <- with(prwa.abund, {
+#  unmarkedFrameDS(y = cbind(dc1, dc2, dc3, dc4),
+#                  siteCovs = data.frame(Length, area, habitat), dist.breaks = dbreaksLine,
+#                  tlength = lengths*1000, survey = "line", unitsIn = "m")
+#})
+#################################################
+
+# Fit a model
+#(fm <- distsamp(~area ~habitat, ltUMF))
+
+# Function returning three fit-statistics.
+fitstats <- function(landscape5.prwa) {
+  observed <- getY(landscape5.prwa@data)    #abund.prwa inside () not recommended
+  expected <- fitted(landscape5.prwa)
+  resids <- residuals(landscape5.prwa)
+  sse <- sum(resids^2, na.rm=TRUE)
+  chisq <- sum((observed - expected)^2 / expected)
+  freeTuke <- sum((sqrt(observed) - sqrt(expected))^2)
+  out <- c(SSE=sse, Chisq=chisq, freemanTukey=freeTuke)
+  return(out)
+}
+pb <- parboot(landscape5.prwa, fitstats, nsim=25, report=1)
+plot(pb, main="")
+###########################
+
+library(AICcmodavg)
+library(VGAMdata)
+require(unmarked)
+obs<- Nmix.chisq(landscape5.prwa)
+print(obs, digits.vals = 3)
+obs.boot <- Nmix.gof.test(landscape5.prwa, nsim=100)
+obs.boot
+print(obs.boot, digits.vals = 3, digits.chisq= 3)
+
+Nmix.gof.test(landscape5.prwa, nsim = 5, plot.hist = TRUE, report = NULL)
 
 ## ms3 update 10/20/2017 (added new variables to global & FG_herb + midstory to lh):
 # now, life history (-Age, +TimeSinceB, +FG_herb, +HWdens_50, -NHW_saplings) is best,
