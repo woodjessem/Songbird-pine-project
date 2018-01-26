@@ -3,6 +3,9 @@ setwd("C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/US
 
 test <-read.csv("ybch_abund.csv")
 summary(test)
+SStable <- summary(test)
+?summary
+write.table(SStable, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/covariate_summary_stats.xls",sep="\t")
 str(test)
 var(test[2:5])
 #mean(test[2:4])
