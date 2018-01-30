@@ -186,6 +186,15 @@ confint(landscape5.prwa, type="state",method="normal")
 
 #write.table(ms.prwa@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/XXX_top_models_msX.xls",sep="\t")
 
+#quick test between some correlated
+testHigh.cawr <- pcount(~Jdate ~ HighDev30km, cawr.abund, mixture="P", K=10)
+testOpen.cawr <- pcount(~Jdate ~ OpenDev30km, cawr.abund, mixture="P", K=10)
+testSchrubs.cawr <- pcount(~Jdate ~ Schrubs30km, cawr.abund, mixture="P", K=10)
+fmsctest <- fitList(testHigh.cawr, testOpen.cawr, testSchrubs.cawr)
+msT.cawr <- modSel(fmsctest)
+msT.cawr
+
+
 ################### paste parboot stuff below when figured out ####
 prwa.abund<- csvToUMF("prwa_abund.csv", long = FALSE, type = "unmarkedFramePCount")
 

@@ -66,10 +66,10 @@ Nglobal.ybch <- pcount(~ 1
                        + HWdens_1050 + FG_herb + FG_shrub + NHW_saplings + NP_over_20cm
                       + Rel_HW2P_canopy + PISoils + FPSiteIndex + NSoilTypes
                        + Parea + ShapeIndex
-                      , prwa.abund, mixture="P", K=40)
+                      , ybch.abund, mixture="P", K=40)
 Nlocal.ybch <- pcount(~ 1
                       ~ Ccover + TreeHt + Ldepth
-                      , prwa.abund, mixture="P", K=40)
+                      , ybch.abund, mixture="P", K=40)
                           #can only include BA OR CCover
 Nlh.ybch <- pcount(~ 1
                     ~ XXXX
