@@ -34,21 +34,26 @@ msTEST.prwa
 ?pcount
 
 #detection covariates first
-det.null.ybch <- pcount(~1 ~1, ybch.abund, mixture="P", K=15)
-det.weather.ybch <- pcount(~ Wind + Sky ~1, ybch.abund, mixture="P", K=15)
-det.global.ybch <- pcount(~ Jdate + Wind + Sky + Noise ~1, ybch.abund, mixture="P", K=15)
-det.sound.ybch <- pcount(~ Noise + Wind ~1, ybch.abund, mixture="P", K=15)
-det.date.ybch <- pcount(~ Jdate ~1, ybch.abund, mixture="P", K=15)
-det.detect.ybch <- pcount(~ Jdate + Noise ~1, ybch.abund, mixture="P", K=15)
-det.notdate.ybch <-pcount(~ Wind + Sky + Noise ~1, ybch.abund, mixture="P", K=15)
+det.null.bhnu <- pcount(~1 ~1, bhnu.abund, mixture="P", K=15)
+det.weather.bhnu <- pcount(~ Wind + Sky ~1, bhnu.abund, mixture="P", K=15)
+det.global.bhnu <- pcount(~ Jdate + Wind + Sky + Noise +Time ~1, bhnu.abund, mixture="P", K=15)
+det.sound.bhnu <- pcount(~ Noise + Wind ~1, bhnu.abund, mixture="P", K=15)
+det.date.bhnu <- pcount(~ Jdate ~1, bhnu.abund, mixture="P", K=15)
+det.detect.bhnu <- pcount(~ Jdate + Noise + Time ~1, bhnu.abund, mixture="P", K=15)
+det.notdate.bhnu <-pcount(~ Wind + Sky + Noise ~1, bhnu.abund, mixture="P", K=15)
+det.time.bhnu <-pcount(~ Time ~1, bhnu.abund, mixture="P",K=15)
+det.timing.bhnu <-pcount(~ Time + Jdate ~1, bhnu.abund, mixture="P", K=15)
 
-fmsDC <- fitList(det.null.ybch, det.weather.ybch, det.global.ybch,
-               det.sound.ybch, det.date.ybch, det.detect.ybch, det.notdate.ybch)
+fmsDC <- fitList(det.null.bhnu, det.weather.bhnu, det.global.bhnu,
+                 det.sound.bhnu, det.date.bhnu, det.detect.bhnu, det.notdate.bhnu,
+                 det.time.bhnu, det.timing.bhnu)
 msDC.ybch <- modSel(fmsDC)
 msDC.ybch
 #msDC.ybch@Full
 #summary: 
 
+det.time.bhnu   #positive relationship w time and 
+confint(det.time.bhnu, type="state",method="normal")  #significant
 #write.table(msDC.ybch@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/XXX_top_models_msDC.xls",sep="\t")
 
 
@@ -64,10 +69,10 @@ Nglobal.ybch <- pcount(~ 1
                        + HW_dens_1050 + FG_herb + FG_shrub + NHW_saplings + NP_over_20cm
                       + Rel_HW2P_canopy + PISoils + FPSiteIndex + NSoilTypes
                        + Parea + ShapeIndex
-                      , prwa.abund, mixture="P", K=40)
+                      , ybch.abund, mixture="P", K=40)
 Nlocal.ybch <- pcount(~ 1
                       ~ Ccover + TreeHt + Ldepth
-                      , prwa.abund, mixture="P", K=40)
+                      , ybch.abund, mixture="P", K=40)
                           #can only include BA OR CCover
 Nlh.ybch <- pcount(~ 1
                     ~ XXXX

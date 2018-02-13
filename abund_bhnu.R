@@ -37,27 +37,30 @@ msTEST.bhnu
 #detection covariates first
 det.null.bhnu <- pcount(~1 ~1, bhnu.abund, mixture="P", K=15)
 det.weather.bhnu <- pcount(~ Wind + Sky ~1, bhnu.abund, mixture="P", K=15)
-det.global.bhnu <- pcount(~ Jdate + Wind + Sky + Noise ~1, bhnu.abund, mixture="P", K=15)
+det.global.bhnu <- pcount(~ Jdate + Wind + Sky + Noise +Time ~1, bhnu.abund, mixture="P", K=15)
 det.sound.bhnu <- pcount(~ Noise + Wind ~1, bhnu.abund, mixture="P", K=15)
 det.date.bhnu <- pcount(~ Jdate ~1, bhnu.abund, mixture="P", K=15)
-det.detect.bhnu <- pcount(~ Jdate + Noise ~1, bhnu.abund, mixture="P", K=15)
+det.detect.bhnu <- pcount(~ Jdate + Noise + Time ~1, bhnu.abund, mixture="P", K=15)
 det.notdate.bhnu <-pcount(~ Wind + Sky + Noise ~1, bhnu.abund, mixture="P", K=15)
+det.time.bhnu <-pcount(~ Time ~1, bhnu.abund, mixture="P",K=15)
 
 fmsDC <- fitList(det.null.bhnu, det.weather.bhnu, det.global.bhnu,
-               det.sound.bhnu, det.date.bhnu, det.detect.bhnu, det.notdate.bhnu)
+               det.sound.bhnu, det.date.bhnu, det.detect.bhnu, det.notdate.bhnu, det.time.bhnu)
 msDC.bhnu <- modSel(fmsDC)
 msDC.bhnu
 #msDC.bhnu@Full
-#summary: 1st null, 2nd date (Jdate),
-#    next closest is d2.49 and is weather (wind + sky)
+#summary: 1st is Time, 2nd null, 3rd detect (Jdate,Noise,Time), 4th date (Jdate)
+#    next closest is d2.87 and is weather (wind + sky)
 
-#write.table(msDC.bhnu@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/bhnu_top_models_msDC.xls",sep="\t")
+det.time.bhnu   #positive relationship w time and 
+confint(det.time.bhnu, type="state",method="normal")  #significant
+write.table(msDC.bhnu@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/bhnu_top_models_msDC.xls",sep="\t")
 
 
 ##site covariates next
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#null detection covariates (actually the best from above)
+#null detection covariates (actually 2nd best from above)
 Nnull.bhnu <- pcount(~1 ~1
                      ,bhnu.abund, mixture="P", K=40)
 Nglobal.bhnu <- pcount(~ 1
@@ -147,36 +150,36 @@ confint(Nlh.bhnu, type="state",method="normal")
 write.table(msN.bhnu@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/bhnu_top_models_msN.xls",sep="\t")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#other detection covariates (Jdate equally good model given msDC.bhnu)
-null.bhnu <- pcount(~ Jdate ~1, bhnu.abund, mixture="P", K=40)
-global.bhnu <- pcount(~ Jdate
+#other detection covariates (Time best model given msDC.bhnu)
+null.bhnu <- pcount(~ Time ~1, bhnu.abund, mixture="P", K=40)
+global.bhnu <- pcount(~ Time
                       ~ Treatment + Herbicide + BA + Nsnags +Ccover
                       + Ldepth + TreeHt + Age + TimeSinceB + TimeSinceT + Nthins
                       + NP_over_20cm + Rel_HW2P_canopy 
                       + PISoils + NSoilTypes
                       + Parea + ShapeIndex
                       , bhnu.abund, mixture="P", K=40)  #FPSiteIndex removed
-local.bhnu <- pcount(~ Jdate
+local.bhnu <- pcount(~ Time
                      ~ Ccover + TreeHt + Ldepth
                      , bhnu.abund, mixture="P", K=40) #can only include BA OR CCover
-lh.bhnu <- pcount(~ Jdate
+lh.bhnu <- pcount(~ Time
                   ~ Ccover + Age + Nsnags + TreeHt + NP_over_20cm + Rel_HW2P_canopy
                   , bhnu.abund, mixture="P", K=40)
-landmetrics.bhnu <- pcount (~ Jdate
+landmetrics.bhnu <- pcount (~ Time
                           ~ Parea + ShapeIndex
                         , bhnu.abund, mixture="P",K=40)
-landscape500.bhnu <- pcount(~ Jdate
+landscape500.bhnu <- pcount(~ Time
                         ~ Evergreen500m + HighDev500m + OpenDev500m
                             , bhnu.abund, mixture="P", K=40)
-landscape1.bhnu <- pcount(~ Jdate
+landscape1.bhnu <- pcount(~ Time
                        ~ Evergreen1km + OpenDev1km
                           , bhnu.abund, mixture="P", K=40)
-landscape5.bhnu <- pcount(~ Jdate
+landscape5.bhnu <- pcount(~ Time
                        ~ Evergreen5km + OpenDev5km
                           , bhnu.abund, mixture="P", K=40)
                   # - can't use Evergreen&Ag,
                   #+ can't use HighDev&OpenDev together
-landscape30.bhnu <- pcount(~ Jdate
+landscape30.bhnu <- pcount(~ Time
                        ~ Evergreen30km + OpenDev30km + Protected30km
                            , bhnu.abund, mixture="P", K=40)
                   #- can't use Protected&Ag together,
@@ -188,18 +191,18 @@ landscape30.bhnu <- pcount(~ Jdate
                   #+ can't use Ag&OpenDev together
                   #+ can't use Water&Protected together
                   #+ can't use Schrubs&HighDev together
-treatment.bhnu <- pcount(~ Jdate
+treatment.bhnu <- pcount(~ Time
                          ~ Treatment + Nthins
                          , bhnu.abund, mixture ="P", K=40)
-management.bhnu <- pcount(~ Jdate
+management.bhnu <- pcount(~ Time
                           ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide
                           , bhnu.abund, mixture="P", K=40)
-disturbance.bhnu <- pcount(~ Jdate
+disturbance.bhnu <- pcount(~ Time
                            ~ TimeSinceB + TimeSinceT
                            , bhnu.abund, mixture="P", K=40)
-siteprod.bhnu <- pcount(~ Jdate ~ PISoils + NSoilTypes
+siteprod.bhnu <- pcount(~ Time ~ PISoils + NSoilTypes
                         , bhnu.abund, mixture="P", K=40) #FPSiteIndex removed
-upstate.bhnu <- pcount(~ Jdate ~ Parea + HighDev5km + BA + TreeHt
+upstate.bhnu <- pcount(~ Time ~ Parea + HighDev5km + BA + TreeHt
                        , bhnu.abund, mixture="P", K=40)
 
 fms <- fitList(null.bhnu, global.bhnu, local.bhnu, lh.bhnu, landmetrics.bhnu,
@@ -210,33 +213,33 @@ ms.bhnu <- modSel(fms) #note this does not include some of site.prod
 ms.bhnu
 ms.bhnu@Full
 
-lh.bhnu   #best model and only one below 2.0, landscape@1km is 3.30
+lh.bhnu   #best model and only one below 2.0, landscape@1km is 3.33
 #dispersion & abundance summary:
-#Abundance:
-#                  Estimate    SE     z P(>|z|)
-#(Intercept)        2.027 0.872  2.33 0.02003
-#Ccover            -0.199 0.129 -1.54 0.12383
-#Age               -0.361 0.198 -1.82 0.06810
-#Nsnags             0.218 0.124  1.75 0.07927
-#TreeHt             0.262 0.191  1.37 0.16963
-#NP_over_20cm      -0.364 0.167 -2.18 0.02907
-#Rel_HW2P_canopy   -0.520 0.173 -3.01 0.00263
+#                Estimate    SE     z P(>|z|)
+#(Intercept)        2.029 0.853  2.38  0.0174
+#Ccover            -0.200 0.128 -1.56  0.1189
+#Age               -0.332 0.197 -1.68  0.0920
+#Nsnags             0.223 0.126  1.78  0.0752
+#TreeHt             0.239 0.190  1.26  0.2068
+#NP_over_20cm      -0.350 0.165 -2.12  0.0343
+#Rel_HW2P_canopy   -0.533 0.175 -3.05  0.0023
 
 #Detection:
-#              Estimate    SE     z  P(>|z|)
-#(Intercept)   -3.018 0.911 -3.31 0.000922
-#Jdate          0.127 0.126  1.01 0.310683
+#           Estimate    SE     z  P(>|z|)
+#(Intercept)   -3.035 0.892 -3.40 0.000665
+#Time           0.231 0.132  1.76 0.078431
 
 confint(lh.bhnu, type="state",method="normal")
 #summary of output:
-#                          0.025       0.975
-#lam(Int)              0.31882641  3.73508188     #sig
-#lam(Ccover)          -0.45274890  0.05448537
-#lam(Age)             -0.74895614  0.02683616
-#lam(Nsnags)          -0.02545298  0.46117826
-#lam(TreeHt)          -0.11186991  0.63573037
-#lam(NP_over_20cm)    -0.69118831 -0.03712743     #sig
-#lam(Rel_HW2P_canopy) -0.85907550 -0.18130244     #sig
+#                        0.025       0.975
+#lam(Int)              0.3566512  3.70135992     #sig
+#lam(Ccover)          -0.4513112  0.05138292
+#lam(Age)             -0.7184945  0.05423311
+#lam(Nsnags)          -0.0227385  0.46972797
+#lam(TreeHt)          -0.1322787  0.61105709
+#lam(NP_over_20cm)    -0.6738699 -0.02596831    #sig
+#lam(Rel_HW2P_canopy) -0.8762021 -0.19039375    #sig
+
 
 write.table(ms.bhnu@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/bhnu_top_models_ms.xls",sep="\t")
 

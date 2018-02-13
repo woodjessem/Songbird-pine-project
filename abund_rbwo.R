@@ -36,21 +36,25 @@ msTEST.rbwo
 #detection covariates first
 det.null.rbwo <- pcount(~1 ~1, rbwo.abund, mixture="P", K=15)
 det.weather.rbwo <- pcount(~ Wind + Sky ~1, rbwo.abund, mixture="P", K=15)
-det.global.rbwo <- pcount(~ Jdate + Wind + Sky + Noise ~1, rbwo.abund, mixture="P", K=15)
+det.global.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time ~1, rbwo.abund, mixture="P", K=15)
 det.sound.rbwo <- pcount(~ Noise + Wind ~1, rbwo.abund, mixture="P", K=15)
 det.date.rbwo <- pcount(~ Jdate ~1, rbwo.abund, mixture="P", K=15)
-det.detect.rbwo <- pcount(~ Jdate + Noise ~1, rbwo.abund, mixture="P", K=15)
+det.detect.rbwo <- pcount(~ Jdate + Noise + Time ~1, rbwo.abund, mixture="P", K=15)
 det.notdate.rbwo <-pcount(~ Wind + Sky + Noise ~1, rbwo.abund, mixture="P", K=15)
+det.time.rbwo <-pcount(~ Time ~1, rbwo.abund, mixture="P",K=15)
+det.timing.rbwo <-pcount(~ Time + Jdate ~1, rbwo.abund, mixture="P", K=15)
 
 fmsDC <- fitList(det.null.rbwo, det.weather.rbwo, det.global.rbwo,
-               det.sound.rbwo, det.date.rbwo, det.detect.rbwo, det.notdate.rbwo)
+               det.sound.rbwo, det.date.rbwo, det.detect.rbwo, det.notdate.rbwo,
+               det.time.rbwo, det.timing.rbwo)
 msDC.rbwo <- modSel(fmsDC)
 msDC.rbwo
 #msDC.rbwo@Full
-#summary: global best, weather one shortly after,
-#   but date, notdate, null all under d2.0 (in that order)
+#summary: global best, time one shortly after,
+#  and weather one after that, timing @ 1.36  - these all under d.20
+#   but date, notdate, null all over d2.0
 
-#write.table(msDC.rbwo@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/XXX_top_models_msDC.xls",sep="\t")
+write.table(msDC.rbwo@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/rbwo_top_models_msDC.xls",sep="\t")
 
 
 ##site covariates next
@@ -118,36 +122,36 @@ msN.ybch
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #more appropriate detection covariates (global DC)
-null.rbwo <- pcount(~ Jdate + Wind + Sky + Noise ~1
+null.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time ~1
                     , rbwo.abund, mixture="P", K=120)
-global.rbwo <- pcount(~ Jdate + Wind + Sky + Noise
+global.rbwo <- pcount(~ Jdate + Wind + Sky + Noise+ Time
                       ~ Treatment + Herbicide + BA + Nsnags +Ccover
                        + Ldepth + TreeHt + Age + TimeSinceB + TimeSinceT + Nthins
                        + HW_dens_1050 + FG_herb + FG_shrub + NHW_saplings + NP_over_20cm
                        + Rel_HW2P_canopy + PISoils + NSoilTypes
                        + Parea + ShapeIndex
                        , rbwo.abund, mixture="P", K=120) #FPSiteIndex removed
-local.rbwo <- pcount(~ Jdate + Wind + Sky + Noise
+local.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time 
                      ~ Ccover + TreeHt + Ldepth
                      , rbwo.abund, mixture="P", K=120) #can only include BA OR CCover
-lh.rbwo <- pcount(~ Jdate + Wind + Sky + Noise
+lh.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time 
                   ~ TreeHt + Ccover + NP_over_20cm + Rel_HW2P_canopy
                   , rbwo.abund, mixture="P", K=120) #consider adding Rel_HW2P_canopy
-landmetrics.rbwo <- pcount (~ Jdate + Wind + Sky + Noise
+landmetrics.rbwo <- pcount (~ Jdate + Wind + Sky + Noise + Time
                           ~ Parea + ShapeIndex
-                        , rbwo.abund, mixture="P",K=120)
-landscape500.rbwo <- pcount(~ Jdate + Wind + Sky + Noise
+                        , rbwo.abund, mixture="P", K=120)
+landscape500.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time
                         ~ Evergreen500m + HighDev500m + Schrubs500m + Ag500m 
                             , rbwo.abund, mixture="P", K=120)
-landscape1.rbwo <- pcount(~ Jdate + Wind + Sky + Noise
+landscape1.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time
                        ~ Evergreen1km + HighDev1km + Schrubs1km + Ag1km
                           , rbwo.abund, mixture="P", K=120)
-landscape5.rbwo <- pcount(~ Jdate + Wind + Sky + Noise
+landscape5.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time
                        ~ Evergreen5km + HighDev5km + Schrubs5km
                           , rbwo.abund, mixture="P", K=120)
                   # - can't use Evergreen&Ag,
                   #+ can't use HighDev&OpenDev together
-landscape30.rbwo <- pcount(~ Jdate + Wind + Sky + Noise
+landscape30.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time 
                        ~ Evergreen30km + HighDev30km +Protected30km
                            , rbwo.abund, mixture="P", K=120)
                   #- can't use Protected&Ag together,
@@ -159,18 +163,18 @@ landscape30.rbwo <- pcount(~ Jdate + Wind + Sky + Noise
                   #+ can't use Ag&OpenDev together
                   #+ can't use Water&Protected together
                   #+ can't use Schrubs&HighDev together
-treatment.rbwo <- pcount(~ Jdate + Wind + Sky + Noise
+treatment.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time 
                          ~ Treatment + Nthins
                          , rbwo.abund, mixture ="P", K=120)
-management.rbwo <- pcount(~ Jdate + Wind + Sky + Noise
+management.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time 
                           ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide
                           , rbwo.abund, mixture="P", K=120)
-disturbance.rbwo <- pcount(~ Jdate + Wind + Sky + Noise
+disturbance.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time 
                            ~ TimeSinceB + TimeSinceT
                            , rbwo.abund, mixture="P", K=120)
-siteprod.rbwo <- pcount(~ Jdate + Wind + Sky + Noise ~ PISoils + NSoilTypes
+siteprod.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time  ~ PISoils + NSoilTypes
                         , rbwo.abund, mixture="P", K=120) #FPSiteIndex removed
-upstate.rbwo <- pcount(~ Jdate + Wind + Sky + Noise ~ Parea + HighDev5km
+upstate.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time~ Parea + HighDev5km
                        , rbwo.abund, mixture="P", K=120) #5km was pretty arbitrary
 
 
@@ -181,27 +185,35 @@ fms <- fitList(null.rbwo, global.rbwo, local.rbwo, lh.rbwo, landmetrics.rbwo,
 ms.rbwo <- modSel(fms) #remember FPSiteIndex removed from global & siteprod
 ms.rbwo
 ms.rbwo@Full
-#summary: null model best, then landscape@1km next best
+#summary: null model best, then landscape@1km next best and upstate @ 1.8
 
 landscape1.rbwo  #second best model, below d2.0
 #dispersion & abundance summary:
 #Abundance:
-#             Estimate   SE     z P(>|z|)
-#(Intercept)     3.067 2.9002 1.057  0.2903
-#Evergreen1km    0.133 0.1383 0.962  0.3361
-#HighDev1km      0.100 0.0887 1.132  0.2575
-#Schrubs1km      0.164 0.1174 1.400  0.1614
-#Ag1km           0.340 0.1455 2.335  0.0195   #sig
+#            Estimate     SE     z P(>|z|)
+#(Intercept)     2.178 1.4449 1.507  0.1318
+#Evergreen1km    0.136 0.1453 0.938  0.3484
+#HighDev1km      0.101 0.0911 1.113  0.2658
+#Schrubs1km      0.180 0.1205 1.498  0.1342
+#Ag1km           0.366 0.1526 2.395  0.0166    #sig
 
+#Detection:
+#           Estimate    SE     z P(>|z|)
+#(Intercept)   -2.646 1.558 -1.70  0.0895
+#Jdate         -0.167 0.120 -1.39  0.1643
+#Wind          -0.251 0.126 -1.99  0.0469
+#Sky           -0.136 0.111 -1.23  0.2202
+#Noise         -0.160 0.122 -1.31  0.1890
+#Time           0.197 0.122  1.61  0.1066
 
 confint(landscape1.rbwo, type="state",method="normal")
 #summary of output:
-#                        0.025     0.975
-#lam(Int)          -2.61730747 8.7511544
-#lam(Evergreen1km) -0.13806352 0.4041726
-#lam(HighDev1km)   -0.07343763 0.2743585
-#lam(Schrubs1km)   -0.06565919 0.3943797
-#lam(Ag1km)         0.05460568 0.6248854   #only one that doesn't cross 0
+#                      0.025     0.975
+#lam(Int)          -0.65427686 5.0095987
+#lam(Evergreen1km) -0.14854063 0.4210489
+#lam(HighDev1km)   -0.07719148 0.2799564
+#lam(Schrubs1km)   -0.05568890 0.4165774
+#lam(Ag1km)         0.06637393 0.6646616  #only one that doesn't cross 0
 
 write.table(ms.rbwo@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/rbwo_top_models_ms.xls",sep="\t")
 
@@ -209,7 +221,7 @@ write.table(ms.rbwo@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/P
 prwa.abund<- csvToUMF("prwa_abund.csv", long = FALSE, type = "unmarkedFramePCount")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#next best detection covariates (could do this with "weather") haven't yet
+#next best detection covariates (could do this with "time") but haven't yet
 #modelname+2
 
 fms2 <- fitList(null2.prwa, global2.prwa, local2.prwa, lh2.prwa, landmetrics2.prwa, landscape500_2.prwa, landscape1_2.prwa, 
