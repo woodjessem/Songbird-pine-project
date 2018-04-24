@@ -245,6 +245,8 @@ confint(landscape5_2.prwa, type="state",method="normal")
 #write.table(ms2.prwa@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/XXX_top_models_ms2.xls",sep="\t")
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+#In MarkDown File as of 4/12
+
 #NOW DO WITH ONE SCORE - OVERALL SR FOR A SITE
 richness <-read.csv("sr_covs.csv") #SR by sites by counts 1-4 file
 summary(richness)
@@ -288,3 +290,17 @@ anova(fit)
 
 plot(SR ~ Age, ann=FALSE, type="n", xlim=c(10,60), ylim=c(10,40), data=richness)
 lines(SR~Age,lwd=2, data=richness)
+
+
+###added in April about Audio Counts (AC) vs Point Counts (PC)
+methodSR <-read.csv("17_1by1_ACPC_SR.csv") #SR by 1 visit each - Site Type SR
+summary(methodSR)
+str(methodSR)
+
+plot(methodSR$SR ~ methodSR$Type)
+#plot(SR ~ Type, data=methodSR)  #same as above
+
+evaluation<-lm(SR ~ Type, methodSR)
+summary(evaluation)  #looks important/significant!
+confint(evaluation, level=0.95)
+anova(evaluation)

@@ -341,8 +341,9 @@ msDC.gf
 #summary: date best, but timing is also right around 2.0
 
 det.date.gf
-confint(det.date.gf, type="state",method="normal")
-write.table(msDC.gf@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/Behavior_gf_top_models_msDC.xls",sep="\t")
+plogis(coef(det.date.gf,type="det"))  #p(Int) 0.261   #p(Jdate) 0.517
+confint(det.date.gf, type="det",method="normal")  #do not overlap 0
+#write.table(msDC.gf@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/Behavior_gf_top_models_msDC.xls",sep="\t")
 
 
 ##site covariates next
@@ -418,9 +419,37 @@ ms.gf
 # local model is only top model
 
 local.gf
+plogis(coef(local.gf,type="det"))  #p(Int) 0.189   #p(Jdate) 0.515
+plogis(coef(local.gf,type="state"))   #lam(Int) 0.977 lam(Ccover) 0.478 lam(TreeHt) 0.504 lam(Ldepth) 0.494
+#confint(local.gf, type="det", method="normal")
 confint(local.gf, type="state",method="normal")
+signature(object = "unmarkedFitList")
 
 write.table(ms.gf@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/Behavior_gf_top_models_ms.xls",sep="\t")
+
+## psi and p as functions of ccover
+newdata2 <- data.frame(Ccover=seq(-20,100, length = 120), TreeHt=0, Ldepth=0)
+gf.est.ccover <- predict(local.gf, type="state", newdata=newdata2, appendData=TRUE)
+plot(Predicted~ Ccover, data=gf.est.ccover,ylim=c(0,30),type="l",lwd=3,xlab="Canopy Cover (%)",ylab="Est.GFs")
+lines(lower~ Ccover, data=gf.est.ccover, type="l", lwd=3, col="gray")
+lines(upper~ Ccover, data=f=gf.est.ccover, type="l", lwd=3, col="gray")
+
+#experimentation with difference for detection instead of abundance
+newdata3 <-data.frame(Jdate=seq(-2,2,length=200))
+Ep <- predict(local.gf, type="det", newdata=newdata3, appendData=TRUE)
+Ep
+plot(Predicted~ Jdate, data=Ep,ylim=c(0,1),type="l",lwd=3,xlab="Jdate",ylab="Est.GFs")
+lines(lower~ Jdate, data=Ep, type="l", lwd=3, col="gray")
+lines(upper~ Jdate, data=Ep, type="l", lwd=3, col="gray")
+
+str(gf.abund)
+summary(local.gf)
+
+#### obj = "unmarkedEstimate" Typically done internally
+#obj = "unmarkedFit" Back-transform a parameter from a fitted model. Only possible if no covariates
+#are present. Must specify argument type as one of the values returned by names(obj).
+#obj = "unmarkedLinComb" Back-transform a predicted value created by linearComb. This is
+#done internally by predict but can be done explicitly by user.
 
 #quick test between some correlated
 testHigh.cawr <- pcount(~Jdate ~ HighDev30km, cawr.abund, mixture="P", K=10)

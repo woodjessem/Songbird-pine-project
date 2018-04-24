@@ -126,6 +126,18 @@ ms.cavity
 
 siteprod.cavity
 confint(siteprod.cavity, type="state",method="normal")
+predict(siteprod.cavity, type="psi", method="normal") #use backtransform instead?
+predict(siteprod.cavity, type="det", method="normal")
+?predict()
+# https://groups.google.com/forum/#!topic/unmarked/KByTcvgDRiI
+#fm <- colext(~x2, ~x2, ~x2, ~x2+year, umf)
+#nd <- expand.grid(year=c("year1", "year2"), x2=c("A", "B"))
+#predict(fm, type="det", newdata=nd, appendData=TRUE)
+#  also https://groups.google.com/forum/#!topic/unmarked/bT6M0NbuQAM
+
+# https://sites.google.com/site/unmarkedinfo/home/faq
+# https://groups.google.com/forum/#!topic/unmarked/gUKqpSK7DGI
+
 
 write.table(ms.cavity@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/Nest_cavity_top_models_ms.xls",sep="\t")
 

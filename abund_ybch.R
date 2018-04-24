@@ -23,6 +23,15 @@ sc <- siteCovs(ybch.abund)
 sc[,c(5:74)] <- scale(sc[, c(5:74)])
 siteCovs(ybch.abund) <- sc
 
+#trying to just get a detection estimate and abundance estimate out of data
+#  - I think I properly adjusted for 4 visits
+ybch_pcount<-read.csv("ybch_abund.csv", header=TRUE)
+ybch_data1<-data.frame(ybch_pcount[,2:5])
+visitM<-matrix(c('y.1','y.2','y.3','y.4'),51,4,byrow=TRUE)
+ybch_p<-unmarkedFramePCount(y=ybch_data1,obsCovs=list(visit=visitM) )
+null_2<-pcount(~1~1,ybch_p)
+null_2
+
 #test for NB or Poisson - most should use Poisson
 testP.ybch <- pcount(~1 ~1, ybch.abund, mixture="P", K=4)
 testNB.ybch <- pcount(~1 ~1, ybch.abund, mixture="NB", K=4)

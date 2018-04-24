@@ -1,0 +1,122 @@
+---
+title: "Results early trial - overall SR"
+author: "Jesse Wood"
+date: "April 15, 2018"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+
+Setup
+```{r}
+library("unmarked")
+setwd("C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds")
+
+```
+
+# Evaluate Audio Counts (AC) vs Point Counts (PC)
+```{r}
+#File read-in
+# as of 04/12, the "one visit" from AC includes a few too many species (UNKNS unsorted)
+methodSR1 <-read.csv("17_1by1_ACPC_SR.csv") #SR by 1 visit each - Site Type SR
+summary(methodSR1)
+str(methodSR1)
+
+```
+
+```{r}
+plot(methodSR1$SR ~ methodSR1$Type)
+#plot(SR ~ Type, data=methodSR)  #same as above
+```
+
+```{r}
+evaluation1<-lm(SR ~ Type, methodSR1)
+summary(evaluation1)  #looks important/significant!
+confint(evaluation1, level=0.95)
+anova(evaluation1)
+```
+
+```{r}
+#File read-in
+# a few UNKNs still but reduced to 1 or 2
+methodSR2 <-read.csv("17_2by2_ACPC_SR.csv") #SR by count #2 each - Site Type SR
+#summary(methodSR2)
+str(methodSR2)
+
+```
+
+```{r}
+plot(methodSR2$SR ~ methodSR2$Type)   #AC slightly higher, but totally overlap
+#plot(SR ~ Type, data=methodSR)  #same as above
+```
+
+```{r}
+evaluation2<-lm(SR ~ Type, methodSR2)
+summary(evaluation2)  #this visit is NOT significant!
+confint(evaluation2, level=0.95)
+anova(evaluation2)
+```
+
+
+#Point Count Data Only#
+  ## all 4 PC visits pooled ## 
+```{r}
+#sr_covs CSV file is SR by sites by point counts (pooled 1-4) file (NP flyovers excluded)
+richness <-read.csv("sr_covs.csv") #SR by sites by point count overall SR #all effort
+summary(richness)
+str(richness)
+#var(richness[2:5])
+#mean(richness[2:2])
+#mean(richness$SR)
+```
+
+```{r}
+richness <-read.csv("sr_covs.csv") #SR by sites by point count overall SR #all effort
+richness$Herbicide <- factor(richness$Herbicide)
+sapply(richness, mean, na.rm=TRUE)
+library(psych)
+sumtable <- describeBy(richness, group=richness$Treatment)
+sumtable
+#write.table(sumtable, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/SR_summary_by_Treatment.xls",sep="\t")
+
+```
+
+```{r}
+#begin simple explorations of some exp variables
+plot(richness$SR ~ richness$Age)
+plot(richness$SR ~ richness$Nburns)
+plot(richness$SR ~ richness$BA)
+plot(richness$SR ~ richness$Parea)
+
+lm(SR ~ Treatment, richness)
+summary(lm(SR ~ Treatment, richness))   #3B statistically different from others
+plot(SR ~ Treatment, data=richness)
+
+lm(SR ~ Herbicide, richness)
+summary(lm(SR ~ Herbicide, richness))   #nothing going on here - no stat sig difference bw 0 or 1
+plot(SR ~ Herbicide, data=richness)
+
+lm(SR ~ Nthins, data=richness)
+plot(SR ~ Nthins, data=richness)
+interaction.plot(richness$Treatment, richness$Nburns, richness$SR)
+
+summary(lm(SR ~ Parea, richness))   #so no species-area relationsip?
+
+fit<-lm(SR ~ Treatment + BA + Parea, data=richness)
+summary(fit)
+confint(fit, level=0.95)
+anova(fit)
+
+plot(SR ~ Age, ann=FALSE, type="n", xlim=c(10,60), ylim=c(10,40), data=richness)
+lines(SR~Age,lwd=2, data=richness)
+
+```
