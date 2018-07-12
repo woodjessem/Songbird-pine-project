@@ -65,6 +65,45 @@ summary(evaluation2)  #this visit is NOT significant!
 confint(evaluation2, level=0.95)
 anova(evaluation2)
 ```
+```{r}
+#File read-in
+# a few UNKNs still but reduced to 1 or 2
+methodSR3 <-read.csv("17_3by3_ACPC_SR.csv") #SR by count #3 each - Site Type SR
+#summary(methodSR3)
+str(methodSR3)
+
+```
+
+```{r}
+plot(methodSR3$SR ~ methodSR3$Type)   #
+#plot(SR ~ Type, data=methodSR)  #same as above
+```
+
+```{r}
+evaluation3<-lm(SR ~ Type, methodSR3)
+summary(evaluation3)  #this visit is NOT significant!
+confint(evaluation3, level=0.95)
+anova(evaluation3)
+```
+
+#3 visits pooled - I think need to recalc 3-visit SR for PC data! (not 4th visit!)
+
+```{r}
+#File read-in
+# a few UNKNs - not treated well yet! have to rerun eventually
+methodOSR <-read.csv("17_all3_ACPC_SR.csv") #SR by 3 counts pooled SR
+#summary(methodOSR)
+str(methodOSR)
+plot(methodOSR$SR ~ methodOSR$Type)
+```
+
+```{r}
+evaluationOSR<-lm(SR ~ Type, methodOSR)
+summary(evaluationOSR)
+confint(evaluationOSR, level=0.95)
+anova(evaluationOSR)
+```
+
 
 
 #Point Count Data Only#
@@ -77,6 +116,11 @@ str(richness)
 #var(richness[2:5])
 #mean(richness[2:2])
 #mean(richness$SR)
+```
+```{r}
+lm(SR ~ Site, richness)
+summary(lm(SR ~ Site, richness))
+plot(SR ~ Site, data=richness)
 ```
 
 ```{r}
@@ -108,6 +152,8 @@ plot(SR ~ Herbicide, data=richness)
 lm(SR ~ Nthins, data=richness)
 plot(SR ~ Nthins, data=richness)
 interaction.plot(richness$Treatment, richness$Nburns, richness$SR)
+summary(lm(SR ~ Nthins, data=richness))
+plot(SR ~ Nthins, ann=FALSE, data=richness)
 
 summary(lm(SR ~ Parea, richness))   #so no species-area relationsip?
 

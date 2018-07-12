@@ -1,0 +1,159 @@
+---
+title: "SPP_Figures"
+author: "Jesse Wood"
+date: "July 12, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+#using model avg package
+
+```{r}
+install.packages("AICcmodavg")
+install.packages("unmarked")
+library(AICcmodavg)
+library(unmarked)
+
+setwd("C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds")
+```
+
+#predict with unmarked    # code from ESA 2014
+  #remember, treat differently for those that are factors vs. those that are #s
+
+#general structure:
+fitList of top models (d<2) for SP
+write data frame including all important variables -
+       # concat factor (levels) if necessary
+      # set interest variable to max/min
+      # but set every other variable besides one of interest to 0
+define any factors with categorical names
+predict function on the new matrix, type = state
+plot matrix & 95% CI lines
+  #barplot with error bars code if need be - see bottom
+
+
+Trial run - adapting from 3 model 2014 HAWO
+```{r}
+#PIWA
+
+#evergreen5km
+fms_top.piwa <- fitList(landscape5.piwa, landscape30.piwa)  #2 top models
+NewData.Evergreen5km  <- data.frame(Evergreen5km= seq(0,1000, length=120), HighDev5km = 0,
+                                    Evergreen30km=0, HighDev30km=0, Protected30km=0)
+                                       #all variables from 2 models
+                              
+piwa.est.evergreen5km <- predict(fms_top.piwa, type="state", newdata=NewData.Evergreen5km,appendData=TRUE)
+
+plot(Predicted~ Evergreen5km, data=piwa.est.evergreen5km, ylim=c(0,10), type="l", lwd=3, xlab="Evergreen Habitat within 5km of patch", ylab="Est. PIWA Abundance")
+##95% confidence intervals
+lines(lower~ Evergreen5km, data=piwa.est.evergreen5km,  type="l", lwd=3, col="darkgray")
+lines(upper~ Evergreen5km, data=piwa.est.evergreen5km, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+#PIWA
+
+#High-Dev 30km
+fms_top.piwa <- fitList(landscape5.piwa, landscape30.piwa)  #2 top models
+NewData.HighDev30km  <- data.frame(Evergreen5km= 0, HighDev5km = 0,
+                                    Evergreen30km=0, HighDev30km=seq(0,200, length=100),                                           Protected30km=0)
+                                       #all variables from 2 models
+                              
+piwa.est.highdev30km <- predict(fms_top.piwa, type="state", newdata=NewData.HighDev30km,appendData=TRUE)
+
+plot(Predicted~ HighDev30km, data=piwa.est.highdev30km, ylim=c(0,10), type="l", lwd=3, xlab="Highly Developed Area within 30km of patch", ylab="Est. PIWA Abundance")
+##95% confidence intervals
+lines(lower~ HighDev30km, data=piwa.est.highdev30km,  type="l", lwd=3, col="darkgray")
+lines(upper~ HighDev30km, data=piwa.est.highdev30km, type="l", lwd=3, col="darkgray")
+```
+
+Another one, where variables actually overlap between top models
+```{r}
+#INBU - not edited or run yet
+
+#variable
+fms_top.piwa <- fitList(landscape5.piwa, landscape30.piwa)  #2 top models
+NewData.HighDev30km  <- data.frame(Evergreen5km= 0, HighDev5km = 0,
+                                    Evergreen30km=0, HighDev30km=seq(0,200, length=100),                                           Protected30km=0)
+                                       #all variables from 2 models
+                              
+piwa.est.highdev30km <- predict(fms_top.piwa, type="state", newdata=NewData.HighDev30km,appendData=TRUE)
+
+plot(Predicted~ HighDev30km, data=piwa.est.highdev30km, ylim=c(0,10), type="l", lwd=3, xlab="Highly Developed Area within 30km of patch", ylab="Est. PIWA Abundance")
+##95% confidence intervals
+lines(lower~ HighDev30km, data=piwa.est.highdev30km,  type="l", lwd=3, col="darkgray")
+lines(upper~ HighDev30km, data=piwa.est.highdev30km, type="l", lwd=3, col="darkgray")
+```
+
+
+One where no averaging necessary - code stripped down
+```{r}
+#INBU - disturbance model, Time Since Burn variable
+
+NewData.TsinceB  <- data.frame(TimeSinceT= 0, TimeSinceB=seq(0,20, length=100))
+inbu.est.timeburn <- predict(disturbance.inbu, type="state",
+                                newdata=NewData.TsinceB,appendData=TRUE)
+
+plot(Predicted~ TimeSinceB, data=inbu.est.timeburn, ylim=c(0,8), type="l", lwd=3,
+     xlab="Time Since Burn (years)", ylab="Est. INBU Abundance")
+##95% confidence intervals
+lines(lower~ TimeSinceB, data=inbu.est.timeburn,  type="l", lwd=3, col="darkgray")
+lines(upper~ TimeSinceB, data=inbu.est.timeburn, type="l", lwd=3, col="darkgray")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Barplot with error bars if need be
+```{r}
+###A function - just copy and paste between the next 6 lines ###
+error.bar <- function(x, y, upper, lower=upper, length=0.1,...){
+  if(length(x) != length(y) | length(y) !=length(lower) | length(lower) != length(upper))
+    stop("vectors must be same length")
+  arrows(x,y+upper, x, y-lower, angle=90, code=3, length=length, ...)
+}
+
+#### Copy and paste above. Do not edit##
+```
+
+code below for categorical bar plot data - not yet edited for my data
+```{r}
+data.mean<-bhnu.est.matrix$Predicted
+data.sd<-bhnu.est.matrix$SE
+
+bar.p <-barplot(data.mean,
+                names.arg=c("Semi-urban","Recreation","Protected","Agriculture"),
+                ylim = c(0, 10), ylab="Est. BHNU Abundance", xlab="System Type",
+                #cex.names = 1.5, cex.axis=1.5, cex.lab=1.5, 
+                col="darkblue")
+
+error.bar(bar.p,data.mean,data.sd) #sd
+```
+
+

@@ -11,7 +11,7 @@ siteCovs(prwa.abund) <- sc
 
 # Full list of candidate models   #NB best type  #JDate best det cov
 null2.prwa <- pcount(~ Jdate ~1, prwa.abund, mixture="NB", K=40)
-global2.prwa <- pcount(~ Jdate ~ Treatment + Herbicide + BA + Nsnags +Ccover
+#global2.prwa <- pcount(~ Jdate ~ Treatment + Herbicide + BA + Nsnags +Ccover
                        + Ldepth + TreeHt + Age + Nburns + Nthins + TimeSinceB + TimeSinceT
                        + HWdens_50 + FG_herb + FG_shrub + NHW_saplings + NP_over_20cm
                        + Rel_HW2P_canopy + LCR + PISoils + FPSiteIndex + NSoilTypes

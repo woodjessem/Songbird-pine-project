@@ -60,6 +60,10 @@ det.detect.inbu
 confint(det.detect.inbu, type="state",method="normal")
 write.table(msDC.inbu@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/inbu_top_models_msDC.xls",sep="\t")
 
+predict(det.detect.inbu, type="det")  #gave me 204 rows...
+#backTransform(det.detect.inbu, "psi", method=normal)
+
+
 
 ##site covariates next
 
@@ -210,6 +214,15 @@ confint(disturbance.inbu, type="state",method="normal")
 #lam(TimeSinceB) -0.6281164 -0.02726671        #sig
 #lam(TimeSinceT) -0.4190053  0.23300655
 
+backTransform(linearComb(disturbance.inbu, coefficients = c(1,0), type= "det"))
+#YAY!
+backTransform(linearComb(disturbance.inbu, coefficients = c(1,0,0), type= "state"))
+
+#or:
+newData.inbu<-data.frame(TimeSinceT=0, TimeSinceB=0:20)
+round(predict(disturbance.inbu, type="state", newdata=newData.inbu, appendData=TRUE, 2))
+#or "det"
+#confint(disturbance.inbu,type="det")
 
 lh.inbu
 confint(lh.inbu, type="state",method="normal")
@@ -218,6 +231,25 @@ treatment.inbu
 confint(treatment.inbu, type="state",method="normal")
 
 write.table(ms.inbu@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/inbu_top_models_ms.xls",sep="\t")
+
+
+
+library(AICcmodavg)
+#testing predict function
+
+NewData.TsinceB  <- data.frame(TimeSinceT= 0, TimeSinceB=seq(0,20, length=100))
+inbu.est.timeburn <- predict(disturbance.inbu, type="state",
+                                newdata=NewData.TsinceB,appendData=TRUE)
+
+plot(Predicted~ TimeSinceB, data=inbu.est.timeburn, ylim=c(0,8), type="l", lwd=3,
+     xlab="Time Since Burn (years)", ylab="Est. INBU Abundance")
+##95% confidence intervals
+lines(lower~ TimeSinceB, data=inbu.est.timeburn,  type="l", lwd=3, col="darkgray")
+lines(upper~ TimeSinceB, data=inbu.est.timeburn, type="l", lwd=3, col="darkgray")
+
+
+
+
 
 #quick test between some correlated  #not run for inbu 
 testHigh.cawr <- pcount(~Jdate ~ HighDev30km, cawr.abund, mixture="P", K=10)

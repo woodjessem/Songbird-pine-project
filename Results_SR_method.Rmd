@@ -1,0 +1,288 @@
+---
+title: "Results trial - SR"
+author: "Jesse Wood"
+date: "June 22, 2018"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+
+Setup
+```{r}
+library("unmarked")
+setwd("C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds")
+
+```
+
+# Evaluate Audio Counts (AC) vs Point Counts (PC)
+```{r}
+#File read-in
+# as of 6/22, this one-visit breakdown has had unknowns REMOVED now (in both AC + PC)
+methodSR1 <-read.csv("17_1by1_ACPC_SR.csv") #SR by 1 visit each - Site Type SR
+summary(methodSR1)
+str(methodSR1)
+
+```
+
+```{r}
+#plot(methodSR1$SR ~ methodSR1$Type)   #same as below
+plot(SR ~ Type, data=methodSR1)
+plot(SR ~ Sdate, data=methodSR1)
+plot(SR ~ Stime, data=methodSR1)
+plot(SR ~ Pdate, data=methodSR1)
+plot(SR ~ Pmin, data=methodSR1)
+plot(SR ~ Peffort, data=methodSR1)
+```
+
+```{r}
+evaluation1<-lm(SR ~ Type, methodSR1)  #non-significant
+summary(evaluation1)
+confint(evaluation1, level=0.95)
+anova(evaluation1)
+```
+```{r}
+evaluation2<-lm(SR ~ Sdate, methodSR1)  #non-significant
+summary(evaluation2)
+confint(evaluation2, level=0.95)
+anova(evaluation2)
+```
+
+```{r}
+evaluation3<-lm(SR ~ Stime, methodSR1)    #non-significant
+summary(evaluation3)
+confint(evaluation3, level=0.95)
+anova(evaluation3)
+```
+
+```{r}
+evaluation4<-lm(SR ~ Pdate, methodSR1)    #non-significant
+summary(evaluation4)
+confint(evaluation4, level=0.95)
+anova(evaluation4)
+```
+
+```{r}
+evaluation5<-lm(SR ~ Pmin, methodSR1)    #significant + linear relationship 
+summary(evaluation5)
+confint(evaluation5, level=0.95)
+anova(evaluation5)
+```
+
+```{r}
+evaluation6<-lm(SR ~ Peffort, methodSR1)  #significant + linear relationship
+summary(evaluation6)
+confint(evaluation6, level=0.95)
+anova(evaluation6)
+```
+
+
+
+# Visit 2
+```{r}
+#File read-in
+# as of 6/22, this one-visit breakdown has had unknowns REMOVED now (in both AC + PC)
+methodSR2 <-read.csv("17_2by2_ACPC_SR.csv") #SR by count #2 each - Site Type SR
+#summary(methodSR2)
+str(methodSR2)
+
+```
+
+```{r}
+plot(methodSR2$SR ~ methodSR2$Type) #more equalized
+#plot(SR ~ Type, data=methodSR)  #same as above
+```
+
+```{r}
+evaluation7<-lm(SR ~ Type, methodSR2)   #non-sig
+summary(evaluation7)
+confint(evaluation7, level=0.95)
+anova(evaluation7)
+```
+
+```{r}
+evaluation8<-lm(SR ~ Sdate, methodSR2)   #non-signficant
+summary(evaluation8)
+confint(evaluation8, level=0.95)
+anova(evaluation8)
+```
+
+```{r}
+evaluation9<-lm(SR ~ Stime, methodSR2)   #non-signficant
+summary(evaluation9)
+confint(evaluation9, level=0.95)
+anova(evaluation9)
+```
+
+```{r}
+evaluation10<-lm(SR ~ Pdate, methodSR2)  #non-signficant
+summary(evaluation10)
+confint(evaluation10, level=0.95)
+anova(evaluation10)
+```
+
+```{r}
+evaluation11<-lm(SR ~ Pmin, methodSR2)    #non-signficant
+summary(evaluation11)
+confint(evaluation11, level=0.95)
+anova(evaluation11)
+```
+
+```{r}
+evaluation12<-lm(SR ~ Peffort, methodSR2)   #signficant + linear relationship!
+summary(evaluation12)
+confint(evaluation12, level=0.95)
+anova(evaluation12)
+```
+
+
+
+# Visit 3
+```{r}
+#File read-in
+# as of 6/22, this one-visit breakdown has had unknowns REMOVED now (in both AC + PC)
+methodSR3 <-read.csv("17_3by3_ACPC_SR.csv") #SR by count #3 each - Site Type SR
+#summary(methodSR3)
+str(methodSR3)
+
+```
+
+```{r}
+plot(methodSR3$SR ~ methodSR3$Type)   #
+#plot(SR ~ Type, data=methodSR)  #same as above
+```
+
+```{r}
+evaluation13<-lm(SR ~ Type, methodSR3)   #non-significant
+summary(evaluation13)
+confint(evaluation13, level=0.95)
+anova(evaluation13)
+```
+
+```{r}
+evaluation14<-lm(SR ~ Sdate, methodSR3)  #non-significant
+summary(evaluation14)
+confint(evaluation14, level=0.95)
+anova(evaluation14)
+```
+
+```{r}
+evaluation15<-lm(SR ~ Stime, methodSR3)   #significant +!
+summary(evaluation15)
+confint(evaluation15, level=0.95)
+anova(evaluation15)
+```
+
+```{r}
+evaluation16<-lm(SR ~ Pdate, methodSR3)    #significant +!
+summary(evaluation16)
+confint(evaluation16, level=0.95)
+anova(evaluation16)
+```
+
+```{r}
+plot(SR ~ Pdate, methodSR3)
+plot(evaluation16)
+```
+
+
+```{r}
+evaluation17<-lm(SR ~ Pmin, methodSR3)  #non-significant
+summary(evaluation17)
+confint(evaluation17, level=0.95)
+anova(evaluation17)
+```
+
+```{r}
+evaluation18<-lm(SR ~ Peffort, methodSR3)  #close but not sig
+summary(evaluation18)
+confint(evaluation18, level=0.95)
+anova(evaluation18)
+```
+
+
+#3 visits pooled - redone with only 3 PC visits this time (not 4)
+
+```{r}
+#File read-in
+# UNKNS NOT INCLUDED IN THIS!
+methodOSR <-read.csv("17_all3_ACPC_SR.csv") #SR by 3 counts pooled SR with unkns extracted
+#summary(methodOSR)
+str(methodOSR)
+plot(methodOSR$SR ~ methodOSR$Type)
+```
+
+```{r}
+evaluationOSR<-lm(SR ~ Type, methodOSR)
+summary(evaluationOSR)
+confint(evaluationOSR, level=0.95)
+anova(evaluationOSR)
+```
+
+#3 visits pooled - redone with only 3 PC visits this time (not 4)
+# Investigate date (survey date + process date)
+
+
+###### BELOW THIS LINE, NOT UPDATED WITH UNKNS REMOVED ######
+
+#Point Count Data Only#
+  ## all 4 PC visits pooled ## 
+```{r}
+#sr_covs CSV file is SR by sites by point counts (pooled 1-4) file (NP flyovers excluded)
+richness <-read.csv("sr_covs.csv") #SR by sites by point count overall SR #all effort
+summary(richness)
+str(richness)
+#var(richness[2:5])
+#mean(richness[2:2])
+#mean(richness$SR)
+```
+
+```{r}
+richness <-read.csv("sr_covs.csv") #SR by sites by point count overall SR #all effort
+richness$Herbicide <- factor(richness$Herbicide)
+sapply(richness, mean, na.rm=TRUE)
+library(psych)
+sumtable <- describeBy(richness, group=richness$Treatment)
+sumtable
+#write.table(sumtable, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/SR_summary_by_Treatment.xls",sep="\t")
+
+```
+
+```{r}
+#begin simple explorations of some exp variables
+plot(richness$SR ~ richness$Age)
+plot(richness$SR ~ richness$Nburns)
+plot(richness$SR ~ richness$BA)
+plot(richness$SR ~ richness$Parea)
+
+lm(SR ~ Treatment, richness)
+summary(lm(SR ~ Treatment, richness))   #3B statistically different from others
+plot(SR ~ Treatment, data=richness)
+
+lm(SR ~ Herbicide, richness)
+summary(lm(SR ~ Herbicide, richness))   #nothing going on here - no stat sig difference bw 0 or 1
+plot(SR ~ Herbicide, data=richness)
+
+lm(SR ~ Nthins, data=richness)
+plot(SR ~ Nthins, data=richness)
+interaction.plot(richness$Treatment, richness$Nburns, richness$SR)
+
+summary(lm(SR ~ Parea, richness))   #so no species-area relationsip?
+
+fit<-lm(SR ~ Treatment + BA + Parea, data=richness)
+summary(fit)
+confint(fit, level=0.95)
+anova(fit)
+
+plot(SR ~ Age, ann=FALSE, type="n", xlim=c(10,60), ylim=c(10,40), data=richness)
+lines(SR~Age,lwd=2, data=richness)
+
+```
