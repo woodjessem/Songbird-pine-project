@@ -22,6 +22,7 @@ obsCovs(prwa.abund)= scale (obsCovs(prwa.abund))
 sc <- siteCovs(prwa.abund)
 sc[,c(5:74)] <- scale(sc[, c(5:74)]) #from 26 to 74 +landscape+soils
 siteCovs(prwa.abund) <- sc
+sc
 
 #test for NB or Poisson - most should use Poisson
 testP.prwa <- pcount(~1 ~1, prwa.abund, mixture="P", K=4)

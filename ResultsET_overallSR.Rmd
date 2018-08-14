@@ -19,6 +19,7 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 Setup
 ```{r}
 library("unmarked")
+library("ggplot2")
 setwd("C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds")
 
 ```
@@ -124,12 +125,12 @@ plot(SR ~ Site, data=richness)
 ```
 
 ```{r}
-richness <-read.csv("sr_covs.csv") #SR by sites by point count overall SR #all effort
-richness$Herbicide <- factor(richness$Herbicide)
-sapply(richness, mean, na.rm=TRUE)
-library(psych)
-sumtable <- describeBy(richness, group=richness$Treatment)
-sumtable
+#richness <-read.csv("sr_covs.csv") #SR by sites by point count overall SR #all effort
+#richness$Herbicide <- factor(richness$Herbicide)
+#sapply(richness, mean, na.rm=TRUE)
+#library(psych)
+#sumtable <- describeBy(richness, group=richness$Treatment)
+#sumtable
 #write.table(sumtable, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/SR_summary_by_Treatment.xls",sep="\t")
 
 ```
@@ -144,6 +145,7 @@ plot(richness$SR ~ richness$Parea)
 lm(SR ~ Treatment, richness)
 summary(lm(SR ~ Treatment, richness))   #3B statistically different from others
 plot(SR ~ Treatment, data=richness)
+confint(lm(richness$SR~richness$Treatment))
 
 lm(SR ~ Herbicide, richness)
 summary(lm(SR ~ Herbicide, richness))   #nothing going on here - no stat sig difference bw 0 or 1
@@ -166,3 +168,24 @@ plot(SR ~ Age, ann=FALSE, type="n", xlim=c(10,60), ylim=c(10,40), data=richness)
 lines(SR~Age,lwd=2, data=richness)
 
 ```
+
+
+
+```{r}
+richness <-read.csv("sr_covs.csv")
+levels(richness$Treatment)
+
+quantiles_95<-function(x){
+  r<-quantile(x,probs=c(0.025,0.25,0.5,0.75,0.975))
+  names(r)<-c("ymin","lower","middle","upper","ymax")
+  r
+}
+
+ggplot(data=richness,aes(x=Treatment,y=SR,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+labs(x="Burn treatment",y="# of species")+coord_cartesian(ylim=c(19, 33)) + 
+    scale_y_continuous(breaks=seq(18, 34, 2))+
+  theme(panel.border = element_blank(),panel.grid.major = element_blank(),panel.grid.minor = element_blank())
+
+#removed geom_jitter()
+```
+
+

@@ -205,6 +205,17 @@ confint(landscape5.piwa, type="state",method="normal")  #Evergreen significant
 
 write.table(ms.piwa@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/piwa_top_models_ms.xls",sep="\t")
 
+##########exp section for alternative figure
+newData.piwa<-data.frame(Evergreen5km=0:40, HighDev5km=0)
+piwa.est.land5<-predict(landscape5.piwa, type="state", newdata=newData.piwa, appendData=TRUE, 2)
+
+plot(Predicted~ Evergreen5km, data=piwa.est.land5, ylim=c(0,8), type="l", lwd=3,
+     xlab="Evergreen habitat within 5km of patch (acres)", ylab="Est. PIWA Abundance")
+##95% confidence intervals
+lines(lower~ Evergreen5km, data=piwa.est.land5,  type="l", lwd=3, col="darkgray")
+lines(upper~ Evergreen5km, data=piwa.est.land5, type="l", lwd=3, col="darkgray")
+######## end exp section for alternative figure
+
 landscape30.piwa  #second best
 confint(landscape30.piwa, type="state",method="normal")
 #significantly negative w High Dev, positive (but non-sig) with Evergreen & Protected

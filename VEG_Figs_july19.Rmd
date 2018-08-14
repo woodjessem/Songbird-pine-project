@@ -1,0 +1,200 @@
+---
+title: "VEG_figures"
+author: "Jesse Wood"
+date: "July 19, 2018"
+output: html_document
+output: word_doc
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##VEG DATA
+
+```{r}
+setwd("C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds")
+
+vdata <-read.csv("template_pcount_csv.csv")
+library("ggplot2","rmarkdown","markdown","knitr","RColorBrewer","lme4","lmtest","unmarked","AICcmodavg")
+```
+
+#canopy cover varied significantly by treatment
+```{r}
+ccover.lm<-lm(Ccover~Treatment,data=vdata)
+summary(ccover.lm)
+confint.lm(ccover.lm)
+```
+
+ignore
+```{r}
+1-why are labels and values offset? (NA for 0B)
+
+#vdata$Treatment<-factor(vdata$Treatment, levels=c("OB","1B","2B","3B"),labels=c("OB","1B","2B","3B"))
+
+#confint.lm
+
+#qplot(vdata$Treatment,vdata$Ccover,data=vdata,geom=c("boxplot","jitter"),fill=vdata$Treatment,xlab="Burn Treatments",ylab="Canopy Cover (more to less open)")
+```
+
+```{r}
+vdata <-read.csv("template_pcount_csv.csv")
+
+#print(ggplot(data=vdata,aes(Treatment,Ccover,colour=Treatment))+geom_boxplot(xlab="Burn Treatments",ylab="Canopy Cover (more to less open)")) #notch=TRUE removed #seems to be same as below right now
+
+quantiles_95<-function(x){
+  r<-quantile(x,probs=c(0.025,0.25,0.5,0.75,0.975))
+  names(r)<-c("ymin","lower","middle","upper","ymax")
+  r
+}
+
+ggplot(data=vdata,aes(x=Treatment,y=Ccover,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Burn treatment",y="Canopy cover (more to less open)")
+
+ggplot(data=vdata,aes(x=Nburns,y=Ccover,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Increasing # of burns",y="Canopy cover (more to less open)")
+
+print(ggplot(data=vdata,aes(Nburns,Ccover))+geom_smooth(xlab="Increasing number of burns",ylab="Canopy cover (more to less open)")+geom_jitter())
+```
+
+
+# relative hardwood to pine in the canopy decr but NOT-SIG by treatment
+# YES sig dec by #burns
+```{r}
+hw2p.lm<-lm(Rel_HW2P_canopy~Nburns,data=vdata)
+summary(hw2p.lm)
+confint.lm(hw2p.lm)
+```
+
+```{r}
+#no treatment fig bc not significant
+
+ggplot(data=vdata,aes(x=Nburns,y=Rel_HW2P_canopy,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Increasing # of burns",y="Relative hardwood to pine (in canopy)")
+
+print(ggplot(data=vdata,aes(Nburns,Rel_HW2P_canopy))+geom_smooth(xlab="Increasing number of burns",ylab="Relative hardwood to pine (in canopy)")+geom_jitter())
+
+```
+
+# litter depth sig decreased for 3B,
+# decr sig w Nburns
+```{r}
+litter.lm<-lm(Ldepth~Nburns,data=vdata)
+summary(litter.lm)
+confint.lm(litter.lm)
+```
+
+```{r}
+#qplot(vdata$Nburns,vdata$Ldepth,data=vdata,geom=c("boxplot","jitter"),color=vdata$Treatment,xlab="Increasing number of burns",ylab="Litter depth")
+
+#print(ggplot(data=vdata,aes(Nburns,Ldepth,colour=Treatment))+geom_boxplot(xlab="Increasing number of burns",ylab="Litter depth"))
+
+ggplot(data=vdata,aes(x=Treatment,y=Ldepth,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Burn treatment",y="Litter depth (cm)")
+
+ggplot(data=vdata,aes(x=Nburns,y=Ldepth,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Increasing # of burns",y="Litter depth (cm)")
+
+print(ggplot(data=vdata,aes(Nburns,Ldepth))+geom_smooth(xlab="Increasing number of burns",ylab="Litter depth (cm)")+geom_jitter())
+
+```
+
+# BA sig decrease for 2B&3B
+#   sig decrease w Nburns
+```{r}
+baT.lm<-lm(BA~Treatment,data=vdata)
+summary(baT.lm)
+confint.lm(baT.lm)
+
+baB.lm<-lm(BA~Nburns,data=vdata)
+summary(baB.lm)
+confint.lm(baB.lm)
+```
+
+```{r}
+#treatment
+#qplot(vdata$Treatment,vdata$BA,data=vdata,geom=c("boxplot","jitter"),color=vdata$Treatment,xlab="Burn treatment",ylab="Basal area")
+
+#print(ggplot(data=vdata,aes(Treatment,BA,colour=Treatment))+geom_boxplot(xlab="Burn treatment",ylab="Basal Area"))
+
+# number of burns
+#qplot(vdata$Nburns,vdata$BA,data=vdata,geom=c("boxplot","jitter"),color=vdata$Treatment,xlab="Increasing number of burns",ylab="Basal area")
+
+#print(ggplot(data=vdata,aes(Nburns,BA,colour=Treatment))+geom_boxplot(xlab="Increasing number of burns",ylab="Basal Area"))
+
+
+#new
+ggplot(data=vdata,aes(x=Treatment,y=BA,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Burn treatment",y="Basal area (10-factor)")
+
+ggplot(data=vdata,aes(x=Nburns,y=BA,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Increasing # of burns",y="Basal area (10-factor)")
+
+print(ggplot(data=vdata,aes(Nburns,BA))+geom_smooth(xlab="Increasing number of burns",ylab="Basal Area")+geom_jitter())
+
+```
+
+# herbaceous cover at low heights sig increase for 2B&3B
+#   sig increase w Nburns
+```{r}
+fgherbT.lm<-lm(FG_herb~Treatment,data=vdata)
+summary(fgherbT.lm)
+confint.lm(fgherbT.lm)
+
+fgherbB.lm<-lm(FG_herb~Nburns,data=vdata)
+summary(fgherbB.lm)
+confint.lm(fgherbB.lm)
+```
+
+```{r}
+
+
+#treatment
+#qplot(vdata$Treatment,vdata$FG_herb,data=vdata,geom=c("boxplot","jitter"),color=vdata$Treatment,xlab="Burn treatment",ylab="Herbaceous cover in understory")
+
+#colour=c("lightgrey","palegreen","green1","darkgreen")
+
+#print(ggplot(data=vdata,aes(Treatment,FG_herb,fill=Treatment))+geom_boxplot(xlab="Burn treatment",ylab="Herbaceous cover in understory")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter())
+
+# number of burns
+#qplot(vdata$Nburns,vdata$FG_herb,data=vdata,geom=c("boxplot","jitter"),color=vdata$Treatment,xlab="Increasing number of burns",ylab="Herbaceous cover in understory")
+
+#print(ggplot(data=vdata,aes(Nburns,FG_herb,fill=Treatment))+geom_boxplot(xlab="Increasing number of burns",ylab="Herbaceous cover in understory")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter())
+
+
+ggplot(data=vdata,aes(x=Treatment,y=FG_herb,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Burn treatment",y="Herbaceous cover in understory")
+
+ggplot(data=vdata,aes(x=Nburns,y=FG_herb,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Increasing # of burns",y="Herbaceous cover in understory")
+
+print(ggplot(data=vdata,aes(Nburns,FG_herb))+geom_smooth(xlab="Increasing number of burns",ylab="Herbaceous cover in understory")+geom_jitter())
+```
+
+# HW sapling density at low-med heights sig increase for 2B&3B
+#   sig increase w Nburns
+```{r}
+hw1050T.lm<-lm(HW_dens_1050~Treatment,data=vdata)
+summary(hw1050T.lm)
+confint.lm(hw1050T.lm)
+
+hw1050B.lm<-lm(HW_dens_1050~Nburns,data=vdata)
+summary(hw1050B.lm)
+confint.lm(hw1050B.lm)
+```
+
+```{r}
+#treatment
+#qplot(vdata$Treatment,vdata$HW_dens_1050,data=vdata,geom=c("boxplot","jitter"),color=vdata$Treatment,xlab="Burn treatment",ylab="Hardwood seedling density in understory")
+
+#print(ggplot(data=vdata,aes(Treatment,HW_dens_1050,colour=Treatment))+geom_boxplot(xlab="Burn treatment",ylab="Hardwood seedling density in understory"))
+
+# number of burns
+#qplot(vdata$Nburns,vdata$HW_dens_1050,data=vdata,geom=c("boxplot","jitter"),color=vdata$Treatment,xlab="Increasing number of burns",ylab="Hardwood seedling density in understory")
+
+#print(ggplot(data=vdata,aes(Nburns,HW_dens_1050,colour=Treatment))+geom_boxplot(xlab="Increasing number of burns",ylab="Hardwood seedling density in understory"))
+
+ggplot(data=vdata,aes(x=Treatment,y=HW_dens_1050,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Burn treatment",y="Hardwood seedling density in understory")
+
+ggplot(data=vdata,aes(x=Nburns,y=HW_dens_1050,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Increasing # of burns",y="Hardwood seedling density in understory")
+
+print(ggplot(data=vdata,aes(Nburns,HW_dens_1050))+geom_smooth(xlab="Increasing number of burns",ylab="Hardwood seedling density in understory")+geom_jitter())
+
+
+```
+
+```{r}
+fig<-plot(Nthins ~ Age, vdata)
+abline(lm(vdata$Nthins ~ vdata$Age),col="blue")
+```

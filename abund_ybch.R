@@ -140,7 +140,7 @@ landscape500.ybch <- pcount(~ Jdate + Noise + Time
                             ~ Evergreen500m + Grass500m + HighDev500m + Schrubs500m + Ag500m + OpenDev500m
                             , ybch.abund, mixture="P", K=40)
 landscape1.ybch <- pcount(~ Jdate + Noise + Time
-                          ~ Evergreen1km + Grass1km + HighDev1km + Schrubs1km + Ag1km + OpenDev500m
+                          ~ Evergreen1km + Grass1km + HighDev1km + Schrubs1km + Ag1km + OpenDev1km
                           , ybch.abund, mixture="P", K=40)
 landscape5.ybch <- pcount(~ Jdate + Noise + Time
                           ~ Evergreen5km + Grass5km + HighDev5km + Schrubs5km
@@ -185,31 +185,31 @@ landscape1.ybch
 #dispersion & abundance summary:
 #Abundance:
 #             Estimate    SE      z P(>|z|)
-#(Intercept)   -0.3381 0.734 -0.461  0.6449
-#Evergreen1km  -0.0548 0.222 -0.247  0.8047
-#Grass1km      -0.0349 0.167 -0.209  0.8344
-#HighDev1km    -2.8906 3.343 -0.865  0.3872
-#Schrubs1km     0.0799 0.137  0.582  0.5603
-#Ag1km         -0.4287 0.247 -1.736  0.0825
-#OpenDev500m   -0.0877 0.172 -0.511  0.6094
+#(Intercept)   -0.3174 0.712 -0.446  0.6559
+#Evergreen1km  -0.0542 0.221 -0.245  0.8062
+#Grass1km      -0.0197 0.167 -0.118  0.9058
+#HighDev1km    -2.7288 3.238 -0.843  0.3994
+#Schrubs1km     0.1012 0.138  0.735  0.4623
+#Ag1km         -0.4208 0.246 -1.711  0.0871
+#OpenDev1km    -0.1461 0.162 -0.902  0.3668
 
 #Detection:
-#            Estimate    SE     z  P(>|z|)
-#(Intercept)   -0.675 0.345 -1.96 5.05e-02
-#Jdate          0.865 0.215  4.02 5.77e-05
-#Noise         -0.720 0.233 -3.09 2.02e-03
-#Time           0.139 0.176  0.79 4.30e-01
+#  Estimate    SE      z  P(>|z|)
+#(Intercept)   -0.680 0.349 -1.950 5.12e-02
+#Jdate          0.859 0.217  3.959 7.53e-05
+#Noise         -0.715 0.233 -3.071 2.13e-03
+#Time           0.137 0.176  0.779 4.36e-01
 
-confint(landscape1.ybch, type="state",method="normal")  #sig negative for HighDev
+confint(landscape1.ybch, type="state",method="normal")
 #summary of output:
-#                      0.025      0.975
-#lam(Int)          -1.7759269 1.09980672
-#lam(Evergreen1km) -0.4892675 0.37962456
-#lam(Grass1km)     -0.3620745 0.29229216
-#lam(HighDev1km)   -9.4424474 3.66119202  #sig
-#lam(Schrubs1km)   -0.1889358 0.34869345
-#lam(Ag1km)        -0.9126221 0.05518769
-#lam(OpenDev500m)  -0.4242802 0.24882932
+#0.025      0.975
+#lam(Int)          -1.7135325 1.07879956
+#lam(Evergreen1km) -0.4870481 0.37866081
+#lam(Grass1km)     -0.3468451 0.30735566
+#lam(HighDev1km)   -9.0757260 3.61821629
+#lam(Schrubs1km)   -0.1685498 0.37087664
+#lam(Ag1km)        -0.9029641 0.06127864
+#lam(OpenDev1km)   -0.4635379 0.17126190
 
 landscape5.ybch
 confint(landscape5.ybch, type="state",method="normal")

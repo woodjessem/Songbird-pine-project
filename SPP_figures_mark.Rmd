@@ -1,33 +1,19 @@
 ---
 title: "SPP_Figures"
 author: "Jesse Wood"
-date: "July 12, 2018"
-output: html_document
+date: "July 17, 2018"
+output:
+  word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
 #using model avg package
 
 ```{r}
-install.packages("AICcmodavg")
-install.packages("unmarked")
 library(AICcmodavg)
 library(unmarked)
 
@@ -48,20 +34,23 @@ predict function on the new matrix, type = state
 plot matrix & 95% CI lines
   #barplot with error bars code if need be - see bottom
 
-
-Trial run - adapting from 3 model 2014 HAWO
 ```{r}
 #PIWA
+piwa.abund<- csvToUMF("piwa_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+obsCovs(piwa.abund)= scale (obsCovs(piwa.abund))
+sc <- siteCovs(piwa.abund)
+sc[,c(5:74)] <- scale(sc[, c(5:74)])
+siteCovs(piwa.abund) <- sc
 
-#evergreen5km
-fms_top.piwa <- fitList(landscape5.piwa, landscape30.piwa)  #2 top models
-NewData.Evergreen5km  <- data.frame(Evergreen5km= seq(0,1000, length=120), HighDev5km = 0,
-                                    Evergreen30km=0, HighDev30km=0, Protected30km=0)
-                                       #all variables from 2 models
-                              
-piwa.est.evergreen5km <- predict(fms_top.piwa, type="state", newdata=NewData.Evergreen5km,appendData=TRUE)
+landscape5.piwa <- pcount(~ Jdate + Time 
+                       ~ Evergreen5km + HighDev5km
+                          , piwa.abund, mixture="P", K=40)
 
-plot(Predicted~ Evergreen5km, data=piwa.est.evergreen5km, ylim=c(0,10), type="l", lwd=3, xlab="Evergreen Habitat within 5km of patch", ylab="Est. PIWA Abundance")
+#evergreen5km from landscape 5km model
+NewData.Evergreen5km  <- data.frame(Evergreen5km= seq(min(sc$Evergreen5km),max(sc$Evergreen5km), length=100), HighDev5km = 0)                             
+piwa.est.evergreen5km <- predict(landscape5.piwa, type="state", newdata=NewData.Evergreen5km,appendData=TRUE)
+
+plot(Predicted~ Evergreen5km, data=piwa.est.evergreen5km, ylim=c(0,16), type="l", lwd=3, xlab="Evergreen habitat within 5km of patch", ylab="Est. PIWA Abundance")
 ##95% confidence intervals
 lines(lower~ Evergreen5km, data=piwa.est.evergreen5km,  type="l", lwd=3, col="darkgray")
 lines(upper~ Evergreen5km, data=piwa.est.evergreen5km, type="l", lwd=3, col="darkgray")
@@ -69,69 +58,375 @@ lines(upper~ Evergreen5km, data=piwa.est.evergreen5km, type="l", lwd=3, col="dar
 
 ```{r}
 #PIWA
+piwa.abund<- csvToUMF("piwa_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+obsCovs(piwa.abund)= scale (obsCovs(piwa.abund))
+sc <- siteCovs(piwa.abund)
+sc[,c(5:74)] <- scale(sc[, c(5:74)])
+siteCovs(piwa.abund) <- sc
+
+landscape30.piwa <- pcount(~ Jdate + Time 
+                       ~ Evergreen30km + HighDev30km + Protected30km
+                           , piwa.abund, mixture="P", K=40)
 
 #High-Dev 30km
-fms_top.piwa <- fitList(landscape5.piwa, landscape30.piwa)  #2 top models
-NewData.HighDev30km  <- data.frame(Evergreen5km= 0, HighDev5km = 0,
-                                    Evergreen30km=0, HighDev30km=seq(0,200, length=100),                                           Protected30km=0)
-                                       #all variables from 2 models
-                              
-piwa.est.highdev30km <- predict(fms_top.piwa, type="state", newdata=NewData.HighDev30km,appendData=TRUE)
+NewData.HighDev30km <- data.frame(Evergreen30km=0,
+                      HighDev30km=seq(min(sc$HighDev30km),max(sc$HighDev30km), length=100),
+                      Protected30km=0)
+                                       
+piwa.est.highdev30km <- predict(landscape30.piwa, type="state", newdata=NewData.HighDev30km,appendData=TRUE)
 
-plot(Predicted~ HighDev30km, data=piwa.est.highdev30km, ylim=c(0,10), type="l", lwd=3, xlab="Highly Developed Area within 30km of patch", ylab="Est. PIWA Abundance")
+plot(Predicted~ HighDev30km, data=piwa.est.highdev30km, ylim=c(0,15), type="l", lwd=3, xlab="Highly Developed Area within 30km of patch", ylab="Est. PIWA Abundance")
 ##95% confidence intervals
 lines(lower~ HighDev30km, data=piwa.est.highdev30km,  type="l", lwd=3, col="darkgray")
 lines(upper~ HighDev30km, data=piwa.est.highdev30km, type="l", lwd=3, col="darkgray")
 ```
 
-Another one, where variables actually overlap between top models
 ```{r}
-#INBU - not edited or run yet
+#PRWA - landscape 5km model, high development variable
+prwa.abund<- csvToUMF("prwa_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+obsCovs(prwa.abund)= scale (obsCovs(prwa.abund))
+sc <- siteCovs(prwa.abund)
+sc[,c(5:74)] <- scale(sc[, c(5:74)])
+siteCovs(prwa.abund) <- sc
+landscape5.prwa <- pcount(~ Jdate
+                          ~ Evergreen5km + Grass5km + HighDev5km + Schrubs5km
+                          , prwa.abund, mixture="NB", K=60)
 
-#variable
-fms_top.piwa <- fitList(landscape5.piwa, landscape30.piwa)  #2 top models
-NewData.HighDev30km  <- data.frame(Evergreen5km= 0, HighDev5km = 0,
-                                    Evergreen30km=0, HighDev30km=seq(0,200, length=100),                                           Protected30km=0)
-                                       #all variables from 2 models
-                              
-piwa.est.highdev30km <- predict(fms_top.piwa, type="state", newdata=NewData.HighDev30km,appendData=TRUE)
+NewData.HighDev5km  <- data.frame(Evergreen5km=0, Grass5km=0, HighDev5km=seq(min(sc$HighDev5km),max(sc$HighDev5km),length=100), Schrubs5km=0)
+prwa.est.highdev5 <- predict(landscape5.prwa, type="state",newdata=NewData.HighDev5km,appendData=TRUE)
 
-plot(Predicted~ HighDev30km, data=piwa.est.highdev30km, ylim=c(0,10), type="l", lwd=3, xlab="Highly Developed Area within 30km of patch", ylab="Est. PIWA Abundance")
+plot(Predicted~ HighDev5km, data=prwa.est.highdev5, ylim=c(0,5), type="l", lwd=3,
+     xlab="Highly developed area within 5km of patch", ylab="Est. PRWA Abundance")
 ##95% confidence intervals
-lines(lower~ HighDev30km, data=piwa.est.highdev30km,  type="l", lwd=3, col="darkgray")
-lines(upper~ HighDev30km, data=piwa.est.highdev30km, type="l", lwd=3, col="darkgray")
+lines(lower~ HighDev5km, data=prwa.est.highdev5,  type="l", lwd=3, col="darkgray")
+lines(upper~ HighDev5km, data=prwa.est.highdev5, type="l", lwd=3, col="darkgray")
 ```
 
+# YBCH - landscape 1km model best, 5km model second best - but no sigs!
 
-One where no averaging necessary - code stripped down
 ```{r}
+#INBU
+inbu.abund<- csvToUMF("inbu_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+obsCovs(inbu.abund)= scale (obsCovs(inbu.abund))
+sc <- siteCovs(inbu.abund)
+sc[,c(5:74)] <- scale(sc[, c(5:74)])
+siteCovs(inbu.abund) <- sc
+disturbance.inbu <- pcount(~ Jdate
+                           ~ TimeSinceB + TimeSinceT
+                           , inbu.abund, mixture="P", K=40)
+
 #INBU - disturbance model, Time Since Burn variable
 
-NewData.TsinceB  <- data.frame(TimeSinceT= 0, TimeSinceB=seq(0,20, length=100))
+#experimentation#
+newData.inbu<-data.frame(TimeSinceT=0, TimeSinceB=0:20)
+newdata.inbu.est.timeburn<-predict(disturbance.inbu, type="state", newdata=newData.inbu, appendData=TRUE, 2)
+
+plot(Predicted~ TimeSinceB, data=newdata.inbu.est.timeburn, ylim=c(0,6), type="l", lwd=3,
+     xlab="Time Since Burn (years)", ylab="Est. INBU Abundance")
+##95% confidence intervals
+lines(lower~ TimeSinceB, data=newdata.inbu.est.timeburn,  type="l", lwd=3, col="darkgray")
+lines(upper~ TimeSinceB, data=newdata.inbu.est.timeburn, type="l", lwd=3, col="darkgray")
+
+## keep below
+NewData.TsinceB  <- data.frame(TimeSinceT= 0, TimeSinceB=seq(min(sc$TimeSinceB),max(sc$TimeSinceB), length=100))
 inbu.est.timeburn <- predict(disturbance.inbu, type="state",
                                 newdata=NewData.TsinceB,appendData=TRUE)
 
-plot(Predicted~ TimeSinceB, data=inbu.est.timeburn, ylim=c(0,8), type="l", lwd=3,
-     xlab="Time Since Burn (years)", ylab="Est. INBU Abundance")
+plot(Predicted~ TimeSinceB, data=inbu.est.timeburn, ylim=c(0,5), type="l", lwd=3,
+     xlab="Time Since Burn", ylab="Est. INBU Abundance")
 ##95% confidence intervals
 lines(lower~ TimeSinceB, data=inbu.est.timeburn,  type="l", lwd=3, col="darkgray")
 lines(upper~ TimeSinceB, data=inbu.est.timeburn, type="l", lwd=3, col="darkgray")
 ```
+#INBU - nothing significant for life history model
+
+```{r}
+#INBU - treatment model, 1B & 3B significant variable
+
+treatment.inbu <- pcount(~ Jdate
+                         ~ Treatment + Nthins
+                         , inbu.abund, mixture ="P", K=40)
+
+##
+error.bar <- function(x, y, upper, lower=upper, length=0.1,...){
+  if(length(x) != length(y) | length(y) !=length(lower) | length(lower) != length(upper))
+    stop("vectors must be same length")
+  arrows(x,y+upper, x, y-lower, angle=90, code=3, length=length, ...)
+}
+##
+
+NewData.matrix  <- data.frame(Treatment=factor(c("0B","1B","2B","3B")),
+                              Nthins=0)
+inbu.est.matrix <- predict(treatment.inbu, type="state",
+                           newdata=NewData.matrix,appendData=TRUE)
+
+data.mean<-inbu.est.matrix$Predicted
+data.sd<-inbu.est.matrix$SE
+
+bar.p <-barplot(data.mean,
+                names.arg=c("0B","1B","2B","3B"),
+                ylim = c(0, 8), ylab="Est. INBU Abundance", xlab="Treatment",
+                #cex.names = 1.5, cex.axis=1.5, cex.lab=1.5, 
+                col="darkblue")
+
+error.bar(bar.p,data.mean,data.sd) #sd
+
+```
+```{r}
+#BHNU
+bhnu.abund<- csvToUMF("bhnu_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+obsCovs(bhnu.abund)= scale (obsCovs(bhnu.abund))
+sc <- siteCovs(bhnu.abund)
+sc[,c(5:74)] <- scale(sc[, c(5:74)])
+siteCovs(bhnu.abund) <- sc
+lh.bhnu <- pcount(~ Time
+                  ~ Ccover + Age + Nsnags + TreeHt + NP_over_20cm + Rel_HW2P_canopy
+                  , bhnu.abund, mixture="P", K=40)
+
+#BHNU - life history model, relative hardwood to pine canopy cover variable
+
+NewData.RelHW2Pcanopy  <- data.frame(Ccover=0,Age=0,Nsnags=0,TreeHt=0,NP_over_20cm=0,
+                              Rel_HW2P_canopy=seq(min(sc$Rel_HW2P_canopy),max(sc$Rel_HW2P_canopy), length=100))
+bhnu.est.relhw2p <- predict(lh.bhnu, type="state",
+                                newdata=NewData.RelHW2Pcanopy,appendData=TRUE)
+
+plot(Predicted~ Rel_HW2P_canopy, data=bhnu.est.relhw2p, ylim=c(0,50), type="l", lwd=3,
+     xlab="Increasing Hardwood to Pine Ratio in Canopy", ylab="Est. BHNU Abundance")
+##95% confidence intervals
+lines(lower~ Rel_HW2P_canopy, data=bhnu.est.relhw2p,  type="l", lwd=3, col="darkgray")
+lines(upper~ Rel_HW2P_canopy, data=bhnu.est.relhw2p, type="l", lwd=3, col="darkgray")
+
+```
+
+```{r}
+#BHNU - life history model, large pines variable
+
+NewData.NPover20cm  <-data.frame(Ccover=0,Age=0,Nsnags=0,TreeHt=0, Rel_HW2P_canopy=0, NP_over_20cm=seq(min(sc$NP_over_20cm),max(sc$NP_over_20cm), length=100))
+bhnu.est.NPover20cm <- predict(lh.bhnu, type="state",
+                                newdata=NewData.NPover20cm,appendData=TRUE)
+
+plot(Predicted~ NP_over_20cm, data=bhnu.est.NPover20cm, ylim=c(0,50), type="l", lwd=3,
+     xlab="Number of large pines (>20cm diameter)", ylab="Est. BHNU Abundance")
+##95% confidence intervals
+lines(lower~ NP_over_20cm, data=bhnu.est.NPover20cm,  type="l", lwd=3, col="darkgray")
+lines(upper~ NP_over_20cm, data=bhnu.est.NPover20cm, type="l", lwd=3, col="darkgray")
+
+```
+
+```{r}
+# EABL
+eabl.abund<- csvToUMF("eabl_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+obsCovs(eabl.abund)= scale (obsCovs(eabl.abund))
+sc <- siteCovs(eabl.abund)
+sc[,c(5:74)] <- scale(sc[, c(5:74)])
+siteCovs(eabl.abund) <- sc
+landmetrics.eabl <- pcount (~ Jdate
+                          ~ Parea + ShapeIndex
+                        , eabl.abund, mixture="P",K=80)
+
+#EABL - land metrics model, shape index variable
+
+NewData.shapeindex  <-data.frame(Parea=0,ShapeIndex=seq(min(sc$ShapeIndex),max(sc$ShapeIndex), length=100))
+eabl.est.shapeindex <- predict(landmetrics.eabl, type="state",
+                                newdata=NewData.shapeindex,appendData=TRUE)
+
+plot(Predicted~ ShapeIndex, data=eabl.est.shapeindex, ylim=c(0,6), type="l", lwd=3,
+     xlab="Shape Index (increasingly complex, less square)", ylab="Est. EABL Abundance")
+##95% confidence intervals
+lines(lower~ ShapeIndex, data=eabl.est.shapeindex,  type="l", lwd=3, col="darkgray")
+lines(upper~ ShapeIndex, data=eabl.est.shapeindex, type="l", lwd=3, col="darkgray")
+
+```
+
+#NOBO - a ton
+```{r}
+#NOBO - life history model, basal area variable
+
+nobo.abund<- csvToUMF("nobo_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+obsCovs(nobo.abund)= scale (obsCovs(nobo.abund))
+sc <- siteCovs(nobo.abund)
+sc[,c(5:74)] <- scale(sc[, c(5:74)])
+siteCovs(nobo.abund) <- sc
+lh.nobo <- pcount(~ Jdate + Wind + Sky + Noise +Time
+                  ~ BA + Ldepth + HW_dens_1050 + FG_shrub + Age
+                  , nobo.abund, mixture="NB", K=80)
+lh.nobo
+confint(lh.nobo, type="state",method="normal")
+
+
+NewData.BA  <-data.frame(BA=seq(min(sc$BA),max(sc$BA),length=100),
+                         Age=0,FG_shrub=0,Ldepth=0,HW_dens_1050=0)
+nobo.est.ba <- predict(lh.nobo, type="state",
+                                newdata=NewData.BA,appendData=TRUE)
+
+plot(Predicted~ BA, data=nobo.est.ba, ylim=c(0,10), type="l", lwd=3,
+     xlab="Basal Area (10-factor)", ylab="Est. NOBO Abundance")
+##95% confidence intervals
+lines(lower~ BA, data=nobo.est.ba,  type="l", lwd=3, col="darkgray")
+lines(upper~ BA, data=nobo.est.ba, type="l", lwd=3, col="darkgray")
+
+```
+
+```{r}
+#NOBO - life history model, forbes&grasses_shrub ht variable
+
+NewData.FGshrub  <-data.frame(BA=0,Age=0,FG_shrub=seq(min(sc$FG_shrub),max(sc$FG_shrub),length=100),
+                         Ldepth=0,HW_dens_1050=0)
+nobo.est.fgshrub <- predict(lh.nobo, type="state",
+                                newdata=NewData.FGshrub,appendData=TRUE)
+
+plot(Predicted~ FG_shrub, data=nobo.est.fgshrub, ylim=c(0,30), type="l", lwd=3,
+     xlab="Herbaceous Vegetation (mid-level)", ylab="Est. NOBO Abundance")
+##95% confidence intervals
+lines(lower~ FG_shrub, data=nobo.est.fgshrub,  type="l", lwd=3, col="darkgray")
+lines(upper~ FG_shrub, data=nobo.est.fgshrub, type="l", lwd=3, col="darkgray")
+
+```
+
+```{r}
+#NOBO - local model, canopy cover variable
+
+local.nobo <- pcount(~ Jdate + Wind + Sky + Noise +Time
+                     ~ Ccover + TreeHt + Ldepth
+                     , nobo.abund, mixture="NB", K=80)
+
+NewData.ccover  <-data.frame(Ccover=seq(min(sc$Ccover),max(sc$Ccover),length=100),TreeHt=0,Ldepth=0)
+nobo.est.ccover <- predict(local.nobo, type="state",
+                                newdata=NewData.ccover,appendData=TRUE)
+
+plot(Predicted~ Ccover, data=nobo.est.ccover, ylim=c(0,40), type="l", lwd=3,
+     xlab="% Canopy Cover", ylab="Est. NOBO Abundance")
+##95% confidence intervals
+lines(lower~ Ccover, data=nobo.est.ccover,  type="l", lwd=3, col="darkgray")
+lines(upper~ Ccover, data=nobo.est.ccover, type="l", lwd=3, col="darkgray")
+
+```
+
+```{r}
+#NOBO - landscape 1km model, evergreen variable
+landscape1.nobo <- pcount(~ Jdate + Wind + Sky + Noise +Time
+                       ~  Grass1km + HighDev1km + Schrubs1km + Evergreen1km + Ag1km
+                          , nobo.abund, mixture="NB", K=80)
+
+NewData.Evergreen1km  <- data.frame(Evergreen1km=seq(-2,3,length=100), Grass1km=0,HighDev1km=0,Schrubs1km=0,Ag1km=0)
+nobo.est.evergreen1 <- predict(landscape1.nobo, type="state",
+                              newdata=NewData.Evergreen1km,appendData=TRUE)
+
+plot(Predicted~ Evergreen1km, data=nobo.est.evergreen1, ylim=c(0,5), type="l", lwd=3,
+     xlab="Evergreen habitat within 1km of patch", ylab="Est. NOBO Abundance")
+##95% confidence intervals
+lines(lower~ Evergreen1km, data=nobo.est.evergreen1,  type="l", lwd=3, col="darkgray")
+lines(upper~ Evergreen1km, data=nobo.est.evergreen1, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+#NOBO - treatment model, #Thins variable
+treatment.nobo <- pcount(~ Jdate + Wind + Sky + Noise +Time
+                         ~ Nburns + Nthins
+                         , nobo.abund, mixture ="NB", K=80)  #this one I made Nburns instead of treatment for ones with many many burns
+
+NewData.Nthins  <- data.frame(Nburns= 0, Nthins=seq(min(sc$Nthins),max(sc$Nthins), length=100))
+nobo.est.nthins <- predict(treatment.nobo, type="state",
+                                newdata=NewData.Nthins,appendData=TRUE)
+
+plot(Predicted~ Nthins, data=nobo.est.nthins, ylim=c(0,10), type="l", lwd=3,
+     xlab="Number of thinnings", ylab="Est. NOBO Abundance")
+##95% confidence intervals
+lines(lower~ Nthins, data=nobo.est.nthins,  type="l", lwd=3, col="darkgray")
+lines(upper~ Nthins, data=nobo.est.nthins, type="l", lwd=3, col="darkgray")
+```
+
+
+```{r}
+#NOBO - landscape 5km model, evergreen variable
+landscape5.nobo <- pcount(~ Jdate + Wind + Sky + Noise +Time
+                       ~ Grass5km + HighDev5km + Schrubs5km + Evergreen5km
+                          , nobo.abund, mixture="NB", K=80)
+
+NewData.Evergreen5km  <- data.frame(Evergreen5km=seq(min(sc$Evergreen5km),max(sc$Evergreen5km), length=100),Grass5km=0,HighDev5km=0,Schrubs5km=0)
+nobo.est.evergreen5 <- predict(landscape5.nobo, type="state",
+                              newdata=NewData.Evergreen5km,appendData=TRUE)
+
+plot(Predicted~ Evergreen5km, data=nobo.est.evergreen5, ylim=c(0,30), type="l", lwd=3,
+     xlab="Evergreen habitat within 5km of patch (acres)", ylab="Est. NOBO Abundance")
+##95% confidence intervals
+lines(lower~ Evergreen5km, data=nobo.est.evergreen5,  type="l", lwd=3, col="darkgray")
+lines(upper~ Evergreen5km, data=nobo.est.evergreen5, type="l", lwd=3, col="darkgray")
+```
 
 
 
+#EAWP - a few
+```{r}
+#EAWP - landscape 500m model, evergreen variable
+eawp.abund<- csvToUMF("eawp_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+obsCovs(eawp.abund)= scale (obsCovs(eawp.abund))
+sc <- siteCovs(eawp.abund)
+sc[,c(5:74)] <- scale(sc[, c(5:74)])
+siteCovs(eawp.abund) <- sc
+landscape500.eawp <- pcount(~ Wind + Sky
+                        ~ Evergreen500m + Ag500m + HighDev500m
+                            , eawp.abund, mixture="P", K=40)
+
+NewData.Evergreen500m  <- data.frame(Evergreen500m=seq(min(sc$Evergreen500m),max(sc$Evergreen500m), length=100),Ag500m=0,HighDev500m=0)
+eawp.est.evergreen500 <- predict(landscape500.eawp, type="state",
+                              newdata=NewData.Evergreen500m,appendData=TRUE)
+
+plot(Predicted~ Evergreen500m, data=eawp.est.evergreen500, ylim=c(0,5), type="l", lwd=3,
+     xlab="Evergreen habitat within 500m of patch", ylab="Est. EAWP Abundance")
+##95% confidence intervals
+lines(lower~ Evergreen500m, data=eawp.est.evergreen500,  type="l", lwd=3, col="darkgray")
+lines(upper~ Evergreen500m, data=eawp.est.evergreen500, type="l", lwd=3, col="darkgray")
+```
+```{r}
+#EAWP - local model, tree height variable
+local.eawp <- pcount(~ Wind + Sky
+                     ~ Ccover + TreeHt + Ldepth
+                     , eawp.abund, mixture="P", K=40)
+
+NewData.TreeHt  <- data.frame(TreeHt=seq(min(sc$TreeHt),max(sc$TreeHt), length=100),
+                                    Ccover=0,Ldepth=0)
+eawp.est.treeht <- predict(local.eawp, type="state",
+                              newdata=NewData.TreeHt,appendData=TRUE)
+
+plot(Predicted~ TreeHt, data=eawp.est.treeht, ylim=c(0,5), type="l", lwd=3,
+     xlab="Tree height", ylab="Est. EAWP Abundance")
+##95% confidence intervals
+lines(lower~ TreeHt, data=eawp.est.treeht,  type="l", lwd=3, col="darkgray")
+lines(upper~ TreeHt, data=eawp.est.treeht, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+#RBWO - landscape 1km model, ag variable
+rbwo.abund<- csvToUMF("rbwo_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+obsCovs(rbwo.abund)= scale (obsCovs(rbwo.abund))
+sc <- siteCovs(rbwo.abund)
+sc[,c(5:74)] <- scale(sc[, c(5:74)]) #from 26 to 74 +landscape+soils
+siteCovs(rbwo.abund) <- sc
+landscape1.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time
+                       ~ Evergreen1km + HighDev1km + Schrubs1km + Ag1km
+                          , rbwo.abund, mixture="P", K=120)
+
+NewData.Ag1km  <- data.frame(Evergreen1km=0, Ag1km=seq(min(sc$Ag1km),max(sc$Ag1km), length=100),Schrubs1km=0,HighDev1km=0)
+rbwo.est.ag1 <- predict(landscape1.rbwo, type="state",
+                              newdata=NewData.Ag1km,appendData=TRUE)
+
+plot(Predicted~ Ag1km, data=rbwo.est.ag1, ylim=c(0,40), type="l", lwd=3,
+     xlab="Agricultural cover within 1km of patch", ylab="Est. RBWO Abundance")
+##95% confidence intervals
+lines(lower~ Ag1km, data=rbwo.est.ag1,  type="l", lwd=3, col="darkgray")
+lines(upper~ Ag1km, data=rbwo.est.ag1, type="l", lwd=3, col="darkgray")
+```
 
 
+#RBWO - upstate model but no variables significant
 
-
-
-
-
+#CAWR - upstate model but no variables significant
 
 
 
 # Barplot with error bars if need be
-```{r}
+
 ###A function - just copy and paste between the next 6 lines ###
 error.bar <- function(x, y, upper, lower=upper, length=0.1,...){
   if(length(x) != length(y) | length(y) !=length(lower) | length(lower) != length(upper))
@@ -140,10 +435,8 @@ error.bar <- function(x, y, upper, lower=upper, length=0.1,...){
 }
 
 #### Copy and paste above. Do not edit##
-```
 
-code below for categorical bar plot data - not yet edited for my data
-```{r}
+#code below for categorical bar plot data - not yet edited for my data
 data.mean<-bhnu.est.matrix$Predicted
 data.sd<-bhnu.est.matrix$SE
 
@@ -154,6 +447,234 @@ bar.p <-barplot(data.mean,
                 col="darkblue")
 
 error.bar(bar.p,data.mean,data.sd) #sd
+#end 
+
+
+
+VEG DATA
+
+```{r}
+vdata <-read.csv("template_pcount_csv.csv")
+```
+
+#canopy cover varied significantly by treatment
+```{r}
+ccover.lm<-lm(Ccover~Treatment,data=vdata)
+summary(ccover.lm)
+confint.lm(ccover.lm)
+```
+
+1-why are labels and values offset? (NA for 0B)
+```{r}
+#vdata$Treatment<-factor(vdata$Treatment, levels=c("OB","1B","2B","3B"),labels=c("OB","1B","2B","3B"))
+
+#confint.lm
+
+#qplot(vdata$Treatment,vdata$Ccover,data=vdata,geom=c("boxplot","jitter"),fill=vdata$Treatment,xlab="Burn Treatments",ylab="Canopy Cover (more to less open)")
+```
+
+```{r}
+vdata <-read.csv("template_pcount_csv.csv")
+
+#print(ggplot(data=vdata,aes(Treatment,Ccover,colour=Treatment))+geom_boxplot(xlab="Burn Treatments",ylab="Canopy Cover (more to less open)")) #notch=TRUE removed #seems to be same as below right now
+
+quantiles_95<-function(x){
+  r<-quantile(x,probs=c(0.025,0.25,0.5,0.75,0.975))
+  names(r)<-c("ymin","lower","middle","upper","ymax")
+  r
+}
+
+ggplot(data=vdata,aes(x=Treatment,y=Ccover,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Burn treatment",y="Canopy cover (more to less open)")
+
+ggplot(data=vdata,aes(x=Nburns,y=Ccover,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Increasing # of burns",y="Canopy cover (more to less open)")
+
+print(ggplot(data=vdata,aes(Nburns,Ccover))+geom_smooth(xlab="Increasing number of burns",ylab="Canopy cover (more to less open)")+geom_jitter())
 ```
 
 
+
+# relative hardwood to pine in the canopy decr but NOT-SIG by treatment
+# YES sig dec by #burns
+```{r}
+hw2p.lm<-lm(Rel_HW2P_canopy~Nburns,data=vdata)
+summary(hw2p.lm)
+confint.lm(hw2p.lm)
+```
+
+```{r}
+#no treatment fig bc not significant
+
+ggplot(data=vdata,aes(x=Nburns,y=Rel_HW2P_canopy,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Increasing # of burns",y="Relative hardwood to pine (in canopy)")
+
+print(ggplot(data=vdata,aes(Nburns,Rel_HW2P_canopy))+geom_smooth(xlab="Increasing number of burns",ylab="Relative hardwood to pine (in canopy)")+geom_jitter())
+
+```
+
+
+# litter depth sig decreased for 3B,
+# decr sig w Nburns
+```{r}
+litter.lm<-lm(Ldepth~Nburns,data=vdata)
+summary(litter.lm)
+confint.lm(litter.lm)
+```
+
+```{r}
+#qplot(vdata$Nburns,vdata$Ldepth,data=vdata,geom=c("boxplot","jitter"),color=vdata$Treatment,xlab="Increasing number of burns",ylab="Litter depth")
+
+#print(ggplot(data=vdata,aes(Nburns,Ldepth,colour=Treatment))+geom_boxplot(xlab="Increasing number of burns",ylab="Litter depth"))
+
+ggplot(data=vdata,aes(x=Treatment,y=Ldepth,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Burn treatment",y="Litter depth (cm)")
+
+ggplot(data=vdata,aes(x=Nburns,y=Ldepth,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Increasing # of burns",y="Litter depth (cm)")
+
+print(ggplot(data=vdata,aes(Nburns,Ldepth))+geom_smooth(xlab="Increasing number of burns",ylab="Litter depth (cm)")+geom_jitter())
+
+```
+
+# BA sig decrease for 2B&3B
+#   sig decrease w Nburns
+```{r}
+baT.lm<-lm(BA~Treatment,data=vdata)
+summary(baT.lm)
+confint.lm(baT.lm)
+
+baB.lm<-lm(BA~Nburns,data=vdata)
+summary(baB.lm)
+confint.lm(baB.lm)
+```
+
+```{r}
+#treatment
+#qplot(vdata$Treatment,vdata$BA,data=vdata,geom=c("boxplot","jitter"),color=vdata$Treatment,xlab="Burn treatment",ylab="Basal area")
+
+#print(ggplot(data=vdata,aes(Treatment,BA,colour=Treatment))+geom_boxplot(xlab="Burn treatment",ylab="Basal Area"))
+
+# number of burns
+#qplot(vdata$Nburns,vdata$BA,data=vdata,geom=c("boxplot","jitter"),color=vdata$Treatment,xlab="Increasing number of burns",ylab="Basal area")
+
+#print(ggplot(data=vdata,aes(Nburns,BA,colour=Treatment))+geom_boxplot(xlab="Increasing number of burns",ylab="Basal Area"))
+
+
+#new
+ggplot(data=vdata,aes(x=Treatment,y=BA,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Burn treatment",y="Basal area (10-factor)")
+
+ggplot(data=vdata,aes(x=Nburns,y=BA,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Increasing # of burns",y="Basal area (10-factor)")
+
+print(ggplot(data=vdata,aes(Nburns,BA))+geom_smooth(xlab="Increasing number of burns",ylab="Basal Area")+geom_jitter())
+
+```
+
+# herbaceous cover at low heights sig increase for 2B&3B
+#   sig increase w Nburns
+```{r}
+fgherbT.lm<-lm(FG_herb~Treatment,data=vdata)
+summary(fgherbT.lm)
+confint.lm(fgherbT.lm)
+
+fgherbB.lm<-lm(FG_herb~Nburns,data=vdata)
+summary(fgherbB.lm)
+confint.lm(fgherbB.lm)
+```
+```{r}
+
+
+#treatment
+#qplot(vdata$Treatment,vdata$FG_herb,data=vdata,geom=c("boxplot","jitter"),color=vdata$Treatment,xlab="Burn treatment",ylab="Herbaceous cover in understory")
+
+#colour=c("lightgrey","palegreen","green1","darkgreen")
+
+#print(ggplot(data=vdata,aes(Treatment,FG_herb,fill=Treatment))+geom_boxplot(xlab="Burn treatment",ylab="Herbaceous cover in understory")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter())
+
+# number of burns
+#qplot(vdata$Nburns,vdata$FG_herb,data=vdata,geom=c("boxplot","jitter"),color=vdata$Treatment,xlab="Increasing number of burns",ylab="Herbaceous cover in understory")
+
+#print(ggplot(data=vdata,aes(Nburns,FG_herb,fill=Treatment))+geom_boxplot(xlab="Increasing number of burns",ylab="Herbaceous cover in understory")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter())
+
+
+ggplot(data=vdata,aes(x=Treatment,y=FG_herb,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Burn treatment",y="Herbaceous cover in understory")
+
+ggplot(data=vdata,aes(x=Nburns,y=FG_herb,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Increasing # of burns",y="Herbaceous cover in understory")
+
+print(ggplot(data=vdata,aes(Nburns,FG_herb))+geom_smooth(xlab="Increasing number of burns",ylab="Herbaceous cover in understory")+geom_jitter())
+```
+
+
+
+# HW sapling density at low-med heights sig increase for 2B&3B
+#   sig increase w Nburns
+```{r}
+hw1050T.lm<-lm(HW_dens_1050~Treatment,data=vdata)
+summary(hw1050T.lm)
+confint.lm(hw1050T.lm)
+
+hw1050B.lm<-lm(HW_dens_1050~Nburns,data=vdata)
+summary(hw1050B.lm)
+confint.lm(hw1050B.lm)
+```
+
+```{r}
+#treatment
+#qplot(vdata$Treatment,vdata$HW_dens_1050,data=vdata,geom=c("boxplot","jitter"),color=vdata$Treatment,xlab="Burn treatment",ylab="Hardwood seedling density in understory")
+
+#print(ggplot(data=vdata,aes(Treatment,HW_dens_1050,colour=Treatment))+geom_boxplot(xlab="Burn treatment",ylab="Hardwood seedling density in understory"))
+
+# number of burns
+#qplot(vdata$Nburns,vdata$HW_dens_1050,data=vdata,geom=c("boxplot","jitter"),color=vdata$Treatment,xlab="Increasing number of burns",ylab="Hardwood seedling density in understory")
+
+#print(ggplot(data=vdata,aes(Nburns,HW_dens_1050,colour=Treatment))+geom_boxplot(xlab="Increasing number of burns",ylab="Hardwood seedling density in understory"))
+
+ggplot(data=vdata,aes(x=Treatment,y=HW_dens_1050,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Burn treatment",y="Hardwood seedling density in understory")
+
+ggplot(data=vdata,aes(x=Nburns,y=HW_dens_1050,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+geom_jitter()+labs(x="Increasing # of burns",y="Hardwood seedling density in understory")
+
+print(ggplot(data=vdata,aes(Nburns,HW_dens_1050))+geom_smooth(xlab="Increasing number of burns",ylab="Hardwood seedling density in understory")+geom_jitter())
+
+
+```
+
+#boxes/volume
+```{r}
+plot(Treatment ~ Ccover, data=vdata)
+plot(Treatment ~ Rel_HW2P_canopy, data=vdata)
+plot(Treatment ~ Ldepth, data=vdata)
+plot(Treatment ~ BA, data=vdata)
+plot(Treatment ~ FG_herb, data=vdata)
+plot(Treatment ~ HW_dens_1050, data=vdata)
+```
+
+#simple boxes
+```{r}
+plot(Ccover ~ Treatment, data=vdata)
+plot(Rel_HW2P_canopy ~ Treatment, data=vdata)
+plot(Ldepth ~ Treatment, data=vdata)
+plot(BA ~ Treatment, data=vdata)
+plot(FG_herb ~ Treatment, data=vdata)
+plot(HW_dens_1050 ~ Treatment, data=vdata)
+```
+
+#scatter, ordered
+```{r}
+library("ggplot2")
+print(ggplot(vdata, aes(Treatment, Ccover)) + geom_point())
+print(ggplot(vdata, aes(Treatment, Rel_HW2P_canopy)) + geom_point())
+print(ggplot(vdata, aes(Treatment, Ldepth)) + geom_point())
+print(ggplot(vdata, aes(Treatment, BA)) + geom_point())
+print(ggplot(vdata, aes(Treatment, FG_herb)) + geom_point())
+print(ggplot(vdata, aes(Treatment, HW_dens_1050)) + geom_point())
+```
+
+#jittered and color-coded treatment (nburns axis) instead
+```{r}
+print(ggplot(vdata, aes(Nburns, Ccover, colour=Treatment)) + geom_jitter())
+print(ggplot(vdata, aes(Nburns, Rel_HW2P_canopy, colour=Treatment)) + geom_jitter())
+print(ggplot(vdata, aes(Nburns, Ldepth, colour=Treatment)) + geom_jitter())
+print(ggplot(vdata, aes(Nburns, BA, colour=Treatment)) + geom_jitter())
+print(ggplot(vdata, aes(Nburns, FG_herb, colour=Treatment)) + geom_jitter())
+print(ggplot(vdata, aes(Nburns, HW_dens_1050, colour=Treatment)) + geom_jitter())
+```
+
+```{r}
+fig<-plot(Nthins ~ Age, vdata)
+abline(lm(vdata$Nthins ~ vdata$Age),col="blue")
+```

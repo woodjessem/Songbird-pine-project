@@ -123,38 +123,38 @@ msN.ybch
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #more appropriate detection covariates ()
-null.eabl <- pcount(~ Jdate ~1, eabl.abund, mixture="P", K=40)
+null.eabl <- pcount(~ Jdate ~1, eabl.abund, mixture="P", K=80)
 global.eabl <- pcount(~ Jdate
                       ~ Treatment + Herbicide + BA + Nsnags +Ccover
                        + Ldepth + TreeHt + Age + TimeSinceB + TimeSinceT + Nthins
                        + HW_dens_1050 + FG_herb + NHW_saplings
                        + PISoils + NSoilTypes
                        + Parea + ShapeIndex
-                       , eabl.abund, mixture="P", K=40)
+                       , eabl.abund, mixture="P", K=80)
 local.eabl <- pcount(~ Jdate
                      ~ Ccover + TreeHt + Ldepth
-                     , eabl.abund, mixture="P", K=40) #can only include BA OR CCover
+                     , eabl.abund, mixture="P", K=80) #can only include BA OR CCover
 lh.eabl <- pcount(~ Jdate
                   ~ BA + FG_herb + HW_dens_1050 + NHW_saplings + Nsnags
-                  , eabl.abund, mixture="P", K=40)
+                  , eabl.abund, mixture="P", K=80)
 # covariates: BA, canopy cover, low height and mid-height veg (lack thereof), cavities
 landmetrics.eabl <- pcount (~ Jdate
                           ~ Parea + ShapeIndex
-                        , eabl.abund, mixture="P",K=40)
+                        , eabl.abund, mixture="P",K=80)
 landscape500.eabl <- pcount(~ Jdate
                         ~ Grass500m + OpenDev500m + Schrubs500m + Ag500m
-                            , eabl.abund, mixture="P", K=40)
+                            , eabl.abund, mixture="P", K=80)
 landscape1.eabl <- pcount(~ Jdate
                        ~ Grass1km + OpenDev1km + Schrubs1km + Ag1km
-                          , eabl.abund, mixture="P", K=40)
+                          , eabl.abund, mixture="P", K=80)
 landscape5.eabl <- pcount(~ Jdate
                        ~ Grass5km + OpenDev5km + Schrubs5km + Ag5km
-                          , eabl.abund, mixture="P", K=40)
+                          , eabl.abund, mixture="P", K=80)
                   # - can't use Evergreen&Ag,
                   #+ can't use HighDev&OpenDev together
 landscape30.eabl <- pcount(~ Jdate
                        ~ Grass30km + OpenDev30km
-                           , eabl.abund, mixture="P", K=40)
+                           , eabl.abund, mixture="P", K=80)
                   #- can't use Protected&Ag together,
                   #- can't use Ag&HighDev together
                   #- can't use Evergreen&Ag together
@@ -166,16 +166,16 @@ landscape30.eabl <- pcount(~ Jdate
                   #+ can't use Schrubs&HighDev together
 treatment.eabl <- pcount(~ Jdate
                          ~ Treatment + Nthins
-                         , eabl.abund, mixture ="P", K=40)
+                         , eabl.abund, mixture ="P", K=80)
 management.eabl <- pcount(~ Jdate
                           ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide
-                          , eabl.abund, mixture="P", K=40)
+                          , eabl.abund, mixture="P", K=80)
 disturbance.eabl <- pcount(~ Jdate
                            ~ TimeSinceB + TimeSinceT
-                           , eabl.abund, mixture="P", K=40)
+                           , eabl.abund, mixture="P", K=80)
 siteprod.eabl <- pcount(~ Jdate ~ PISoils + NSoilTypes
-                        , eabl.abund, mixture="P", K=40) # + FPSiteIndex
-#upstate.eabl <- pcount(~ Jdate ~ X + Y + Z, eabl.abund, mixture="P", K=40)
+                        , eabl.abund, mixture="P", K=80) # + FPSiteIndex
+#upstate.eabl <- pcount(~ Jdate ~ X + Y + Z, eabl.abund, mixture="P", K=80)
 
 
 fmsEABL <- fitList(null.eabl, global.eabl, local.eabl, lh.eabl, landmetrics.eabl,

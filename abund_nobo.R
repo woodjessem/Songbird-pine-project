@@ -121,11 +121,11 @@ siteprod.nobo <- pcount(~ Jdate + Wind + Sky + Noise +Time ~ PISoils + NSoilType
 #upstate.nobo <- pcount(~ Jdate + Wind + Sky + Noise +Time ~ X + Y + Z, nobo.abund, mixture="NB", K=40)
 
 
-fms <- fitList(null.nobo, global.nobo, local.nobo, lh.nobo, landmetrics.nobo,
+fms <- fitList(null.nobo, local.nobo, lh.nobo, landmetrics.nobo,
                landscape500.nobo, landscape1.nobo, landscape5.nobo, landscape30.nobo,
                treatment.nobo, management.nobo, disturbance.nobo,
                 siteprod.nobo)
-ms.nobo <- modSel(fms) #note this does not include FPSiteIndex or upstate
+ms.nobo <- modSel(fms) #note this does not include FPSiteIndex or upstate OR GLOBAL
 ms.nobo
 ms.nobo@Full
 
