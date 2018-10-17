@@ -10,18 +10,18 @@ var(test[2:5])  #what were these testing for? variance>mean?
 #mean(test[2:4])
 mean(test$y.3)
 
-nobo.abund<- csvToUMF("nobo_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+test.nobo.abund<- csvToUMF("nobo_abund_old.csv", long = FALSE, type = "unmarkedFramePCount")
 ##type may need to change for occupancy (occuRN, pcountOpen, or whichever used) ##
 summary(nobo.abund)
 str(nobo.abund)
 #scale all observation covariates (covs of detection)
-obsCovs(nobo.abund)= scale (obsCovs(nobo.abund))
+obsCovs(test.nobo.abund)= scale (obsCovs(test.nobo.abund))
 #siteCovs(nobo.abund)= scale (siteCovs(nobo.abund))
 #select particular site covariates to scale below
 #(note: NOT ALL - not treatment, herbicide, or years ones)
-sc <- siteCovs(nobo.abund)
-sc[,c(5:74)] <- scale(sc[, c(5:74)]) #from 26 to 74 +landscape+soils
-siteCovs(nobo.abund) <- sc
+sc <- siteCovs(test.nobo.abund)
+sc[,c(5:75)] <- scale(sc[, c(5:75)]) #from 26 to 74 +landscape+soils
+siteCovs(test.nobo.abund) <- sc
 
 #test for NB or Poisson - most should use Poisson ... 
 testP.nobo <- pcount(~1 ~1, nobo.abund, mixture="P", K=4)
@@ -60,10 +60,56 @@ write.table(msDC.nobo@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON
 det.date.nobo  #positive with date
 confint(det.date.nobo, type="state", method="normal")   #overlaps 0 though
 
+summary(det.date.nobo)
+r<-residuals(det.date.nobo)
+r
+matplot(residuals(det.date.nobo))
+
+fitstats <- function(det.date.nobo) {
+  observed <- getY(det.date.nobo@data)
+  expected <- fitted(det.date.nobo)
+  resids <- residuals(det.date.nobo)
+  sse <- sum(resids^2, na.rm=TRUE)
+  chisq <- sum((observed[,1:3] - expected[,1:3])^2 / expected[,1:3])
+  freeTuke <- sum((sqrt(observed[,1:3]) - sqrt(expected[,1:3]))^2)
+  out <- c(SSE=sse, Chisq=chisq, freemanTukey=freeTuke)
+  return(out)
+}
+pb <- parboot(det.date.nobo, fitstats, nsim=25, report=1)
+plot(pb, main="")
+
+install.packages("AICcmodavg", dependencies = TRUE)
+install.packages("VGAM", dependencies=TRUE)
+library("AICcmodavg")
+Nmix.gof.test(det.date.nobo, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+#?Nmix.gof.test()
+Nmix.chisq(det.date.nobo)
+
 ##site covariates next
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # covariates: low BA, fires/disturbance, litter, low-medium HW cover?
+
+
+#BA2nobo<-(test.nobo.abund$BA)^2
+#BA2nobo
+
+lh.nobo.test <- pcount(~ Jdate + Wind + Sky + Noise +Time
+                  ~ BA + Ldepth + HW_dens_1050 + FG_shrub + Age
+                  , test.nobo.abund, mixture="NB", K=80)
+
+lh2.nobo <- pcount(~ Jdate + Wind + Sky + Noise +Time
+                   ~ BA2 + Ldepth + HW_dens_1050 + FG_shrub + Age
+                   , test.nobo.abund, mixture="NB", K=80)
+
+fms2<- fitList(lh.nobo, lh2.nobo)
+test.ms.nobo<-modSel(fms2)
+test.ms.nobo
+# non-quadratic BA is slightly better
+
+summary(lh.nobo.test)
+r<-residuals(lh.nobo)
+r
 
 #more appropriate detection covariates (global)
 null.nobo <- pcount(~ Jdate + Wind + Sky + Noise +Time ~1, nobo.abund, mixture="NB", K=80)
@@ -80,7 +126,7 @@ local.nobo <- pcount(~ Jdate + Wind + Sky + Noise +Time
                      , nobo.abund, mixture="NB", K=80) #can only include BA OR CCover
 lh.nobo <- pcount(~ Jdate + Wind + Sky + Noise +Time
                   ~ BA + Ldepth + HW_dens_1050 + FG_shrub + Age
-                  , nobo.abund, mixture="NB", K=80)
+                  ,nobo.abund, mixture="NB", K=80)
 landmetrics.nobo <- pcount (~ Jdate + Wind + Sky + Noise +Time
                           ~ Parea + ShapeIndex
                         , nobo.abund, mixture="NB",K=80)
@@ -121,13 +167,15 @@ siteprod.nobo <- pcount(~ Jdate + Wind + Sky + Noise +Time ~ PISoils + NSoilType
 #upstate.nobo <- pcount(~ Jdate + Wind + Sky + Noise +Time ~ X + Y + Z, nobo.abund, mixture="NB", K=40)
 
 
-fms <- fitList(null.nobo, local.nobo, lh.nobo, landmetrics.nobo,
+fms <- fitList(null.nobo, local.nobo, lh.nobo, lh2.nobo, landmetrics.nobo,
                landscape500.nobo, landscape1.nobo, landscape5.nobo, landscape30.nobo,
                treatment.nobo, management.nobo, disturbance.nobo,
                 siteprod.nobo)
 ms.nobo <- modSel(fms) #note this does not include FPSiteIndex or upstate OR GLOBAL
 ms.nobo
 ms.nobo@Full
+
+
 
 lh.nobo
 #dispersion & abundance summary:
@@ -189,6 +237,12 @@ testEv5km.nobo <- pcount(~1 ~ Evergreen5km, nobo.abund, mixture="NB", K=10)
 fmshab.test <- fitList(testAg5km.nobo, testEv5km.nobo)
 msHT.nobo <- modSel(fmshab.test)
 msHT.nobo
+
+#run this when have CSV with both years
+year.nobo<-pcount(~1,~YearCat)
+fms.year.nobo<- fitList(null.nobo, year.nobo)
+year.ms.nobo<-modSel(fms.year.nobo)
+year.ms.nobo
 
 ################### paste parboot stuff below when figured out ####
 prwa.abund<- csvToUMF("prwa_abund.csv", long = FALSE, type = "unmarkedFramePCount")

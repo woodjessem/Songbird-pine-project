@@ -70,7 +70,7 @@ install.packages("AICcmodavg", dependencies = TRUE)
 install.packages("VGAM", dependencies=TRUE)
 library("AICcmodavg")
 Nmix.gof.test(landscape5.prwa, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
-?Nmix.gof.test()
+#?Nmix.gof.test()
 Nmix.chisq(landscape5.prwa)
 
 

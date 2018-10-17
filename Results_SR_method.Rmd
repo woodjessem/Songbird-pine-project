@@ -1,7 +1,7 @@
 ---
-title: "Results trial - SR"
+title: "Results - SR - AC vs PC"
 author: "Jesse Wood"
-date: "June 22, 2018"
+date: "Oct 1, 2018"
 output:
   word_document: default
   html_document: default
@@ -11,16 +11,15 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-
 Setup
 ```{r}
 library("unmarked")
+library("stats")
+library(sjPlot)
+#library(sjmisc)
+library(ggplot2)
+library(gridExtra)
 setwd("C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds")
-
 ```
 
 # Evaluate Audio Counts (AC) vs Point Counts (PC)
@@ -48,26 +47,68 @@ evaluation1<-lm(SR ~ Type, methodSR1)  #non-significant
 summary(evaluation1)
 confint(evaluation1, level=0.95)
 anova(evaluation1)
+plot(evaluation1)
 ```
 ```{r}
 evaluation2<-lm(SR ~ Sdate, methodSR1)  #non-significant
 summary(evaluation2)
 confint(evaluation2, level=0.95)
 anova(evaluation2)
+plot(evaluation2)
 ```
+```{r}
+Sdate2<-methodSR1$Sdate^2
+Sdate2
+
+evaluation2B<-lm(SR ~ Sdate2, methodSR1)  #non-significant
+summary(evaluation2B)
+confint(evaluation2B, level=0.95)
+anova(evaluation2B)
+plot(evaluation2B)
+```
+
 
 ```{r}
 evaluation3<-lm(SR ~ Stime, methodSR1)    #non-significant
 summary(evaluation3)
 confint(evaluation3, level=0.95)
 anova(evaluation3)
+plot(evaluation3)
 ```
+```{r}
+Stime2<-methodSR1$Stime^2
+evaluation3B<-lm(SR ~ Stime2, methodSR1)    #non-significant
+summary(evaluation3B)
+confint(evaluation3B, level=0.95)
+anova(evaluation3B)
+plot(evaluation3B)
+```
+
 
 ```{r}
 evaluation4<-lm(SR ~ Pdate, methodSR1)    #non-significant
 summary(evaluation4)
 confint(evaluation4, level=0.95)
 anova(evaluation4)
+plot(evaluation4)
+```
+
+```{r}
+Pdate2<-(methodSR1$Pdate)^2
+evaluation4B<-lm(SR ~ Pdate2, methodSR1)    #non-significant
+summary(evaluation4B)
+confint(evaluation4B, level=0.95)
+anova(evaluation4B)
+plot(evaluation4B)
+```
+
+```{r}
+Pdate3<-(methodSR1$Pdate)^3
+evaluation4C<-lm(SR ~ Pdate + Pdate2 + Pdate3, methodSR1)    #non-significant
+summary(evaluation4C)
+confint(evaluation4C, level=0.95)
+anova(evaluation4C)
+plot(evaluation4C)
 ```
 
 ```{r}
@@ -75,6 +116,7 @@ evaluation5<-lm(SR ~ Pmin, methodSR1)    #significant + linear relationship
 summary(evaluation5)
 confint(evaluation5, level=0.95)
 anova(evaluation5)
+plot(evaluation5)
 ```
 
 ```{r}
@@ -82,9 +124,24 @@ evaluation6<-lm(SR ~ Peffort, methodSR1)  #significant + linear relationship
 summary(evaluation6)
 confint(evaluation6, level=0.95)
 anova(evaluation6)
+plot(evaluation6)
 ```
-
-
+```{r}
+Peffort2<-(methodSR1$Peffort)^2
+evaluation6B<-lm(SR ~ Peffort2, methodSR1)  #significant + linear relationship
+summary(evaluation6B)
+confint(evaluation6B, level=0.95)
+anova(evaluation6B)
+plot(evaluation6B)
+```
+```{r}
+Peffort3<-(methodSR1$Peffort)^3
+evaluation6C<-lm(SR ~ Peffort3, methodSR1)  #significant + linear relationship
+summary(evaluation6C)
+confint(evaluation6C, level=0.95)
+anova(evaluation6C)
+plot(evaluation6C)
+```
 
 # Visit 2
 ```{r}
@@ -180,6 +237,11 @@ summary(evaluation15)
 confint(evaluation15, level=0.95)
 anova(evaluation15)
 ```
+```{r}
+plot(SR ~ Stime, methodSR3)
+plot(evaluation15)
+```
+
 
 ```{r}
 evaluation16<-lm(SR ~ Pdate, methodSR3)    #significant +!
@@ -209,7 +271,7 @@ anova(evaluation18)
 ```
 
 
-#3 visits pooled - redone with only 3 PC visits this time (not 4)
+#3 visits pooled 2017 - redone with only 3 PC visits this time (not 4)
 
 ```{r}
 #File read-in
@@ -227,62 +289,1460 @@ confint(evaluationOSR, level=0.95)
 anova(evaluationOSR)
 ```
 
-#3 visits pooled - redone with only 3 PC visits this time (not 4)
-# Investigate date (survey date + process date)
 
-
-###### BELOW THIS LINE, NOT UPDATED WITH UNKNS REMOVED ######
-
-#Point Count Data Only#
-  ## all 4 PC visits pooled ## 
-```{r}
-#sr_covs CSV file is SR by sites by point counts (pooled 1-4) file (NP flyovers excluded)
-richness <-read.csv("sr_covs.csv") #SR by sites by point count overall SR #all effort
-summary(richness)
-str(richness)
-#var(richness[2:5])
-#mean(richness[2:2])
-#mean(richness$SR)
-```
+#### 2018 on its own #######
 
 ```{r}
-richness <-read.csv("sr_covs.csv") #SR by sites by point count overall SR #all effort
-richness$Herbicide <- factor(richness$Herbicide)
-sapply(richness, mean, na.rm=TRUE)
-library(psych)
-sumtable <- describeBy(richness, group=richness$Treatment)
-sumtable
-#write.table(sumtable, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/SR_summary_by_Treatment.xls",sep="\t")
+#File read-in
+# updated 8/27 - unknowns REMOVED (in both AC + PC)
+methodSR1 <-read.csv("18_1by1_ACPC_SR.csv") #SR by 1 visit each - Site Type SR
+summary(methodSR1)
+str(methodSR1)
 
 ```
 
 ```{r}
-#begin simple explorations of some exp variables
-plot(richness$SR ~ richness$Age)
-plot(richness$SR ~ richness$Nburns)
-plot(richness$SR ~ richness$BA)
-plot(richness$SR ~ richness$Parea)
+#plot(methodSR1$SR ~ methodSR1$Type)   #same as below
+plot(SR ~ Type, data=methodSR1)
+plot(SR ~ Sdate, data=methodSR1)
+plot(SR ~ Stime, data=methodSR1)
+plot(SR ~ Pdate, data=methodSR1)
+plot(SR ~ Pmin, data=methodSR1)
+plot(SR ~ Peffort, data=methodSR1)
+```
 
-lm(SR ~ Treatment, richness)
-summary(lm(SR ~ Treatment, richness))   #3B statistically different from others
-plot(SR ~ Treatment, data=richness)
+```{r}
+evaluation1<-lm(SR ~ Type, methodSR1)      #sig
+summary(evaluation1)
+confint(evaluation1, level=0.95)
+anova(evaluation1)
+```
 
-lm(SR ~ Herbicide, richness)
-summary(lm(SR ~ Herbicide, richness))   #nothing going on here - no stat sig difference bw 0 or 1
-plot(SR ~ Herbicide, data=richness)
+```{r}
+test1<-lm(SR ~ Sdate, methodSR1)
+summary(test1)
+confint(test1, level=0.95)
+anova(test1)
+```
 
-lm(SR ~ Nthins, data=richness)
-plot(SR ~ Nthins, data=richness)
-interaction.plot(richness$Treatment, richness$Nburns, richness$SR)
+```{r}
+test2<-glm(SR ~ Sdate, family=gaussian, data=methodSR1)
+summary(test2)
+confint(test2, level=0.95)
+anova(test2)
+```
 
-summary(lm(SR ~ Parea, richness))   #so no species-area relationsip?
+```{r}
+test3<-glm(SR ~ Sdate, data=methodSR1, family=poisson())
+summary(test3)
+confint(test3, level=0.95)
+anova(test3)
+plot(test3)
+plot(test2)
+```
 
-fit<-lm(SR ~ Treatment + BA + Parea, data=richness)
-summary(fit)
-confint(fit, level=0.95)
-anova(fit)
+```{r}
+#test2<-glm(SR ~ Sdate, family=gaussian, data=methodSR1)
+#test3<-glm(SR ~ Sdate, data=methodSR1, family=poisson())
+#AIC(test2,test3)
 
-plot(SR ~ Age, ann=FALSE, type="n", xlim=c(10,60), ylim=c(10,40), data=richness)
-lines(SR~Age,lwd=2, data=richness)
+#dtest <- fitList(test1, test2, test3)
+#dtest1 <- modSel(dtest)
+#dtest1
+```
 
+
+```{r}
+evaluation2<-lm(SR ~ Sdate, methodSR1)       #sig
+summary(evaluation2)
+confint(evaluation2, level=0.95)
+anova(evaluation2)
+```
+```{r}
+plot(SR ~ Sdate, methodSR1)
+plot(evaluation2)
+```
+
+```{r}
+#testing a quadratic for real this time  # not this variable, though!
+Sdate2BB<-(methodSR1$Sdate)^2
+Sdate2BB
+evaluation2BB<-lm(SR ~ Sdate + Sdate2BB, methodSR1)
+summary(evaluation2BB)
+confint(evaluation2BB, level=0.95)
+anova(evaluation2BB)
+```
+
+
+```{r}
+evaluation3<-lm(SR ~ Stime, methodSR1)       #non-sig
+summary(evaluation3)
+confint(evaluation3, level=0.95)
+anova(evaluation3)
+```
+
+```{r}
+evaluation4<-lm(SR ~ Pdate, methodSR1)               #non-sig
+summary(evaluation4)
+confint(evaluation4, level=0.95)
+anova(evaluation4)
+```
+
+```{r}
+evaluation5<-lm(SR ~ Pmin, methodSR1)          #non-sig
+summary(evaluation5)
+confint(evaluation5, level=0.95)
+anova(evaluation5)
+```
+
+```{r}
+evaluation6<-lm(SR ~ Peffort, methodSR1)               #non-sig
+summary(evaluation6)
+confint(evaluation6, level=0.95)
+anova(evaluation6)
+plot(evaluation6)
+```
+
+
+
+# Visit 2
+```{r}
+methodSR2 <-read.csv("18_2by2_ACPC_SR.csv") #SR by count #2 each - Site Type SR
+#summary(methodSR2)
+str(methodSR2)
+
+```
+
+```{r}
+plot(methodSR2$SR ~ methodSR2$Type)
+plot(methodSR2$SR ~ methodSR2$Stime)
+#plot(SR ~ Type, data=methodSR)  #same as above
+```
+
+```{r}
+evaluation7<-lm(SR ~ Type, methodSR2)     #non-sig
+summary(evaluation7)
+confint(evaluation7, level=0.95)
+anova(evaluation7)
+```
+
+```{r}
+evaluation8<-lm(SR ~ Sdate, methodSR2)    #non-sig
+summary(evaluation8)
+confint(evaluation8, level=0.95)
+anova(evaluation8)
+```
+
+```{r}
+evaluation9<-lm(SR ~ Stime, methodSR2)             #sig
+summary(evaluation9)
+confint(evaluation9, level=0.95)
+anova(evaluation9)
+```
+```{r}
+plot(SR ~ Stime, methodSR2)
+plot(evaluation9)
+```
+
+```{r}
+#testing a quadratic for real this time  # is or is not better for this variable, though!
+Stime2C<-(methodSR2$Stime)^2
+Stime2C
+evaluation2C<-lm(SR ~ Stime + Stime2C, methodSR2)
+summary(evaluation2C)
+confint(evaluation2C, level=0.95)
+anova(evaluation2C)
+plot(evaluation2C)
+```
+
+```{r}
+AIC(evaluation9,evaluation2C)
+```
+
+
+
+```{r}
+evaluation10<-lm(SR ~ Pdate, methodSR2)           #non-sig
+summary(evaluation10)
+confint(evaluation10, level=0.95)
+anova(evaluation10)
+```
+
+```{r}
+evaluation11<-lm(SR ~ Pmin, methodSR2)         #non-sig
+summary(evaluation11)
+confint(evaluation11, level=0.95)
+anova(evaluation11)
+```
+
+```{r}
+evaluation12<-lm(SR ~ Peffort, methodSR2)              #non-sig
+summary(evaluation12)
+confint(evaluation12, level=0.95)
+anova(evaluation12)
+```
+
+
+
+# Visit 3
+```{r}
+#File read-in
+methodSR3 <-read.csv("18_3by3_ACPC_SR.csv") #SR by count #3 each - Site Type SR
+#summary(methodSR3)
+str(methodSR3)
+
+```
+
+```{r}
+plot(methodSR3$SR ~ methodSR3$Type)   #
+#plot(SR ~ Type, data=methodSR)  #same as above
+```
+
+```{r}
+evaluation13<-lm(SR ~ Type, methodSR3)         #non-sig
+summary(evaluation13)
+confint(evaluation13, level=0.95)
+anova(evaluation13)
+```
+
+```{r}
+evaluation14<-lm(SR ~ Sdate, methodSR3)          #non-sig
+summary(evaluation14)
+confint(evaluation14, level=0.95)
+anova(evaluation14)
+```
+
+```{r}
+evaluation15<-lm(SR ~ Stime, methodSR3)             #sig
+summary(evaluation15)
+confint(evaluation15, level=0.95)
+anova(evaluation15)
+```
+
+```{r}
+plot(SR ~ Stime, methodSR3)
+plot(evaluation15)
+```
+
+
+```{r}
+evaluation16<-lm(SR ~ Pdate, methodSR3)           #non-sig
+summary(evaluation16)
+confint(evaluation16, level=0.95)
+anova(evaluation16)
+```
+
+
+```{r}
+evaluation17<-lm(SR ~ Pmin, methodSR3)           #non-sig
+summary(evaluation17)
+confint(evaluation17, level=0.95)
+anova(evaluation17)
+```
+
+```{r}
+evaluation18<-lm(SR ~ Peffort, methodSR3)          #very close to sig (p.0591)
+summary(evaluation18)
+confint(evaluation18, level=0.95)
+anova(evaluation18)
+```
+
+```{r}
+plot(SR ~ Peffort, methodSR3)
+plot(evaluation18)
+```
+
+
+
+#3 visits pooled, 2018 alone
+
+```{r}
+#File read-in
+# UNKNS removed
+methodOSR <-read.csv("18_all3_ACPC_SR.csv") #SR by 3 counts pooled SR with unkns extracted
+#summary(methodOSR)
+str(methodOSR)
+plot(methodOSR$SR ~ methodOSR$Type)
+tapply(methodOSR$SR, methodOSR$Type,mean)
+```
+
+```{r}
+evaluationOSR<-lm(SR ~ Type, methodOSR)         #non-sig
+summary(evaluationOSR)
+confint(evaluationOSR, level=0.95)
+anova(evaluationOSR)
+```
+
+########################################################
+########################################################
+########################################################
+########################################################
+########################################################
+########################################################
+########################################################
+########################################################
+########################################################
+
+
+########################################################
+#### 2017+2018 together #######
+########################################################
+#don't forget to do min, max, mean, etc. and test if significant effect of years - do separately if so. pool if not.
+
+```{r}
+#File read-in
+# UNKNS removed
+methodOOSR <-read.csv("17_18_all3_ACPC_SR.csv") #SR by 3 counts pooled SR with unkns extracted for BOTH years - Year column A or B
+summary(methodOOSR)
+str(methodOOSR)
+plot(methodOOSR$SR ~ methodOOSR$Type)
+```
+
+```{r}
+quantiles_95<-function(x){
+  r<-quantile(x,probs=c(0.025,0.25,0.5,0.75,0.975))
+  names(r)<-c("ymin","lower","middle","upper","ymax")
+  r
+}
+
+ggplot(data=methodOOSR,aes(x=Type,y=SR,fill=Type))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+labs(x="Survey Method",y="Species Richness (all 3 visits)")+scale_fill_manual(breaks=c("AC","PC"),values=c("darkcyan","coral")) +coord_cartesian(ylim=c(18, 36)) + scale_y_continuous(breaks=seq(18, 34, 2))+ geom_text(x=2, y=34, label=" * ",color=1) + theme(panel.border = element_blank(),panel.grid.major = element_blank(),panel.grid.minor = element_blank())
+
+
+#text(x=2, y=max(dfrm$y[dfrm$x==2]), "*", pos=3, cex=1.2)
+
+#removed geom_jitter()   points(30, 34, pch = "*")
+```
+
+
+```{r}
+summary(methodOOSR$SR)
+#library(psych)
+mean(methodOOSR$SR)
+#tapply(methodOOSR$SR, methodOOSR$Type)
+```
+
+```{r}
+evaluationOOSR<-lm(SR ~ Type, methodOOSR)    #sig - PC + 
+summary(evaluationOOSR)
+confint(evaluationOOSR, level=0.95)
+#anova(evaluationOOSR)
+```
+```{r}
+evaluationOOSR1<-lm(SR ~ Type + Year, methodOOSR)    #sig + PC, year not 
+summary(evaluationOOSR1)
+confint(evaluationOOSR1, level=0.95)
+#anova(evaluationOOSR)
+```
+
+```{r}
+AIC(evaluationOOSR, evaluationOOSR1, yearintevalOOSR) #regular, no year best.
+```
+
+Evaluated effect of year on SR results and no significant difference, so it is ok to pool for the rest of the Ch 2 results!
+```{r}
+yearevalOOSR<-lm(SR ~ Year, methodOOSR)
+summary(yearevalOOSR)
+confint(yearevalOOSR, level=0.95)
+anova(yearevalOOSR)
+plot(yearevalOOSR)
+```
+
+No sig interaction w/ both (Year * Type nor Year + Type)
+```{r}
+yearintevalOOSR<-lm(SR ~ Year * Type, methodOOSR)
+summary(yearintevalOOSR)
+confint(yearintevalOOSR, level=0.95)
+#anova(yearintevalOOSR)
+```
+
+
+########################################################################### 
+##back to individual visits, but years pooled together (17+18): ##
+#visit 1 _ method only 
+```{r}
+methodYSR1 <-read.csv("17_18_1by1_ACPC_SR.csv") #SR by count #1 each - Site Type SR
+#summary(methodYSR1)
+str(methodYSR1)
+
+```
+
+```{r}
+plot(methodYSR1$SR ~ methodYSR1$Type)
+```
+
+```{r}
+evaluationYVM1<-lm(SR ~ Type, methodYSR1)        #sig! p.0002
+summary(evaluationYVM1)
+confint(evaluationYVM1, level=0.95)
+#anova(evaluationYVM1)
+#plot(evaluationYVM1)
+```
+
+#visit 2 _ method only
+```{r}
+methodYSR2 <-read.csv("17_18_2by2_ACPC_SR.csv") #SR by count #2 each - Site Type SR
+#summary(methodYSR2)
+str(methodYSR2)
+
+```
+
+```{r}
+plot(methodYSR2$SR ~ methodYSR2$Type)
+#plot(SR ~ Type, data=methodSR)  #same as above
+```
+
+```{r}
+evaluationYVM2<-lm(SR ~ Type, methodYSR2)     #non-sig
+summary(evaluationYVM2)
+confint(evaluationYVM2, level=0.95)
+anova(evaluationYVM2)
+```
+
+#visit 3 _ method only
+```{r}
+methodYSR3 <-read.csv("17_18_3by3_ACPC_SR.csv") #SR by count #3 each - Site Type SR
+#summary(methodYSR3)
+str(methodYSR3)
+
+```
+
+```{r}
+plot(methodYSR3$SR ~ methodYSR3$Type)
+#plot(SR ~ Type, data=methodSR)  #same as above
+```
+
+```{r}
+evaluationYVM3<-lm(SR ~ Type, methodYSR3)     #marginally, p 0.0535
+summary(evaluationYVM3)
+confint(evaluationYVM3, level=0.95)
+anova(evaluationYVM3)
+```
+
+#### 2017+2018 COMBINED, SOLO VISITS - ALL VARIABLES #######
+
+# visit 1 - all variables # 
+```{r}
+#File read-in
+# updated 9/12 - unknowns REMOVED (in both AC + PC)
+methodYSR1 <-read.csv("17_18_1by1_ACPC_SR.csv") #SR by count #1 each - Site Type SR
+#summary(methodYSR1)
+str(methodYSR1)
+
+```
+
+```{r}
+#testing distribution - ran thru all variables here - gaussian is best for ALL
+test2<-glm(SR ~ Sdate, family=gaussian(), data=methodYSR1)
+test3<-glm(SR ~ Sdate, family=poisson(), data=methodYSR1)
+AIC(test2,test3)
+```
+
+```{r}
+#plot(methodYSR1$SR ~ methodYSR1$Type)   #same as below
+plot(SR ~ Type, data=methodYSR1)
+plot(SR ~ Sdate, data=methodYSR1)
+plot(SR ~ Stime, data=methodYSR1)
+plot(SR ~ Pdate, data=methodYSR1)
+plot(SR ~ Pmin, data=methodYSR1)  #?
+plot(SR ~ Peffort, data=methodYSR1)
+```
+
+```{r}
+evaluationYV1A<-lm(SR ~ Year, methodYSR1)     #year 2018 significantly more +
+summary(evaluationYV1A)
+confint(evaluationYV1A, level=0.95)
+#anova(evaluationYV1A)
+```
+
+```{r}
+evaluationYV1<-lm(SR ~ Type+Year, methodYSR1)      #sig
+summary(evaluationYV1)
+confint(evaluationYV1, level=0.95)
+#anova(evaluationYV1)
+```
+
+```{r}
+evaluationYV1B<-lm(SR ~ Type*Year, methodYSR1)      #interaction is sig too
+summary(evaluationYV1B)
+confint(evaluationYV1B, level=0.95)
+#anova(evaluationYV1B)
+```
+
+
+```{r}
+AIC(evaluationYVM1, evaluationYV1,evaluationYV1B) #technically, interaction model is best
+```
+
+```{r}
+quantiles_95<-function(x){
+  r<-quantile(x,probs=c(0.025,0.25,0.5,0.75,0.975))
+  names(r)<-c("ymin","lower","middle","upper","ymax")
+  r
+}
+
+visit1SRtype <- ggplot(data=methodYSR1,aes(x=Type,y=SR,fill=Type))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+labs(x="Survey Method",y="Species Richness (visit 1")+scale_fill_manual(breaks=c("AC","PC"),values=c("darkcyan","coral")) + coord_cartesian(ylim=c(6, 30)) + scale_y_continuous(breaks=seq(6, 30, 2))+ geom_text(x=2, y=26, label=" * ",color=1) + theme(panel.border = element_blank(),panel.grid.major = element_blank(),panel.grid.minor = element_blank())
+visit1SRtype
+
+levels(methodYSR1$Type)
+
+fig2<-plot_model(evaluationYV1B, type="int", terms=c("Type","Year"))
+fig2<-fig2 + labs(x= "Type", y="Species Richness  (visit 1)") + theme(panel.grid.minor.x = element_blank()) + xlim(c("AC","PC"))
+fig2
+```
+
+
+```{r}
+plot(evaluationYV1B)
+```
+
+```{r}
+evaluationYV2<-lm(SR ~ Sdate+Year, methodYSR1)       #sig - date, + year
+summary(evaluationYV2)
+confint(evaluationYV2, level=0.95)
+#anova(evaluationYV2)
+```
+
+```{r}
+evaluationYV2B<-lm(SR ~ Sdate*Year, methodYSR1)       #interaction term sig but not date 
+summary(evaluationYV2B)
+confint(evaluationYV2B, level=0.95)
+#anova(evaluationYV2B)
+```
+
+```{r}
+AIC(evaluationYV2,evaluationYV2B)  #interaction model better
+```
+
+```{r}
+plot(SR ~ Sdate, methodYSR1)
+plot(evaluationYV2)
+plot(evaluationYV2B)
+```
+^tested for quadratic effect for date (even though doesnt look) and it definitely wasn't better.
+
+```{r}    
+#year is missing from this!!! not the actual top model
+evaluationYVa2<-lm(SR ~ Sdate, methodYSR1)
+plot(SR ~ Sdate, methodYSR1, pch=16, axes=F, xlab="", ylab="")
+axis(1,cex.axis=0.8)
+mtext(text="Survey Date", side = 1, line = 3)
+axis(2,las=1)
+mtext(text="Species Richness by Site", side = 2, line = 3)
+box(bty="l")
+x<-seq(min(methodYSR1$Sdate), max(methodYSR1$Sdate),l=1000)
+points(x, predict(evaluationYVa2, data.frame(Sdate=x)),type="l")
+```
+
+```{r}    
+evaluationYV2B<-lm(SR ~ Sdate * Year, methodYSR1)  #but methods combined here
+plot_model(evaluationYV2B, type="pred", terms=c("Sdate","Year"),colors = c("cadetblue","coral"))
+
+```
+
+#interlude to break apart method, but still keep both years in
+```{r}
+methodYSR1pc <-read.csv("17_18_1by1_ACPC_SR_pc.csv") #SR by count #1 each
+evaluationpc1d<-lm(SR ~ Sdate + Year, methodYSR1pc)  #no date effect, just year
+summary(evaluationpc1d)
+confint(evaluationpc1d, level=0.95)
+#anova(evaluationpc1d)
+#plot(evaluationpc1d)
+
+# anything else better? additive
+evaluationpc1d2<-lm(SR ~ Sdate + Year, methodYSR1pc)  #no date effect, just year
+summary(evaluationpc1d2)
+confint(evaluationpc1d2, level=0.95)
+```
+
+
+```{r}
+#plot_model(evaluationpc1d, type="pred", terms=c("Sdate","Year"))
+```
+
+#interlude to break apart method, but still keep both years in
+```{r}
+methodYSR1ac <-read.csv("17_18_1by1_ACPC_SR_ac.csv") #SR by count #1 each
+evaluationac1d<-lm(SR ~ Sdate*Year, methodYSR1ac)  # no effect of date
+summary(evaluationac1d)
+confint(evaluationac1d, level=0.95)
+#anova(evaluationac1d)
+#plot(evaluationac1d)
+```
+
+```{r}
+plot_model(evaluationac3t, type="pred", terms=c("Stime"))
+```
+
+
+
+```{r}
+evaluationYV3<-lm(SR ~ Stime+Year, methodYSR1)       #year effect but time non-sig
+summary(evaluationYV3)
+confint(evaluationYV3, level=0.95)
+#anova(evaluationYV3)
+plot(evaluationYV3)
+```
+
+```{r}
+evaluationYV3B<-lm(SR ~ Stime*Year, methodYSR1)       #non-sig int term
+summary(evaluationYV3B)
+confint(evaluationYV3B, level=0.95)
+anova(evaluationYV3B)
+plot(evaluationYV3B)
+```
+
+```{r}
+evaluationYV3C<-lm(SR ~ Year + Stime + I(Stime^2), methodYSR1)       #year effect but time non-sig
+summary(evaluationYV3C)
+confint(evaluationYV3C, level=0.95)
+anova(evaluationYV3C)
+plot(evaluationYV3C)
+```
+
+```{r}
+AIC(evaluationYV3, evaluationYV3B, evaluationYV3C)  #first one so far where additive better fit, quadratic term for time is NOT better
+```
+
+```{r}
+matplot(residuals(evaluationYV3))
+matplot(residuals(evaluationYV3C))
+matplot(residuals(evaluationYV3B))
+```
+
+#interlude to break apart method, but still keep both years in
+```{r}
+methodYSR1pc <-read.csv("17_18_1by1_ACPC_SR_pc.csv") #SR by count #1 each
+evaluationpc1t<-lm(SR ~ Stime+Year, methodYSR1pc)  #no time effect, year effect
+summary(evaluationpc1t)
+confint(evaluationpc1t, level=0.95)
+#anova(evaluationpc1t)
+plot(evaluationpc1t)
+
+#interaction not better.
+```
+
+#interlude to break apart method, but still keep both years in
+```{r}
+methodYSR1ac <-read.csv("17_18_1by1_ACPC_SR_ac.csv") #SR by count #1 each
+evaluationac1t<-lm(SR ~ Stime+Year, methodYSR1ac)  #no time effect, year effect
+summary(evaluationac1t)
+confint(evaluationac1t, level=0.95)
+#anova(evaluationac1t)
+plot(evaluationac1t)
+
+#interaction not better.
+```
+
+
+
+
+```{r}
+evaluationYV4<-lm(SR ~ Pdate+Year, methodYSR1)    #neither sig, not even year
+summary(evaluationYV4)
+confint(evaluationYV4, level=0.95)
+anova(evaluationYV4)
+plot(evaluationYV4)
+```
+
+```{r}
+evaluationYV4B<-lm(SR ~ Pdate*Year, methodYSR1)   #nothing sig
+summary(evaluationYV4B)
+confint(evaluationYV4B, level=0.95)
+#anova(evaluationYV4B)
+plot(evaluationYV4B)
+```
+```{r}
+evaluationYV4C<-lm(SR ~ Pdate+I(Pdate^2)+Year, methodYSR1)    #neither sig, not even year
+summary(evaluationYV4C)
+confint(evaluationYV4C, level=0.95)
+#anova(evaluationYV4C)
+plot(evaluationYV4C)
+```
+
+```{r}
+evaluationYV4D<-lm(SR ~ Pdate+I(Pdate^2)+I(Pdate^3)+Year, methodYSR1)    #neither sig, not even year
+summary(evaluationYV4D)
+confint(evaluationYV4D, level=0.95)
+#anova(evaluationYV4D)
+plot(evaluationYV4D)
+```
+
+```{r}
+AIC(evaluationYV4,evaluationYV4B)     #additive actually better
+AIC(evaluationYV4,evaluationYV4B, evaluationYV4C, evaluationYV4D) #nonlinear
+```
+
+```{r}
+evaluationYV5<-lm(SR ~ Pmin + Year, methodYSR1)     #both sig (Pmin is +)
+summary(evaluationYV5)
+confint(evaluationYV5, level=0.95)
+#anova(evaluationYV5)
+```
+
+```{r}
+evaluationYV5B<-lm(SR ~ Pmin * Year, methodYSR1)  #p min & year are sig; int term not
+summary(evaluationYV5B)
+confint(evaluationYV5B, level=0.95)
+#anova(evaluationYV5B)
+```
+
+```{r}
+evaluationYV5C<-lm(SR ~ Pmin + I(Pmin^2) + Year, methodYSR1)
+summary(evaluationYV5C)
+confint(evaluationYV5C, level=0.95)
+#anova(evaluationYV5C)
+```
+```{r}
+evaluationYV5D<-lm(SR ~ Pmin + I(Pmin^2) + I(Pmin^3) + Year, methodYSR1)
+summary(evaluationYV5D)
+confint(evaluationYV5D, level=0.95)
+#anova(evaluationYV5D)
+```
+
+
+
+```{r}
+evaluationYVa5<-lm(SR ~ Pmin, methodYSR1)
+#summary(methodYSR1$Pmin)  #min 12, max 65
+summary(evaluationYVa5)
+confint(evaluationYVa5, level=0.95)
+#anova(evaluationYVa5)
+plot(SR ~ Pmin, methodYSR1, pch=16, axes=F, xlab="", ylab="")
+axis(1,cex.axis=0.8)
+mtext(text="Time Spent Processing Surveys (minutes)", side = 1, line = 3)
+axis(2,las=1)
+mtext(text="Species Richness by Site", side = 2, line = 3)
+box(bty="l")
+x<-seq(12,65,l=1000)
+points(x, predict(evaluationYVa5, data.frame(Pmin=x)),type="l")
+```
+
+```{r}
+AIC(evaluationYV5,evaluationYV5B)     #ADDITIVE better
+AIC(evaluationYV5, evaluationYV5B, evaluationYV5C, evaluationYV5D, evaluationYVa5) #nonlinear best
+```
+
+```{r}
+evaluationYV5<-lm(SR ~ Pmin + Year, methodYSR1)
+summary(evaluationYV5)
+fig7 <- plot_model(evaluationYV5, type="pred",terms=c("Pmin", "Year"),colors=c("deepskyblue", "dodgerblue4"))
+fig7 <- fig7 + labs(x= "Time spent processing audio files", y="AC Species Richness  (visit 1)")
+fig7
+```
+
+```{r}
+evaluationYV6<-lm(SR ~ Peffort + Year, methodYSR1)               #sig
+summary(evaluationYV6)
+confint(evaluationYV6, level=0.95)
+anova(evaluationYV6)
+```
+
+
+```{r}
+evaluationYV6B<-lm(SR ~ Peffort * Year, methodYSR1)            #int term non-sig
+summary(evaluationYV6B)
+confint(evaluationYV6B, level=0.95)
+anova(evaluationYV6B)
+```
+
+#absolutely no reason to believe Peffort would be quadratic - not going to do it automatically.
+
+```{r}
+evaluationYVa6<-lm(SR ~ Peffort, methodYSR1)        #nonsig
+#summary(methodYSR1$Peffort)  #min 1, max 8
+summary(evaluationYVa6)
+confint(evaluationYVa6, level=0.95)
+anova(evaluationYVa6)
+plot(SR ~ Peffort, methodYSR1, pch=16, axes=F, xlab="", ylab="")
+axis(1,cex.axis=0.8)
+mtext(text="Number of Repeated Listens", side = 1, line = 3)
+axis(2,las=1)
+mtext(text="Species Richness by Site", side = 2, line = 3)
+box(bty="l")
+x<-seq(1,8,l=1000)
+points(x, predict(evaluationYVa6, data.frame(Peffort=x)),type="l")
+```
+
+```{r}
+AIC(evaluationYV6,evaluationYV6B, evaluationYVa6)     #ADDITIVE IS BETTER
+```
+
+
+
+```{r}
+evaluationYV6<-lm(SR ~ Peffort + Year, methodYSR1)
+fig8a<-plot_model(evaluationYV6, type="pred",terms=c("Peffort", "Year"),colors=c("deepskyblue", "dodgerblue4"))
+fig8a<-fig8a+labs(x="Processing effort (number of listens)", y="AC Species Richness  (visit 1)")
+fig8a
+```
+
+
+ALL SIG VISIT 1 VARIABLES:
+```{r}
+plot(SR ~ Year, methodYSR1)
+plot(SR ~ Type, methodYSR1)
+plot(SR ~ Sdate, methodYSR1)
+plot(SR ~ Pmin, methodYSR1)
+plot(SR ~ Peffort, methodYSR1)
+```
+
+
+# Visit 2 - all variables # 
+```{r}
+methodYSR2 <-read.csv("17_18_2by2_ACPC_SR.csv") #SR by count #2 each - Site Type SR
+#summary(methodYSR2)
+str(methodYSR2)
+
+```
+
+```{r}
+#test for distribution - gaussian is best so can continue with lm
+test1<-lm(SR ~ Pmin, methodYSR2)
+test2<-glm(SR ~ Pmin, family=gaussian(), data=methodYSR2)
+test3<-glm(SR ~ Pmin, family=poisson(), data=methodYSR2)
+AIC(test1, test2,test3)
+```
+
+```{r}
+plot(methodYSR2$SR ~ methodYSR2$Type)
+#plot(SR ~ Type, data=methodSR)  #same as above
+```
+
+```{r}
+evaluationYV7A<-lm(SR ~ Year, methodYSR2)     #sig year effect
+summary(evaluationYV7A)
+confint(evaluationYV7A, level=0.95)
+anova(evaluationYV7A)
+```
+
+```{r}
+evaluationYV7<-lm(SR ~ Type + Year, methodYSR2)         #only year is sig
+summary(evaluationYV7)
+confint(evaluationYV7, level=0.95)
+anova(evaluationYV7)
+```
+
+```{r}
+evaluationYV7B<-lm(SR ~ Type * Year, methodYSR2)           #only year is sig
+summary(evaluationYV7B)
+confint(evaluationYV7B, level=0.95)
+anova(evaluationYV7B)
+```
+
+```{r}
+evaluationYV7C<-lm(SR ~ Type, methodYSR2)
+summary(evaluationYV7C)
+confint(evaluationYV7C, level=0.95)
+#anova(evaluationYV7C)
+```
+
+```{r}
+AIC(evaluationYV7,evaluationYV7B, evaluationYV7C)
+#year+type better than year*type  (mostly bc type not significant here!)
+```
+
+```{r}
+evaluationYV8<-lm(SR ~ Sdate + Year, methodYSR2)    #non-sig
+summary(evaluationYV8)
+confint(evaluationYV8, level=0.95)
+anova(evaluationYV8)
+```
+
+```{r}
+evaluationYV8B<-lm(SR ~ Sdate * Year, methodYSR2)    #non-sig
+summary(evaluationYV8B)
+confint(evaluationYV8B, level=0.95)
+anova(evaluationYV8B)
+```
+
+```{r}
+evaluationYV8C<-lm(SR ~ Year + Sdate + I(Sdate^2), methodYSR2)    #non-sig
+summary(evaluationYV8C)
+confint(evaluationYV8C, level=0.95)
+anova(evaluationYV8C)
+plot(evaluationYV8C)
+```
+
+```{r}
+AIC(evaluationYV8, evaluationYV8B)     #additive better
+AIC(evaluationYV8, evaluationYV8B, evaluationYV8C)  #quad not better
+```
+
+#interlude to break apart method, but still keep both years in
+```{r}
+methodYSR2pc <-read.csv("17_18_2by2_ACPC_SR_pc.csv") #SR by count #1 each
+evaluationpc2d<-lm(SR ~ Sdate + Year, methodYSR2pc)  #no date effect
+summary(evaluationpc2d)
+confint(evaluationpc2d, level=0.95)
+#anova(evaluationpc1d)
+#plot(evaluationpc1d)
+
+#interactive not better
+```
+
+```{r}
+#plot_model(evaluationpc1d, type="pred", terms=c("Sdate","Year"))
+```
+
+#interlude to break apart method, but still keep both years in
+```{r}
+methodYSR2ac <-read.csv("17_18_2by2_ACPC_SR_ac.csv") #SR by count #1 each
+evaluationac2d<-lm(SR ~ Sdate + Year, methodYSR2ac)  # no effect date, just year
+summary(evaluationac2d)
+confint(evaluationac2d, level=0.95)
+#anova(evaluationac1d)
+#plot(evaluationac1d)
+
+#interactive not better
+```
+
+```{r}
+#plot_model(evaluationac3t, type="pred", terms=c("Stime"))
+```
+
+
+```{r}
+evaluationYV9<-lm(SR ~ Stime + Year, methodYSR2)             #sig
+summary(evaluationYV9)
+confint(evaluationYV9, level=0.95)
+anova(evaluationYV9)
+```
+
+```{r}
+evaluationYV9B<-lm(SR ~ Stime * Year, methodYSR2)             #sig
+summary(evaluationYV9B)
+confint(evaluationYV9B, level=0.95)
+anova(evaluationYV9B)
+```
+
+```{r}
+evaluationYV9C<-lm(SR ~ Stime + I(Stime^2) + Year, methodYSR2)             #sig
+summary(evaluationYV9C)
+confint(evaluationYV9C, level=0.95)
+anova(evaluationYV9C)
+```
+
+```{r}
+evaluationYV9D<-lm(SR ~ Stime + I(Stime^2) + I(Stime^3) + Year, methodYSR2)             #sig
+summary(evaluationYV9D)
+confint(evaluationYV9D, level=0.95)
+anova(evaluationYV9D)
+```
+
+```{r}
+evaluationYV9C2<-lm(SR ~ Stime + I(Stime^2) + Stime*Year, methodYSR2)             #sig
+summary(evaluationYV9C2)
+confint(evaluationYV9C2, level=0.95)
+anova(evaluationYV9C2)
+```
+
+```{r}
+AIC(evaluationYV9, evaluationYV9B)    #interaction model slightly better
+AIC(evaluationYV9, evaluationYV9B, evaluationYV9C, evaluationYV9D, evaluationYV9C2) #however, quadratic model*interaction is the best overall.
+```
+
+```{r}
+evaluationYVa9C2<-lm(SR ~ Stime, methodYSR2)
+#summary(methodYSR2$Stime) #min 353, max 578
+#summary(evaluationYVa9C2)
+#confint(evaluationYVa9C2, level=0.95)
+#anova(evaluationYVa6)
+plot(SR ~ Stime, methodYSR2, pch=16, axes=F, xlab="", ylab="")
+axis(1,cex.axis=0.8)
+mtext(text="Survey Start Time", side = 1, line = 3)
+axis(2,las=1)
+mtext(text="Species Richness by Site", side = 2, line = 3)
+box(bty="l")
+x<-seq(353,578,l=1000)
+#points(x, predict(SR ~ Stime, data.frame(Stime=x)),type="l")
+```
+
+
+```{r}
+#plot_model(evaluationYV9C2, type="pred", terms=c("Stime","Year")) #methods comb
+```
+
+```{r}
+plot(SR ~ Stime, methodYSR2)
+plot(evaluationYV9B)
+```
+
+```{r}
+matplot(residuals(evaluationYV9))
+matplot(residuals(evaluationYV9B))
+```
+
+#interlude to break apart method, but still keep both years in
+```{r}
+methodYSR2pc <-read.csv("17_18_2by2_ACPC_SR_pc.csv") #SR by count #1 each
+evaluationpc2t<-lm(SR ~ Stime + Year, methodYSR2pc)  #no time effect
+summary(evaluationpc2t)
+confint(evaluationpc2t, level=0.95)
+#anova(evaluationpc2t)
+#plot(evaluationpc2t)
+
+#quadratic interaction not sig, quad additive not sig, reg additive not sig, reg interaction not sig
+```
+
+#interlude to break apart method, but still keep both years in
+```{r}
+methodYSR2ac <-read.csv("17_18_2by2_ACPC_SR_ac.csv") #SR by count #1 each
+evaluationac2t<-lm(SR ~ Stime + I(Stime^2) + Stime*Year, methodYSR2ac)  #time, time2, and interaction term significant!
+summary(evaluationac2t)
+confint(evaluationac2t, level=0.95)
+#anova(evaluationac2t)
+#plot(evaluationac2t)
+
+#interaction not better.
+```
+
+```{r}
+#so, since method difference was important, this is JUST AC, both years, top model.
+fig4 <- plot_model(evaluationac2t, type="pred", terms=c("Stime","Year"), colors=c("deepskyblue", "dodgerblue4"))
+fig4 <- fig4 + labs(x= "Survey start time (minutes in day)", y="AC Species Richness (visit 2)")
+fig4
+```
+
+```{r}
+evaluationYV10<-lm(SR ~ Pdate + Year, methodYSR2)     #pdate only
+summary(evaluationYV10)
+confint(evaluationYV10, level=0.95)
+anova(evaluationYV10)
+```
+
+```{r}
+evaluationYV10B<-lm(SR ~ Pdate*Year, methodYSR2)   #pdate only; not int term; and no year effect
+summary(evaluationYV10B)
+confint(evaluationYV10B, level=0.95)
+anova(evaluationYV10B)
+```
+
+```{r}
+evaluationYV10C<-lm(SR ~ Pdate + I(Pdate^2) + Year, methodYSR2) 
+summary(evaluationYV10C)
+confint(evaluationYV10C, level=0.95)
+anova(evaluationYV10C)
+```
+
+```{r}
+evaluationYV10D<-lm(SR ~ Pdate + I(Pdate^2) + I(Pdate^3) + Year, methodYSR2)
+summary(evaluationYV10D)
+confint(evaluationYV10D, level=0.95)
+anova(evaluationYV10D)
+```
+
+```{r}
+plot(SR ~ Pdate, methodYSR2)
+plot(evaluationYV10)
+```
+
+```{r}
+evaluationYVa10<-lm(SR ~ Pdate, methodYSR2)
+#summary(methodYSR1$Peffort) #min 1, max 8
+summary(evaluationYVa10)
+confint(evaluationYVa10, level=0.95)
+anova(evaluationYVa10)
+plot(SR ~ Pdate, methodYSR2, pch=16, axes=F, xlab="", ylab="")
+axis(1,cex.axis=0.8)
+mtext(text="Processing Date", side = 1, line = 3)
+axis(2,las=1)
+mtext(text="Species Richness by Site", side = 2, line = 3)
+box(bty="l")
+x<-seq(1,8,l=1000)
+points(x, predict(evaluationYVa10, data.frame(Pdate=x)),type="l")
+```
+
+```{r}
+AIC(evaluationYV10,evaluationYV10B)       #additive better ranked
+AIC(evaluationYV10, evaluationYV10B, evaluationYV10C, evaluationYV10D, evaluationYVa10) #single, no year best.
+```
+
+```{r}
+fig6 <- plot_model(evaluationYVa10, type="pred", terms=c("Pdate"))
+fig6 <- fig6 + labs(x= "Julian date of audio processing", y="AC Species Richness  (visit 2)")
+fig6
+
+```
+
+
+```{r}
+evaluationYV11<-lm(SR ~ Pmin + Year, methodYSR2)    #non-sig, just year effect
+summary(evaluationYV11)
+confint(evaluationYV11, level=0.95)
+anova(evaluationYV11)
+plot(evaluationYV11)
+```
+
+```{r}
+evaluationYV11B<-lm(SR ~ Pmin*Year, methodYSR2)    #year effect only; int term non-sig
+summary(evaluationYV11B)
+confint(evaluationYV11B, level=0.95)
+anova(evaluationYV11B)
+plot(evaluationYV11B)
+```
+
+```{r}
+evaluationYV11C<-lm(SR ~ Pmin + I(Pmin^2) + Year, methodYSR2)    #non-sig, just year effect
+summary(evaluationYV11C)
+confint(evaluationYV11C, level=0.95)
+anova(evaluationYV11C)
+plot(evaluationYV11C)
+```
+
+```{r}
+evaluationYV11D<-lm(SR ~ Pmin + I(Pmin^2) + I(Pmin^3) + Year, methodYSR2)    #non-sig, just year effect
+summary(evaluationYV11D)
+confint(evaluationYV11D, level=0.95)
+anova(evaluationYV11D)
+plot(evaluationYV11D)
+```
+
+```{r}
+AIC(evaluationYV11,evaluationYV11B)        #additive better
+AIC(evaluationYV11,evaluationYV11B,evaluationYV11C,evaluationYV11D) #not better
+```
+
+```{r}
+evaluationYV12<-lm(SR ~ Peffort+Year, methodYSR2)   #non-sig, year effect only
+summary(evaluationYV12)
+confint(evaluationYV12, level=0.95)
+anova(evaluationYV12)
+plot(evaluationYV12)
+```
+
+```{r}
+evaluationYV12B<-lm(SR ~ Peffort*Year, methodYSR2)   #int term non-sig; only year
+summary(evaluationYV12B)
+confint(evaluationYV12B, level=0.95)
+anova(evaluationYV12B)
+plot(evaluationYV12B)
+```
+
+```{r}
+AIC(evaluationYV12,evaluationYV12B)        #additive better
+```
+
+no reason to thing Peffort would be quadratic.
+
+ALL SIG VISIT 2 VARIABLES:
+```{r}
+plot(SR ~ Year, methodYSR2)
+plot(SR ~ Stime, methodYSR2)
+plot(SR ~ Pdate, methodYSR2)
+```
+
+
+
+# Visit 3 - all variables #
+```{r}
+#File read-in
+methodYSR3 <-read.csv("17_18_3by3_ACPC_SR.csv") #SR by count #3 each - Site Type SR
+#summary(methodYSR3)
+str(methodYSR3)
+```
+
+```{r}
+#testing distribution - gaussian best fit for all
+test2<-glm(SR ~ Peffort, family=gaussian(), data=methodYSR3)
+test3<-glm(SR ~ Peffort, family=poisson(), data=methodYSR3)
+AIC(test2,test3)
+```
+
+```{r}
+evaluationYV333<-lm(SR ~ Year, methodYSR3)    #no year effect OR year*type effect
+summary(evaluationYV333)
+confint(evaluationYV333, level=0.95)
+anova(evaluationYV333)
+```
+
+```{r}
+plot(methodYSR3$SR ~ methodYSR3$Type)   #
+#plot(SR ~ Type, data=methodSR)  #same as above
+```
+
+```{r}
+evaluationYV13<-lm(SR ~ Type, methodYSR3)         #NOTE, now on border of 0.05
+summary(evaluationYV13)
+confint(evaluationYV13, level=0.95)
+#anova(evaluationYV13)
+```
+
+```{r}
+plot(SR ~ Type, methodYSR3)
+plot(evaluationYV13)
+```
+
+```{r}
+evaluationYV14<-lm(SR ~ Sdate, methodYSR3)          #non-sig
+summary(evaluationYV14)
+confint(evaluationYV14, level=0.95)
+anova(evaluationYV14)
+plot(evaluationYV14)
+```
+
+#interlude to break apart method, but still keep both years in
+```{r}
+methodYSR3pc <-read.csv("17_18_3by3_ACPC_SR_pc.csv") #SR by count #1 each
+evaluationpc3d<-lm(SR ~ Sdate, methodYSR3pc)
+summary(evaluationpc3d)
+confint(evaluationpc3d, level=0.95)
+#anova(evaluationpc1d)
+#plot(evaluationpc1d)
+
+#interactive not better
+```
+
+```{r}
+fig3 <- plot_model(evaluationpc3d, type="pred", terms=c("Sdate")) #, colors="cadetblue"
+fig3<- fig3 + labs(x= "Survey date (in season)", y="PC Species Richness  (visit 3)") + set_theme(title.color = "white")
+fig3
+                                                                                              
+#+ geom_polygon(aes(group=methodYSR3pc$Sdate),color="cadetblue")  
+#+sjp.grpfrq($Sdate,geom.colors="cadetblue")  
+#theme(scale_color_sjplot(palette = "deep reefs"), scale_fill_sjplot(palette = "deep reefs"))
+
+#demo("colors")
+#sjplot_pal(pal = "deep reefs")
+
+print(ggplot(data=methodYSR3pc,aes(x=Sdate,y=SR)) + geom_line(size=1, color="cadetblue")
+      +geom_smooth(method=evaluationpc3d,fullrange=TRUE,color="cadetblue",size=0.5) +
+           labs(x="Survey date (in season)",y="PC Species Richness  (visit 3)"))
+
+print(qplot(x = Sdate, y = SR, color = Sdate, data = evaluationpc3d, geom = "smooth"))
+
+
+#Plot it up!
+Plot.T<-ggplot(data=methodYSR3pc, aes(x=Sdate, y=SR))+
+      coord_cartesian(ylim = c(10,18))+  
+      geom_line(size=1, color="cadetblue")+
+      geom_ribbon(aes(ymin=SR-se, ymax=SR+se,fill=Sdate),alpha=.2)+
+      ylab("GPA")+
+      xlab("Work Ethic")+
+      theme_grey()+ 
+        theme(panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank())+
+      scale_fill_grey()
+Plot.T
+
+```
+
+
+
+#interlude to break apart method, but still keep both years in
+```{r}
+methodYSR3ac <-read.csv("17_18_3by3_ACPC_SR_ac.csv") #SR by count #1 each
+evaluationac3d<-lm(SR ~ Sdate, methodYSR3ac)  # no effect date
+summary(evaluationac3d)
+confint(evaluationac3d, level=0.95)
+#anova(evaluationac1d)
+#plot(evaluationac1d)
+
+#quad not better.
+```
+
+```{r}
+#plot_model(evaluationac3t, type="pred", terms=c("Stime"))
+```
+
+```{r}
+evaluationYV15<-lm(SR ~ Stime, methodYSR3)         #sig but quadratic is better!  see below & see F statistic & p value...
+summary(evaluationYV15)
+confint(evaluationYV15, level=0.95)
+anova(evaluationYV15)
+```
+
+```{r}
+plot(SR ~ Stime, methodYSR3)
+plot(evaluationYV15)
+```
+
+```{r}    
+plot(SR ~ Stime, methodYSR3, pch=16, axes=F, xlab="", ylab="")
+axis(1,cex.axis=0.8)
+mtext(text="Survey Start Time", side = 1, line = 3)
+axis(2,las=1)
+mtext(text="Species Richness by Site", side = 2, line = 3)
+box(bty="l")
+x<-seq(min(methodYSR3$Stime), max(methodYSR3$Stime),l=1000)
+#points(x, predict(evaluation15B, data.frame(Stime=x)),type="l")
+```
+
+```{r}
+#testing a quadratic # yes - Stime (-) for visit 3, quadratic IS better!
+evaluation15B<-lm(SR ~ Stime + I(Stime^2), methodYSR3)
+summary(evaluation15B)
+confint(evaluation15B, level=0.95)
+anova(evaluation15B)
+plot(evaluation15B)
+```
+
+```{r}
+plot_model(evaluation15B, type="pred", terms=c("Stime"))
+```
+
+
+```{r}
+AIC(evaluationYV15, evaluation15B)
+```
+
+#interlude to break apart method, but still keep both years in
+```{r}
+methodYSR3pc <-read.csv("17_18_3by3_ACPC_SR_pc.csv") #SR by count #1 each
+evaluationpc3t<-lm(SR ~ Stime, methodYSR3pc)  #no time effect
+summary(evaluationpc3t)
+confint(evaluationpc3t, level=0.95)
+#anova(evaluationpc3t)
+#plot(evaluationpc3t)
+
+# anything else better? yes, linear > quadratic. no year at all.
+```
+```{r}
+fig5a<-plot_model(evaluationpc3t, type="pred", terms=c("Stime"))
+fig5a <- fig5a + labs(x= "Survey start time (minutes in day)", y="PC Species Richness  (visit 3)")
+fig5a
+
+```
+
+#interlude to break apart method, but still keep both years in
+```{r}
+methodYSR3ac <-read.csv("17_18_3by3_ACPC_SR_ac.csv") #SR by count #1 each
+evaluationac3t<-lm(SR ~ Stime + I(Stime^2), methodYSR3ac)  #time, time2 sig
+summary(evaluationac3t)
+confint(evaluationac3t, level=0.95)
+#anova(evaluationac3t)
+#plot(evaluationac3t)
+
+#
+```
+
+```{r}
+fig5b <-plot_model(evaluationac3t, type="pred", terms=c("Stime"))
+fig5b <- fig5b + labs(x= "Survey start time (minutes in day)", y="AC Species Richness  (visit 3)")
+fig5b
+
+```
+
+```{r}
+library("gridExtra")
+plot_grid(list(fig5b, fig5a), margin=c(0,1,0,1))
+```
+
+```{r}
+library("gridExtra")
+plot_grid(list(fig5b, fig5a, fig4))
+```
+
+```{r}
+evaluationYV16<-lm(SR ~ Pdate, methodYSR3)           #non-sig
+summary(evaluationYV16)
+confint(evaluationYV16, level=0.95)
+#anova(evaluationYV16)
+plot(evaluationYV16)
+```
+
+```{r}
+evaluationYV17<-lm(SR ~ Pmin, methodYSR3)           #non-sig
+summary(evaluationYV17)
+confint(evaluationYV17, level=0.95)
+#anova(evaluationYV17)
+plot(evaluationYV17)
+```
+
+```{r}
+evaluationYV17B<-lm(SR ~ Pmin + I(Pmin^2), methodYSR3)           #non-sig
+summary(evaluationYV17B)
+confint(evaluationYV17B, level=0.95)
+#anova(evaluationYV17B)
+plot(evaluationYV17B)
+```
+
+```{r}
+evaluationYV17C<-lm(SR ~ Pmin + I(Pmin^2) + I(Pmin^3), methodYSR3)   #best but still not sig
+summary(evaluationYV17C)
+confint(evaluationYV17C, level=0.95)
+#anova(evaluationYV17C)
+#plot(evaluationYV17C)
+#Pmin3<-(methodYSR3$Pmin)^3
+#summary(Pmin3)
+```
+
+```{r}
+AIC(evaluationYV17, evaluationYV17B, evaluationYV17C)  #cubic best but still not significant
+```
+
+```{r}    
+plot(SR ~ Pmin, methodYSR3, pch=16, axes=F, xlab="", ylab="")
+axis(1,cex.axis=0.8)
+mtext(text="Number of Minutes Processing Survey", side = 1, line = 3)
+axis(2,las=1)
+mtext(text="Species Richness by Site", side = 2, line = 3)
+box(bty="l")
+x<-seq(1331, 19683,l=1000)
+#points(x, predict(evaluationYV17C, data.frame(Pmin=x)),type="l")
+```
+
+```{r}
+plot_model(evaluationYV17C, type="pred", terms=c("Pmin"))
+```
+
+
+```{r}
+evaluationYV18<-lm(SR ~ Peffort, methodYSR3)          #non-sig
+summary(evaluationYV18)
+confint(evaluationYV18, level=0.95)
+anova(evaluationYV18)
+plot(evaluationYV18)
+```
+
+```{r}
+evaluationYV18B<-lm(SR ~ Peffort+ I(Peffort^2), methodYSR3)          #non-sig
+summary(evaluationYV18B)
+confint(evaluationYV18B, level=0.95)
+anova(evaluationYV18B)
+plot(evaluationYV18B)
+```
+
+```{r}
+evaluationYV18C<-lm(SR ~ Peffort + I(Peffort^2) + I(Peffort^3), methodYSR3)          #non-sig
+summary(evaluationYV18C)
+confint(evaluationYV18C, level=0.95)
+#anova(evaluationYV18C)
+#plot(evaluationYV18C)
+#Peffort3<-(methodYSR3$Peffort)^3
+#summary(Peffort3)  #min 1 and max 512
+```
+
+```{r}
+AIC(evaluationYV18, evaluationYV18B, evaluationYV18C)  #best with cubic!
+```
+
+
+```{r}    
+plot(SR ~ Peffort, methodYSR3, pch=16, axes=F, xlab="", ylab="")
+axis(1,cex.axis=0.8)
+mtext(text="Number of Repeated Listens", side = 1, line = 3)
+axis(2,las=1)
+mtext(text="Species Richness by Site", side = 2, line = 3)
+box(bty="l")
+x<-seq(1, 512,l=1000)
+points(x, predict(evaluationYV18C, data.frame(Peffort=x)),type="l")
+```
+
+```{r}
+fig8b<-plot_model(evaluationYV18C, type="pred", terms=c("Peffort"))
+fig8b<-fig8b+labs(x="Processing effort (number of listens)", y="AC Species Richness  (visit 3)")
+fig8b
+```
+
+```{r}
+plot_grid(list(fig8a,fig8b))
+```
+
+
+ALL SIG VISIT 3 VARIABLES:
+```{r}
+plot(SR ~ Type, methodYSR3)
+plot(SR ~ Stime, methodYSR3)
+plot(SR ~ Pmin, methodYSR3)
+plot(SR ~ Peffort, methodYSR3)
 ```

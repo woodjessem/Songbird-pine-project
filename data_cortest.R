@@ -1,62 +1,61 @@
-library("unmarked")
 setwd("C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds")
 
-test <-read.csv("ybch_abund.csv")
+test <-read.csv("Habitat_data_2017_2018.csv")   #ybch_abundance.csv or #18_veg_data.csv in past
 summary(test)
 SStable <- summary(test)
 ?summary
-write.table(SStable, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/covariate_summary_stats.xls",sep="\t")
+write.table(SStable, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/covariate_summary_stats_17_and_18.xls",sep="\t")
 str(test)
-var(test[2:5])
+#var(test[2:5])
 #mean(test[2:4])
-mean(test$y.3)
+#mean(test$y.3)
 
 #cor.test(data$columnvariable1, data$columnvariable2)
 #Herbicide by each
 #cor.test(test$Herbicide, test$Treatment) #non-numeric
-cor.test(test$Herbicide, test$LastB) #r is 0.164
-cor.test(test$Herbicide, test$LastT) #r is -0.169
-cor.test(test$Herbicide, test$BA)     #r is -0.173
-cor.test(test$Herbicide, test$Nsnags) #r is 0.007
-cor.test(test$Herbicide, test$Ccover) #r is -0.209
-cor.test(test$Herbicide, test$Ldepth) #r is -0.059
-cor.test(test$Herbicide, test$TreeHt) #r is -0.167 
-cor.test(test$Herbicide, test$Age)    #r is 0.102
-cor.test(test$Herbicide, test$Nburns) #r is 0.350   #high-ISH
-cor.test(test$Herbicide, test$Nthins)  #r is 0.101
-cor.test(test$Herbicide, test$TimeSinceB) #r is -0.300
-cor.test(test$Herbicide, test$TimeSinceT) #r is -0.064
-cor.test(test$Herbicide, test$HWdens_10)  #r is -0.137
-cor.test(test$Herbicide, test$HWdens_50) #r is -0.041
-cor.test(test$Herbicide, test$HWdens_100) #r is -0.135
-cor.test(test$Herbicide, test$FG_herb)   #r is 0.221
-cor.test(test$Herbicide, test$FG_shrub)  #r is -0.038
-cor.test(test$Herbicide, test$NHW_saplings)  #r is -0.205
-cor.test(test$Herbicide, test$NP_over_20cm)  #r is -0.192
-cor.test(test$Herbicide, test$Rel_HW2P_canopy) #r is -0.390   #highest but still not 0.5 #cool
-cor.test(test$Herbicide, test$Rel_HW2P_shrubcover) #r is -0.118
-cor.test(test$Herbicide, test$LCR) #r is 0.006
-cor.test(test$Herbicide, test$HW_dens_1050) #r is -0.974
-cor.test(test$Herbicide, test$HW_shrub) #r is -0.366
-cor.test(test$Herbicide, test$Parea) #r is -0.277
-cor.test(test$Herbicide, test$ShapeIndex) #r is -0.260
-cor.test(test$Herbicide, test$PAratio) #r is 0.169
-cor.test(test$Herbicide, test$FracDimIndex) #r is -0.136
-cor.test(test$Herbicide, test$CoreAreaIndex) #r is -0.228
-cor.test(test$Herbicide, test$Ag500m) #r is 0.062
-cor.test(test$Herbicide, test$Ag1km) #r is -0.074
-cor.test(test$Herbicide, test$Ag5km) #r is -0.085
-cor.test(test$Herbicide, test$Ag30km) #r is -0.055
-cor.test(test$Herbicide, test$Evergreen500m) #r is 0.076
-cor.test(test$Herbicide, test$Evergreen1km) #r is 0.321
-cor.test(test$Herbicide, test$Evergreen5km) #r is 0.235
-cor.test(test$Herbicide, test$Evergreen30km) #r is 0.270
-cor.test(test$Herbicide, test$Imperv500m) #r is -0.075
-cor.test(test$Herbicide, test$Imperv1km) #r is 0.078
-cor.test(test$Herbicide, test$Imperv5km) #r is 0.125
-cor.test(test$Herbicide, test$Imperv30km) #r is -0.323
-cor.test(test$Herbicide, test$Protected30km) #r is 0.073
-cor.test(test$Herbicide, test$HighDev500m) #r is -0.169
+cor.test(test$Herbicide, test$LastB) #r is 0.164  #-0.010
+cor.test(test$Herbicide, test$LastT) #r is -0.169  #-0.041
+cor.test(test$Herbicide, test$BA)     #r is -0.173  #0.0.049
+cor.test(test$Herbicide, test$Nsnags) #r is 0.007  #0.054
+cor.test(test$Herbicide, test$Ccover) #r is -0.209  #-0.090
+cor.test(test$Herbicide, test$Ldepth) #r is -0.059  #-0.350
+cor.test(test$Herbicide, test$TreeHt) #r is -0.167 #-0.342   #ish
+cor.test(test$Herbicide, test$Age)    #r is 0.102  #0.093
+cor.test(test$Herbicide, test$Nburns) #r is 0.350   #high-ISH  #0.295
+cor.test(test$Herbicide, test$Nthins)  #r is 0.101   #0.132
+cor.test(test$Herbicide, test$TimeSinceB) #r is -0.300  #-0.352   #ish
+cor.test(test$Herbicide, test$TimeSinceT) #r is -0.064   #-0.145
+cor.test(test$Herbicide, test$HWdens_10)  #r is -0.137    #-0.190
+cor.test(test$Herbicide, test$HWdens_50) #r is -0.041  #-0.173
+cor.test(test$Herbicide, test$HWdens_100) #r is -0.135  #-0.073
+cor.test(test$Herbicide, test$FG_herb)   #r is 0.221   #0.066
+cor.test(test$Herbicide, test$FG_shrub)  #r is -0.038   #0.173
+cor.test(test$Herbicide, test$NHW_saplings)  #r is -0.205  #-0.319   #ish
+cor.test(test$Herbicide, test$NP_over_20cm)  #r is -0.192   #0.207
+cor.test(test$Herbicide, test$Rel_HW2P_canopy) #r is -0.390   #highest but still not 0.5 #cool  #-0.076
+cor.test(test$Herbicide, test$Rel_HW2P_shrubcover) #r is -0.118  #-0.047
+cor.test(test$Herbicide, test$LCR) #r is 0.006    #0.175
+cor.test(test$Herbicide, test$HW_dens_1050) #r is -0.974   #-0.191
+cor.test(test$Herbicide, test$HW_shrub) #r is -0.366   #-0.244
+cor.test(test$Herbicide, test$Parea) #r is -0.277   #-0.245
+cor.test(test$Herbicide, test$ShapeIndex) #r is -0.260   #-0.308   #ish
+cor.test(test$Herbicide, test$PAratio) #r is 0.169  #0.130
+cor.test(test$Herbicide, test$FracDimIndex) #r is -0.136   #-0.199
+cor.test(test$Herbicide, test$CoreAreaIndex) #r is -0.228   #0.151
+cor.test(test$Herbicide, test$Ag500m) #r is 0.062  #0.055
+cor.test(test$Herbicide, test$Ag1km) #r is -0.074  #0.033
+cor.test(test$Herbicide, test$Ag5km) #r is -0.085   #0.116
+cor.test(test$Herbicide, test$Ag30km) #r is -0.055   #0.079
+cor.test(test$Herbicide, test$Evergreen500m) #r is 0.076  #0.106
+cor.test(test$Herbicide, test$Evergreen1km) #r is 0.321 #0.248
+cor.test(test$Herbicide, test$Evergreen5km) #r is 0.235  #0.147
+cor.test(test$Herbicide, test$Evergreen30km) #r is 0.270  #0.281
+cor.test(test$Herbicide, test$Imperv500m) #r is -0.075  -0.099
+cor.test(test$Herbicide, test$Imperv1km) #r is 0.078   0.072
+cor.test(test$Herbicide, test$Imperv5km) #r is 0.125   0.098
+cor.test(test$Herbicide, test$Imperv30km) #r is -0.323  -0.329   #ish
+cor.test(test$Herbicide, test$Protected30km) #r is 0.073  -
+cor.test(test$Herbicide, test$HighDev500m) #r is -0.169 
 cor.test(test$Herbicide, test$HighDev1km) #r is 0.079
 cor.test(test$Herbicide, test$HighDev5km) #r is 0.126
 cor.test(test$Herbicide, test$HighDev30km) #r is 0.169
@@ -64,18 +63,18 @@ cor.test(test$Herbicide, test$LowDev500m) #r is 0.179
 cor.test(test$Herbicide, test$LowDev1km) #r is 0.168
 cor.test(test$Herbicide, test$LowDev5km) #r is 0.151
 cor.test(test$Herbicide, test$LowDev30km) #r is -0.340
-cor.test(test$Herbicide, test$OpenDev500m) #r is 0.390
-cor.test(test$Herbicide, test$OpenDev1km) #r is 0.352
+cor.test(test$Herbicide, test$OpenDev500m) #r is 0.390  -0.300
+cor.test(test$Herbicide, test$OpenDev1km) #r is 0.352  0.338
 cor.test(test$Herbicide, test$OpenDev5km) #r is 0.158
 cor.test(test$Herbicide, test$OpenDev30km) #r is -0.247
 cor.test(test$Herbicide, test$Grass500m) #r is 0
-cor.test(test$Herbicide, test$Grass1km) #r is -0.338
-cor.test(test$Herbicide, test$Grass5km) #r is -0.335
+cor.test(test$Herbicide, test$Grass1km) #r is -0.338  -0.339
+cor.test(test$Herbicide, test$Grass5km) #r is -0.335  nah
 cor.test(test$Herbicide, test$Grass30km) #r is -0.237
 cor.test(test$Herbicide, test$Schrubs500m) #r is -0.135
 cor.test(test$Herbicide, test$Schrubs1km) #r is -0.049
-cor.test(test$Herbicide, test$Schrubs5km) #r is 0.037
-cor.test(test$Herbicide, test$Schrubs30km) #r is -0.009
+cor.test(test$Herbicide, test$Schrubs5km) #r is 0.037   -
+cor.test(test$Herbicide, test$Schrubs30km) #r is -0.009  +
 cor.test(test$Herbicide, test$Water500m) #r is 0.050
 cor.test(test$Herbicide, test$Water1km) #r is 0.100
 cor.test(test$Herbicide, test$Water5km) #r is 0.170
@@ -84,20 +83,20 @@ cor.test(test$Herbicide, test$NSoilTypes) #r is -0.267
 cor.test(test$Herbicide, test$FPSiteIndex)  # r is -0.226
 cor.test(test$Herbicide, test$SiteIndexPrimaryS)  # r is -0.203
 cor.test(test$Herbicide, test$PISoils)  # r is 0.229
-cor.test(test$Herbicide, test$SISoils)  # r is 0.070
-cor.test(test$Herbicide, test$HydricSoils)  # r is -0.130
+cor.test(test$Herbicide, test$SISoils)  # r is 0.070  - 
+cor.test(test$Herbicide, test$HydricSoils)  # r is -0.130  +
 
 
 #LastBurn by each
 #cor.test(test$LastB, test$Treatment) #non-numeric
-cor.test(test$LastB, test$Herbicide) # r is 0.164
+cor.test(test$LastB, test$Herbicide) # r is 0.164   -
 #cor.test(test$LastB, test$LastB) # r is 
 cor.test(test$LastB, test$LastT) #r is -0.170
 cor.test(test$LastB, test$BA)     #r is -0.101
 cor.test(test$LastB, test$Nsnags) #r is -0.090
 cor.test(test$LastB, test$Ccover) #r is -0.164
-cor.test(test$LastB, test$Ldepth) #r is -0.469  # this is higher but not quite 0.5 - encouraging proxy!
-cor.test(test$LastB, test$TreeHt) #r is -0.380   #ish
+cor.test(test$LastB, test$Ldepth) #r is -0.469  # encouraging proxy! # -0.680
+cor.test(test$LastB, test$TreeHt) #r is -0.380   -0.383  #ish
 cor.test(test$LastB, test$Age)    #r is -0.023
 cor.test(test$LastB, test$Nburns) #r is 0.297
 cor.test(test$LastB, test$Nthins)  #r is -0.096
@@ -124,19 +123,19 @@ cor.test(test$LastB, test$Ag500m) #r is 0.037
 cor.test(test$LastB, test$Ag1km) #r is -0.173
 cor.test(test$LastB, test$Ag5km) #r is 0.416
 cor.test(test$LastB, test$Ag30km) #r is -0.154
-cor.test(test$LastB, test$Evergreen500m) #r is 0.040
+cor.test(test$LastB, test$Evergreen500m) #r is 0.040   #0.287
 cor.test(test$LastB, test$Evergreen1km) #r is 0.090
 cor.test(test$LastB, test$Evergreen5km) #r is 0.224
 cor.test(test$LastB, test$Evergreen30km) #r is 0.191
 cor.test(test$LastB, test$Imperv500m) #r is -0.048
-cor.test(test$LastB, test$Imperv1km) #r is -0.215
-cor.test(test$LastB, test$Imperv5km) #r is 0.050
+cor.test(test$LastB, test$Imperv1km) #r is -0.215  #-0.432
+cor.test(test$LastB, test$Imperv5km) #r is 0.050   #-0.206
 cor.test(test$LastB, test$Imperv30km) #r is 0.124
 cor.test(test$LastB, test$Protected30km) #r is 0.091
 cor.test(test$LastB, test$HighDev500m) #r is ???   - there is only 1 value for HighDev - IGNORE
-cor.test(test$LastB, test$HighDev1km) #r is -0.194
+cor.test(test$LastB, test$HighDev1km) #r is -0.194   ish #-0.456
 cor.test(test$LastB, test$HighDev5km) #r is 0.060
-cor.test(test$LastB, test$HighDev30km) #r is 0.065
+cor.test(test$LastB, test$HighDev30km) #r is 0.065   #.258
 cor.test(test$LastB, test$LowDev500m) #r is -0.008
 cor.test(test$LastB, test$LowDev1km) #r is -0.067
 cor.test(test$LastB, test$LowDev5km) #r is 0.016
@@ -152,7 +151,7 @@ cor.test(test$LastB, test$Grass30km) #r is -0.559
 cor.test(test$LastB, test$Schrubs500m) #r is 0.207
 cor.test(test$LastB, test$Schrubs1km) #r is 0.283
 cor.test(test$LastB, test$Schrubs5km) #r is 0.344
-cor.test(test$LastB, test$Schrubs30km) #r is -0.033
+cor.test(test$LastB, test$Schrubs30km) #r is -0.033   #0.321
 cor.test(test$LastB, test$Water500m) #r is -0.114
 cor.test(test$LastB, test$Water1km) #r is 0.048
 cor.test(test$LastB, test$Water5km) #r is 0.159
@@ -161,20 +160,20 @@ cor.test(test$LastB, test$NSoilTypes) #r is -0.044
 cor.test(test$LastB, test$FPSiteIndex)  # r is -.108
 cor.test(test$LastB, test$SiteIndexPrimaryS)  # r is -0.019
 cor.test(test$LastB, test$PISoils)  # r is 0.251
-cor.test(test$LastB, test$SISoils)  # r is 0.061
+cor.test(test$LastB, test$SISoils)  # r is 0.061   #-0.341
 cor.test(test$LastB, test$HydricSoils)  # r is -0.205
 
 #LastThin by each
 #cor.test(test$LastT, test$Treatment) #non-numeric
 cor.test(test$LastT, test$Herbicide) # r is -0.170
-cor.test(test$LastT, test$LastB) # r is -0.170
+cor.test(test$LastT, test$LastB) # r is -0.170   #-0.275
 #cor.test(test$LastT, test$LastT) #r is 
 cor.test(test$LastT, test$BA)     #r is -0.235
 cor.test(test$LastT, test$Nsnags) #r is -0.053
-cor.test(test$LastT, test$Ccover) #r is -0.203
+cor.test(test$LastT, test$Ccover) #r is -0.203   #-0.407
 cor.test(test$LastT, test$Ldepth) #r is -0.087
 cor.test(test$LastT, test$TreeHt) #r is -0.199
-cor.test(test$LastT, test$Age)    #r is -0.332 # high-ISH but not worrisome
+cor.test(test$LastT, test$Age)    #r is -0.332 # -0.410   #ISH, yes
 cor.test(test$LastT, test$Nburns) #r is -0.224
 cor.test(test$LastT, test$Nthins)  #r is -0.083
 cor.test(test$LastT, test$TimeSinceB) #r is -0.005
@@ -183,7 +182,7 @@ cor.test(test$LastT, test$HWdens_10)  #r is 0.037
 cor.test(test$LastT, test$HWdens_50) #r is -0.094
 cor.test(test$LastT, test$HWdens_100) #r is 0.037
 cor.test(test$LastT, test$FG_herb)   #r is -0.013
-cor.test(test$LastT, test$FG_shrub)  #r is 0.142
+cor.test(test$LastT, test$FG_shrub)  #r is 0.142  #0.316   #ISH
 cor.test(test$LastT, test$NHW_saplings)  #r is -0.114
 cor.test(test$LastT, test$NP_over_20cm)  #r is 0.104
 cor.test(test$LastT, test$Rel_HW2P_canopy) #r is 0.040
@@ -200,18 +199,18 @@ cor.test(test$LastT, test$Ag500m) #r is 0.064
 cor.test(test$LastT, test$Ag1km) #r is 0.047
 cor.test(test$LastT, test$Ag5km) #r is 0.059
 cor.test(test$LastT, test$Ag30km) #r is -0.048
-cor.test(test$LastT, test$Evergreen500m) #r is -0.390
+cor.test(test$LastT, test$Evergreen500m) #r is -0.390   #-0.305 ISH
 cor.test(test$LastT, test$Evergreen1km) #r is -0.299
 cor.test(test$LastT, test$Evergreen5km) #r is -0.161
 cor.test(test$LastT, test$Evergreen30km) #r is -0.094
 cor.test(test$LastT, test$Imperv500m) #r is -0.199
 cor.test(test$LastT, test$Imperv1km) #r is 0.081
-cor.test(test$LastT, test$Imperv5km) #r is 0.312
+cor.test(test$LastT, test$Imperv5km) #r is 0.312   #0.339 ISH
 cor.test(test$LastT, test$Imperv30km) #r is 0.260
 cor.test(test$LastT, test$Protected30km) #r is -0.024
 cor.test(test$LastT, test$HighDev500m) #r is -0.210
 cor.test(test$LastT, test$HighDev1km) #r is 0.106
-cor.test(test$LastT, test$HighDev5km) #r is 0.311
+cor.test(test$LastT, test$HighDev5km) #r is 0.311   #0.343
 cor.test(test$LastT, test$HighDev30km) #r is 0.017
 cor.test(test$LastT, test$LowDev500m) #r is -0.228
 cor.test(test$LastT, test$LowDev1km) #r is -0.003
@@ -233,11 +232,11 @@ cor.test(test$LastT, test$Water500m) #r is 0.256
 cor.test(test$LastT, test$Water1km) #r is 0.221
 cor.test(test$LastT, test$Water5km) #r is 0.109
 cor.test(test$LastT, test$Water30km) #r is -0.197
-cor.test(test$LastT, test$NSoilTypes) #r is -0.238
+cor.test(test$LastT, test$NSoilTypes) #r is -0.238   #-0.334
 cor.test(test$LastT, test$FPSiteIndex)  # r is -0.060
 cor.test(test$LastT, test$SiteIndexPrimaryS)  # r is 0.016
 cor.test(test$LastT, test$PISoils)  # r is -0.102
-cor.test(test$LastT, test$SISoils)  # r is 0.348
+cor.test(test$LastT, test$SISoils)  # r is 0.348   #0.367
 cor.test(test$LastT, test$HydricSoils)  # r is -0.031
 
 #BA by each
@@ -247,25 +246,25 @@ cor.test(test$BA, test$LastB) # r is -0.101
 cor.test(test$BA, test$LastT) #r is -0.235
 #cor.test(test$BA, test$BA)     #r is 
 cor.test(test$BA, test$Nsnags) #r is 0.174
-cor.test(test$BA, test$Ccover) #r is 0.825 # YES THERE IS CORRELATION HERE ! ACKNOWLEDDGE!
-cor.test(test$BA, test$Ldepth) #r is 0.224
+cor.test(test$BA, test$Ccover) #r is 0.825 #0.746 YES THERE IS CORRELATION HERE ! ACKNOWLEDDGE!
+cor.test(test$BA, test$Ldepth) #r is 0.224  #0.405
 cor.test(test$BA, test$TreeHt) #r is -0.119
-cor.test(test$BA, test$Age)    #r is -0.470 #high but just under 0.5 - should acknowledge !
-cor.test(test$BA, test$Nburns) #r is -0.494 #high but just under 0.5 - should acknowledge !
-cor.test(test$BA, test$Nthins)  #r is -0.536 #high but just under 0.5 - should acknowledge !
-cor.test(test$BA, test$TimeSinceB) #r is 0.410 #high but just under 0.5 - should acknowledge !
+cor.test(test$BA, test$Age)    #r is -0.470 #ish but less now (-0.288)
+cor.test(test$BA, test$Nburns) #r is -0.494 #-.410 #high but just under 0.5 - should acknowledge !
+cor.test(test$BA, test$Nthins)  #r is -0.536 #-.406 #high but just under 0.5 - should acknowledge !
+cor.test(test$BA, test$TimeSinceB) #r is 0.410 #high but less now, 0.317
 cor.test(test$BA, test$TimeSinceT) #r is 0.208
-cor.test(test$BA, test$HWdens_10)  #r is -0.462 #high but just under 0.5 - should acknowledge !
-cor.test(test$BA, test$HWdens_50) #r is -0.392 #high-ISH but under 0.5 - should acknowledge !
-cor.test(test$BA, test$HWdens_100) #r is -0.272
-cor.test(test$BA, test$FG_herb)   #r is -0.391 #high-ISH but under 0.5 - should acknowledge !
-cor.test(test$BA, test$FG_shrub)  #r is 0.043
+cor.test(test$BA, test$HWdens_10)  #r is -0.462 #-0.474 #high but just under 0.5 - should acknowledge !
+cor.test(test$BA, test$HWdens_50) #r is -0.392 #-0.431 #high-ISH but under 0.5 - should acknowledge !
+cor.test(test$BA, test$HWdens_100) #r is -0.272 #-0.363
+cor.test(test$BA, test$FG_herb)   #r is -0.391 #-0.356 #high-ISH but under 0.5 - should acknowledge !
+cor.test(test$BA, test$FG_shrub)  #r is 0.043 #-0.363
 cor.test(test$BA, test$NHW_saplings)  #r is -0.035
-cor.test(test$BA, test$NP_over_20cm)  #r is 0.608 #high - over 0.5 ! makes sense !
-cor.test(test$BA, test$Rel_HW2P_canopy) #r is 0.213
+cor.test(test$BA, test$NP_over_20cm)  #r is 0.608 #high but less $0.408
+cor.test(test$BA, test$Rel_HW2P_canopy) #r is 0.213  #0.362
 cor.test(test$BA, test$Rel_HW2P_shrubcover) #r is -0.070
-cor.test(test$BA, test$LCR) #r is 0.142
-cor.test(test$BA, test$HW_dens_1050) #r is -0.470
+cor.test(test$BA, test$LCR) #r is 0.142   #-0.418
+cor.test(test$BA, test$HW_dens_1050) #r is -0.470 not -0.471
 cor.test(test$BA, test$HW_shrub) #r is -0.145
 cor.test(test$BA, test$Parea) #r is 0.204
 cor.test(test$BA, test$ShapeIndex) #r is -0.067
@@ -278,13 +277,13 @@ cor.test(test$BA, test$Ag5km) #r is 0.324
 cor.test(test$BA, test$Ag30km) #r is 0.427
 cor.test(test$BA, test$Evergreen500m) #r is -0.239
 cor.test(test$BA, test$Evergreen1km) #r is -0.372
-cor.test(test$BA, test$Evergreen5km) #r is -0.462
+cor.test(test$BA, test$Evergreen5km) #r is -0.462  #less now
 cor.test(test$BA, test$Evergreen30km) #r is -0.149
 cor.test(test$BA, test$Imperv500m) #r is -0.112
 cor.test(test$BA, test$Imperv1km) #r is 0.018
 cor.test(test$BA, test$Imperv5km) #r is 0.179
 cor.test(test$BA, test$Imperv30km) #r is -0.053
-cor.test(test$BA, test$Protected30km) #r is -0.380
+cor.test(test$BA, test$Protected30km) #r is -0.380   #-0.407
 cor.test(test$BA, test$HighDev500m) #r is 0.099
 cor.test(test$BA, test$HighDev1km) #r is 0.028
 cor.test(test$BA, test$HighDev5km) #r is 0.178
@@ -295,7 +294,7 @@ cor.test(test$BA, test$LowDev5km) #r is 0.302
 cor.test(test$BA, test$LowDev30km) #r is -0.026
 cor.test(test$BA, test$OpenDev500m) #r is 0.203
 cor.test(test$BA, test$OpenDev1km) #r is 0.304
-cor.test(test$BA, test$OpenDev5km) #r is 0.379
+cor.test(test$BA, test$OpenDev5km) #r is 0.379  #less 0.321
 cor.test(test$BA, test$OpenDev30km) #r is 0.296
 cor.test(test$BA, test$Grass500m) #r is -0.080
 cor.test(test$BA, test$Grass1km) #r is 0.186
@@ -307,14 +306,14 @@ cor.test(test$BA, test$Schrubs5km) #r is -0.074
 cor.test(test$BA, test$Schrubs30km) #r is -0.223
 cor.test(test$BA, test$Water500m) #r is -0.347
 cor.test(test$BA, test$Water1km) #r is -0.137
-cor.test(test$BA, test$Water5km) #r is 0.292
+cor.test(test$BA, test$Water5km) #r is 0.292   #0.421
 cor.test(test$BA, test$Water30km) #r is -0.152
 cor.test(test$BA, test$NSoilTypes) #r is 0.137
-cor.test(test$BA, test$FPSiteIndex)  # r is -0.171
-cor.test(test$BA, test$SiteIndexPrimaryS)  # r is -0.110
+cor.test(test$BA, test$FPSiteIndex)  # r is -0.171  #-0.330
+cor.test(test$BA, test$SiteIndexPrimaryS)  # r is -0.110  #-0.348
 cor.test(test$BA, test$PISoils)  # r is 0.037
 cor.test(test$BA, test$SISoils)  # r is -0.121
-cor.test(test$BA, test$HydricSoils)  # r is 0.340
+cor.test(test$BA, test$HydricSoils)  # r is 0.340  #less now
 
 #Nsnags by each
 #cor.test(test$Nsnags, test$Treatment) #non-numeric
@@ -331,7 +330,7 @@ cor.test(test$Nsnags, test$Nburns) #r is -0.040
 cor.test(test$Nsnags, test$Nthins)  #r is -0.296
 cor.test(test$Nsnags, test$TimeSinceB) #r is 0.160
 cor.test(test$Nsnags, test$TimeSinceT) #r is 0.164
-cor.test(test$Nsnags, test$HWdens_10)  #r is -0.282
+cor.test(test$Nsnags, test$HWdens_10)  #r is -0.282   #-0.325
 cor.test(test$Nsnags, test$HWdens_50) #r is -0.139
 cor.test(test$Nsnags, test$HWdens_100) #r is -0.150
 cor.test(test$Nsnags, test$FG_herb)   #r is -0.011
@@ -384,7 +383,7 @@ cor.test(test$Nsnags, test$Schrubs30km) #r is -0.029
 cor.test(test$Nsnags, test$Water500m) #r is -0.155
 cor.test(test$Nsnags, test$Water1km) #r is -0.161
 cor.test(test$Nsnags, test$Water5km) #r is 0.141
-cor.test(test$Nsnags, test$Water30km) #r is 0.417
+cor.test(test$Nsnags, test$Water30km) #r is 0.417   #0.403
 cor.test(test$Nsnags, test$NSoilTypes) #r is 0.174
 cor.test(test$Nsnags, test$FPSiteIndex)  # r is 0.100
 cor.test(test$Nsnags, test$SiteIndexPrimaryS)  # r is 0.074
@@ -396,28 +395,28 @@ cor.test(test$Nsnags, test$HydricSoils)  # r is 0.146
 #cor.test(test$Ccover, test$Treatment) #non-numeric
 cor.test(test$Ccover, test$Herbicide) # r is -0.209
 cor.test(test$Ccover, test$LastB) # r is -0.164
-cor.test(test$Ccover, test$LastT) #r is -0.203
-cor.test(test$Ccover, test$BA)     #r is 0.825 # HIGHLY CORR - MUST ACKNOWLEDGE! BA & COVER
+cor.test(test$Ccover, test$LastT) #r is -0.203  #-0.407
+cor.test(test$Ccover, test$BA)     #r is 0.825 # HIGH #0.746
 cor.test(test$Ccover, test$Nsnags) #r is 0.192
 #cor.test(test$Ccover, test$Ccover) #r is 
-cor.test(test$Ccover, test$Ldepth) #r is 0.305 #maybe somewhat high? but well under 0.5
+cor.test(test$Ccover, test$Ldepth) #r is 0.305 #somewhat high? #0.442 - acknowledge
 cor.test(test$Ccover, test$TreeHt) #r is 0.139
 cor.test(test$Ccover, test$Age)    #r is -0.321 #maybe somewhat high? but well under 0.5
-cor.test(test$Ccover, test$Nburns) #r is -0.485 #high but just under 0.5 - should acknowledge !
-cor.test(test$Ccover, test$Nthins)  #r is -0.467 #high but just under 0.5 - should acknowledge !
+cor.test(test$Ccover, test$Nburns) #r is -0.485 #high -0.483 - should acknowledge !
+cor.test(test$Ccover, test$Nthins)  #r is -0.467 #high -0.435 - should acknowledge !
 cor.test(test$Ccover, test$TimeSinceB) #r is 0.391 #high-ISH but still under 0.5 - acknowledge !
-cor.test(test$Ccover, test$TimeSinceT) #r is 0.200 # interesting that less than burning
-cor.test(test$Ccover, test$HWdens_10)  #r is -0.385 #high-ISH but still under 0.5 - acknowledge !
-cor.test(test$Ccover, test$HWdens_50) #r is -0.344 #ditto above
+cor.test(test$Ccover, test$TimeSinceT) #r is 0.200 #0.343 # interesting that less than burning
+cor.test(test$Ccover, test$HWdens_10)  #r is -0.385 #high  #-0.507 - acknowledge !
+cor.test(test$Ccover, test$HWdens_50) #r is -0.344 #ditto above #-0.374
 cor.test(test$Ccover, test$HWdens_100) #r is -0.196
-cor.test(test$Ccover, test$FG_herb)   #r is -0.376 #high-ISH but still under 0.5 - acknowledge !
-cor.test(test$Ccover, test$FG_shrub)  #r is -0.122
+cor.test(test$Ccover, test$FG_herb)   #r is -0.376 #highish  #-0.309 - acknowledge !
+cor.test(test$Ccover, test$FG_shrub)  #r is -0.122  #-0.523 HIGH
 cor.test(test$Ccover, test$NHW_saplings)  #r is 0.056
-cor.test(test$Ccover, test$NP_over_20cm)  #r is 0.508 # it's 0.5 - acknowledge but makes sense
-cor.test(test$Ccover, test$Rel_HW2P_canopy) #r is 0.258 # as should be
+cor.test(test$Ccover, test$NP_over_20cm)  #r is 0.508 # it's less #0.311 acknowledge but makes sense
+cor.test(test$Ccover, test$Rel_HW2P_canopy) #r is 0.258 # as should be  #0.379
 cor.test(test$Ccover, test$Rel_HW2P_shrubcover) #r is -0.089
-cor.test(test$Ccover, test$LCR) #r is -0.041  #haha... so weird that not correlated...
-cor.test(test$Ccover, test$HW_dens_1050) #r is -0.401
+cor.test(test$Ccover, test$LCR) # -0.347
+cor.test(test$Ccover, test$HW_dens_1050) #r is -0.401  #-0.457
 cor.test(test$Ccover, test$HW_shrub) #r is -0.026
 cor.test(test$Ccover, test$Parea) #r is 0.104
 cor.test(test$Ccover, test$ShapeIndex) #r is -0.108
@@ -440,7 +439,7 @@ cor.test(test$Ccover, test$Protected30km) #r is -0.356
 cor.test(test$Ccover, test$HighDev500m) #r is 0.116
 cor.test(test$Ccover, test$HighDev1km) #r is 0.060
 cor.test(test$Ccover, test$HighDev5km) #r is 0.120
-cor.test(test$Ccover, test$HighDev30km) #r is -0.533
+cor.test(test$Ccover, test$HighDev30km) #r is -0.533  #less now
 cor.test(test$Ccover, test$LowDev500m) #r is -0.019
 cor.test(test$Ccover, test$LowDev1km) #r is 0.098
 cor.test(test$Ccover, test$LowDev5km) #r is 0.215
@@ -470,30 +469,30 @@ cor.test(test$Ccover, test$HydricSoils)  # r is 0.220
 
 #Ldepth by each
 #cor.test(test$Ldepth, test$Treatment) #non-numeric
-cor.test(test$Ldepth, test$Herbicide) # r is -0.060
-cor.test(test$Ldepth, test$LastB) # r is -0.465  # high but under 0.5 - acknowledge
+cor.test(test$Ldepth, test$Herbicide) # r is -0.060   #-0.350
+cor.test(test$Ldepth, test$LastB) # r is -0.465  # high- acknowledge  #-0.680
 cor.test(test$Ldepth, test$LastT) #r is 0.087
-cor.test(test$Ldepth, test$BA)     #r is 0.224
+cor.test(test$Ldepth, test$BA)     #r is 0.224   #0.405
 cor.test(test$Ldepth, test$Nsnags) #r is -0.075
-cor.test(test$Ldepth, test$Ccover) #r is 0.305 #high-ISH but still under 0.5 
+cor.test(test$Ldepth, test$Ccover) #r is 0.305 #high-ISH #0.442
 #cor.test(test$Ldepth, test$Ldepth) #r is 
-cor.test(test$Ldepth, test$TreeHt) #r is 0.000
+cor.test(test$Ldepth, test$TreeHt) #r is 0.000  #0.266
 cor.test(test$Ldepth, test$Age)    #r is -0.267
-cor.test(test$Ldepth, test$Nburns) #r is -0.484 # high but just under 0.5 - right proxy?
-cor.test(test$Ldepth, test$Nthins)  #r is -0.192
-cor.test(test$Ldepth, test$TimeSinceB) #r is 0.366 # high-ISH but under 0.5 -makes sense
+cor.test(test$Ldepth, test$Nburns) #r is -0.484 # highISH- right proxy?  #-0.475
+cor.test(test$Ldepth, test$Nthins)  #r is -0.192  #-0.375
+cor.test(test$Ldepth, test$TimeSinceB) #r is 0.366 # highISH #-.507
 cor.test(test$Ldepth, test$TimeSinceT) #r is 0.152
-cor.test(test$Ldepth, test$HWdens_10)  #r is -0.105
+cor.test(test$Ldepth, test$HWdens_10)  #r is -0.105   #-0.324
 cor.test(test$Ldepth, test$HWdens_50) #r is -0.151
 cor.test(test$Ldepth, test$HWdens_100) #r is 0.025
-cor.test(test$Ldepth, test$FG_herb)   #r is -0.509 # AHA! indirect rel bw fire and forbes/grasses?!
-cor.test(test$Ldepth, test$FG_shrub)  #r is -0.267 #maybe above?
+cor.test(test$Ldepth, test$FG_herb)   #r is -0.509 # AHA! indirect rel bw fire and forbes/grasses?!  #but way less 2018
+cor.test(test$Ldepth, test$FG_shrub)  #r is -0.267  #-0.310
 cor.test(test$Ldepth, test$NHW_saplings)  #r is 0.260
 cor.test(test$Ldepth, test$NP_over_20cm)  #r is 0.174
 cor.test(test$Ldepth, test$Rel_HW2P_canopy) #r is 0.183
 cor.test(test$Ldepth, test$Rel_HW2P_shrubcover) #r is -0.131
 cor.test(test$Ldepth, test$LCR) #r is -0.207
-cor.test(test$Ldepth, test$HW_dens_1050) #r is -0.139
+cor.test(test$Ldepth, test$HW_dens_1050) #r is -0.139   #-0.318
 cor.test(test$Ldepth, test$HW_shrub) #r is 0.004
 cor.test(test$Ldepth, test$Parea) #r is -0.184
 cor.test(test$Ldepth, test$ShapeIndex) #r is 0.072
@@ -504,10 +503,10 @@ cor.test(test$Ldepth, test$Ag500m) #r is 0.222
 cor.test(test$Ldepth, test$Ag1km) #r is 0.160
 cor.test(test$Ldepth, test$Ag5km) #r is 0.215
 cor.test(test$Ldepth, test$Ag30km) #r is 0.195
-cor.test(test$Ldepth, test$Evergreen500m) #r is -0.272
-cor.test(test$Ldepth, test$Evergreen1km) #r is -0.257
-cor.test(test$Ldepth, test$Evergreen5km) #r is -0.243
-cor.test(test$Ldepth, test$Evergreen30km) #r is -0.452
+cor.test(test$Ldepth, test$Evergreen500m) #r is -0.272   #-0.335
+cor.test(test$Ldepth, test$Evergreen1km) #r is -0.257   #-0.313
+cor.test(test$Ldepth, test$Evergreen5km) #r is -0.243  #-0.353
+cor.test(test$Ldepth, test$Evergreen30km) #r is -0.452   #less
 cor.test(test$Ldepth, test$Imperv500m) #r is 0.094
 cor.test(test$Ldepth, test$Imperv1km) #r is 0.149
 cor.test(test$Ldepth, test$Imperv5km) #r is 0.338
@@ -516,17 +515,17 @@ cor.test(test$Ldepth, test$Protected30km) #r is 0.009
 cor.test(test$Ldepth, test$HighDev500m) #r is 0.166
 cor.test(test$Ldepth, test$HighDev1km) #r is 0.143
 cor.test(test$Ldepth, test$HighDev5km) #r is 0.333
-cor.test(test$Ldepth, test$HighDev30km) #r is -0.180
+cor.test(test$Ldepth, test$HighDev30km) #r is -0.180   #-0.391
 cor.test(test$Ldepth, test$LowDev500m) #r is 0.144
 cor.test(test$Ldepth, test$LowDev1km) #r is 0.183
 cor.test(test$Ldepth, test$LowDev5km) #r is 0.335
 cor.test(test$Ldepth, test$LowDev30km) #r is 0.200
 cor.test(test$Ldepth, test$OpenDev500m) #r is 0.185
 cor.test(test$Ldepth, test$OpenDev1km) #r is 0.170
-cor.test(test$Ldepth, test$OpenDev5km) #r is 0.111
-cor.test(test$Ldepth, test$OpenDev30km) #r is 0.154
+cor.test(test$Ldepth, test$OpenDev5km) #r is 0.111   #0.370
+cor.test(test$Ldepth, test$OpenDev30km) #r is 0.154   #0.378
 cor.test(test$Ldepth, test$Grass500m) #r is -0.102
-cor.test(test$Ldepth, test$Grass1km) #r is 0.099
+cor.test(test$Ldepth, test$Grass1km) #r is 0.099   #0.345
 cor.test(test$Ldepth, test$Grass5km) #r is 0.057
 cor.test(test$Ldepth, test$Grass30km) #r is 0.221
 cor.test(test$Ldepth, test$Schrubs500m) #r is -0.084
@@ -554,9 +553,9 @@ cor.test(test$TreeHt, test$Nsnags) #r is -0.051
 cor.test(test$TreeHt, test$Ccover) #r is 0.139
 cor.test(test$TreeHt, test$Ldepth) #r is 0.000
 #cor.test(test$TreeHt, test$TreeHt) #r is 
-cor.test(test$TreeHt, test$Age)    #r is 0.594     # over 0.5 - high - ACKNOWLEDGE
+cor.test(test$TreeHt, test$Age)    #r is 0.594     # over 0.5 - high  #less now
 cor.test(test$TreeHt, test$Nburns) #r is 0.266
-cor.test(test$TreeHt, test$Nthins)  #r is 0.438 # close to 0.5 - ACKNOWLEDGE THIS AGING corr
+cor.test(test$TreeHt, test$Nthins)  #r is 0.438 # close to 0.5 - ACKNOWLEDGE THIS #but less now
 cor.test(test$TreeHt, test$TimeSinceB) #r is -0.082
 cor.test(test$TreeHt, test$TimeSinceT) #r is 0.083
 cor.test(test$TreeHt, test$HWdens_10)  #r is 0.123
@@ -568,7 +567,7 @@ cor.test(test$TreeHt, test$NHW_saplings)  #r is 0.215
 cor.test(test$TreeHt, test$NP_over_20cm)  #r is -0.187
 cor.test(test$TreeHt, test$Rel_HW2P_canopy) #r is 0.252
 cor.test(test$TreeHt, test$Rel_HW2P_shrubcover) #r is 0.092
-cor.test(test$TreeHt, test$LCR) #r is -0.630  #YES - CORRELATED - ACKNOWLEDGE
+cor.test(test$TreeHt, test$LCR) #r is -0.630  #YES - CORRELATED - ACKNOWLEDGE #-0.479
 cor.test(test$TreeHt, test$HW_dens_1050) #r is 0.195
 cor.test(test$TreeHt, test$HW_shrub) #r is 0.332
 cor.test(test$TreeHt, test$Parea) #r is 0.085
@@ -583,16 +582,16 @@ cor.test(test$TreeHt, test$Ag30km) #r is 0.113
 cor.test(test$TreeHt, test$Evergreen500m) #r is 0.233
 cor.test(test$TreeHt, test$Evergreen1km) #r is -0.051
 cor.test(test$TreeHt, test$Evergreen5km) #r is -0.198
-cor.test(test$TreeHt, test$Evergreen30km) #r is -0.151
+cor.test(test$TreeHt, test$Evergreen30km) #r is -0.151   #-0.344
 cor.test(test$TreeHt, test$Imperv500m) #r is 0.204
 cor.test(test$TreeHt, test$Imperv1km) #r is 0.109
 cor.test(test$TreeHt, test$Imperv5km) #r is -0.279
 cor.test(test$TreeHt, test$Imperv30km) #r is -0.026
 cor.test(test$TreeHt, test$Protected30km) #r is -0.106
 cor.test(test$TreeHt, test$HighDev500m) #r is 0.131
-cor.test(test$TreeHt, test$HighDev1km) #r is 0.085
+cor.test(test$TreeHt, test$HighDev1km) #r is 0.085  #0.3
 cor.test(test$TreeHt, test$HighDev5km) #r is -0.282
-cor.test(test$TreeHt, test$HighDev30km) #r is -0.112
+cor.test(test$TreeHt, test$HighDev30km) #r is -0.112   #-0.311
 cor.test(test$TreeHt, test$LowDev500m) #r is 0.119
 cor.test(test$TreeHt, test$LowDev1km) #r is -0.064
 cor.test(test$TreeHt, test$LowDev5km) #r is -0.296
@@ -631,8 +630,8 @@ cor.test(test$Age, test$Ccover) #r is -0.321  #under 0.5 but high-ish
 cor.test(test$Age, test$Ldepth) #r is -0.267
 cor.test(test$Age, test$TreeHt) #r is 0.594  #over 0.5 - acknowledge, duh
 #cor.test(test$Age, test$Age)    #r is 
-cor.test(test$Age, test$Nburns) #r is 0.530  #over 0.5 - acknowledge *AGE SAMPLING ISSUE
-cor.test(test$Age, test$Nthins)  #r is 0.702 #product of management timing!! ACKNOWLEDGE
+cor.test(test$Age, test$Nburns) #r is 0.530 0.569 #over 0.5 - acknowledge *AGE SAMPLING ISSUE
+cor.test(test$Age, test$Nthins)  #r is 0.702 #0.641 #product of management timing!! ACKNOWLEDGE
 cor.test(test$Age, test$TimeSinceB) #r is -0.340  #high-ISH but not yet 0.5
 cor.test(test$Age, test$TimeSinceT) #r is 0.157
 cor.test(test$Age, test$HWdens_10)  #r is 0.250
@@ -698,27 +697,27 @@ cor.test(test$Age, test$HydricSoils)  # r is -0.180
 
 #Nburns by each
 #cor.test(test$Nburns, test$Treatment) #non-numeric
-cor.test(test$Nburns, test$Herbicide) # r is 0.350  #high-ish
+cor.test(test$Nburns, test$Herbicide) # r is 0.350  #high-ish but less now
 cor.test(test$Nburns, test$LastB) # r is 0.297
 cor.test(test$Nburns, test$LastT) #r is -0.224
-cor.test(test$Nburns, test$BA)     #r is -0.494  #close to 0.5
+cor.test(test$Nburns, test$BA)     #r is -0.494  #close to 0.5  #-0.410
 cor.test(test$Nburns, test$Nsnags) #r is -0.040
 cor.test(test$Nburns, test$Ccover) #r is -0.485  #close to 0.5
 cor.test(test$Nburns, test$Ldepth) #r is -0.484  #close to 0.5 - fire proxy
 cor.test(test$Nburns, test$TreeHt) #r is 0.266
 cor.test(test$Nburns, test$Age)    #r is 0.530
 #cor.test(test$Nburns, test$Nburns) #r is 
-cor.test(test$Nburns, test$Nthins)  #r is 0.494  #close to 0.5
+cor.test(test$Nburns, test$Nthins)  #r is 0.494  #close to 0.5  #highr now 0.5
 cor.test(test$Nburns, test$TimeSinceB) #r is -0.515  #close to 0.5
 cor.test(test$Nburns, test$TimeSinceT) #r is -0.001
-cor.test(test$Nburns, test$HWdens_10)  #r is 0.306  #close to 0.5
+cor.test(test$Nburns, test$HWdens_10)  #r is 0.306  #higher now 0.447
 cor.test(test$Nburns, test$HWdens_50) #r is 0.504  #0.5  - rel with HW mid height density
 cor.test(test$Nburns, test$HWdens_100) #r is 0.158
-cor.test(test$Nburns, test$FG_herb)   #r is 0.542  #0.5 - rel with forbs at low height
+cor.test(test$Nburns, test$FG_herb)   #r is 0.542  #0.5 - rel with forbs at low height, lower now though
 cor.test(test$Nburns, test$FG_shrub)  #r is -0.081
 cor.test(test$Nburns, test$NHW_saplings)  #r is -0.168
-cor.test(test$Nburns, test$NP_over_20cm)  #r is -0.332
-cor.test(test$Nburns, test$Rel_HW2P_canopy) #r is -0.402  #high-ish, close to 0.5
+cor.test(test$Nburns, test$NP_over_20cm)  #r is -0.332  #lower now
+cor.test(test$Nburns, test$Rel_HW2P_canopy) #r is -0.402  #high-ish, close to 0.5  #lower now
 cor.test(test$Nburns, test$Rel_HW2P_shrubcover) #r is 0.060
 cor.test(test$Nburns, test$LCR) #r is -0.106
 cor.test(test$Nburns, test$HW_dens_1050) #r is 0.440
@@ -733,8 +732,8 @@ cor.test(test$Nburns, test$Ag1km) #r is -0.059
 cor.test(test$Nburns, test$Ag5km) #r is -0.156
 cor.test(test$Nburns, test$Ag30km) #r is -0.141
 cor.test(test$Nburns, test$Evergreen500m) #r is 0.250
-cor.test(test$Nburns, test$Evergreen1km) #r is 0.335
-cor.test(test$Nburns, test$Evergreen5km) #r is 0.287
+cor.test(test$Nburns, test$Evergreen1km) #r is 0.335   .4 
+cor.test(test$Nburns, test$Evergreen5km) #r is 0.287  .3
 cor.test(test$Nburns, test$Evergreen30km) #r is 0.266
 cor.test(test$Nburns, test$Imperv500m) #r is -0.005
 cor.test(test$Nburns, test$Imperv1km) #r is 0.044
@@ -780,8 +779,8 @@ cor.test(test$Nthins, test$LastT) #r is -0.083
 cor.test(test$Nthins, test$BA)     #r is -0.536  #over 0.5 - acknowledge this duh link
 cor.test(test$Nthins, test$Nsnags) #r is -0.296 
 cor.test(test$Nthins, test$Ccover) #r is -0.467 #close - acknowledge this man. link
-cor.test(test$Nthins, test$Ldepth) #r is -0.192
-cor.test(test$Nthins, test$TreeHt) #r is 0.438 #close - acknowledge this timing link
+cor.test(test$Nthins, test$Ldepth) #r is -0.192   #-0.375
+cor.test(test$Nthins, test$TreeHt) #r is 0.438 #less now
 cor.test(test$Nthins, test$Age)    #r is 0.702  #ACKNOWLEDGE - unavoidable
 cor.test(test$Nthins, test$Nburns) #r is 0.494  #close - acknowledge
 #cor.test(test$Nthins, test$Nthins)  #r is 
@@ -793,7 +792,7 @@ cor.test(test$Nthins, test$HWdens_100) #r is 0.096
 cor.test(test$Nthins, test$FG_herb)   #r is 0.171
 cor.test(test$Nthins, test$FG_shrub)  #r is -0.105
 cor.test(test$Nthins, test$NHW_saplings)  #r is 0.080
-cor.test(test$Nthins, test$NP_over_20cm)  #r is -0.374  #high-ISH
+cor.test(test$Nthins, test$NP_over_20cm)  #r is -0.374  #high-ISH  #higher now
 cor.test(test$Nthins, test$Rel_HW2P_canopy) #r is -0.202
 cor.test(test$Nthins, test$Rel_HW2P_shrubcover) #r is -0.063
 cor.test(test$Nthins, test$LCR) #r is -0.359
@@ -850,13 +849,13 @@ cor.test(test$Nthins, test$HydricSoils)  # r is -0.173
 
 #TimeSinceB by each
 #cor.test(test$TimeSinceB, test$Treatment) #non-numeric
-cor.test(test$TimeSinceB, test$Herbicide) # r is -0.300  #high-ISH
+cor.test(test$TimeSinceB, test$Herbicide) # r is -0.300  #high-ISH  -0.352
 cor.test(test$TimeSinceB, test$LastB) # r is -1  #duh! timing since burn
 cor.test(test$TimeSinceB, test$LastT) #r is -0.005
-cor.test(test$TimeSinceB, test$BA)     #r is 0.413  #high close to 0.5
+cor.test(test$TimeSinceB, test$BA)     #r is 0.413  #less now 0.317
 cor.test(test$TimeSinceB, test$Nsnags) #r is 0.160
 cor.test(test$TimeSinceB, test$Ccover) #r is 0.391  #high-ISH
-cor.test(test$TimeSinceB, test$Ldepth) #r is 0.366  #high-ISH
+cor.test(test$TimeSinceB, test$Ldepth) #r is 0.366  #higher #0.5
 cor.test(test$TimeSinceB, test$TreeHt) #r is -0.082
 cor.test(test$TimeSinceB, test$Age)    #r is -0.340  #high-ISH
 cor.test(test$TimeSinceB, test$Nburns) #r is -0.515  #0.5 - makes sense
@@ -872,7 +871,7 @@ cor.test(test$TimeSinceB, test$NHW_saplings)  #r is 0.025
 cor.test(test$TimeSinceB, test$NP_over_20cm)  #r is 0.317  #high-ISH
 cor.test(test$TimeSinceB, test$Rel_HW2P_canopy) #r is 0.419   #high-ISH 
 cor.test(test$TimeSinceB, test$Rel_HW2P_shrubcover) #r is -0.010
-cor.test(test$TimeSinceB, test$LCR) #r is 0.103
+cor.test(test$TimeSinceB, test$LCR) #r is 0.103   #-0.345
 cor.test(test$TimeSinceB, test$HW_dens_1050) #r is -0.362
 cor.test(test$TimeSinceB, test$HW_shrub) #r is -0.044
 cor.test(test$TimeSinceB, test$Parea) #r is 0.030
@@ -886,8 +885,8 @@ cor.test(test$TimeSinceB, test$Ag5km) #r is 0.149
 cor.test(test$TimeSinceB, test$Ag30km) #r is 0.366
 cor.test(test$TimeSinceB, test$Evergreen500m) #r is -0.238
 cor.test(test$TimeSinceB, test$Evergreen1km) #r is -0.340
-cor.test(test$TimeSinceB, test$Evergreen5km) #r is -0.308
-cor.test(test$TimeSinceB, test$Evergreen30km) #r is -0.313
+cor.test(test$TimeSinceB, test$Evergreen5km) #r is -0.308  #-0.268
+cor.test(test$TimeSinceB, test$Evergreen30km) #r is -0.313 #-0.2
 cor.test(test$TimeSinceB, test$Imperv500m) #r is 0.171
 cor.test(test$TimeSinceB, test$Imperv1km) #r is -0.087
 cor.test(test$TimeSinceB, test$Imperv5km) #r is 0.140
@@ -903,7 +902,7 @@ cor.test(test$TimeSinceB, test$LowDev5km) #r is 0.168
 cor.test(test$TimeSinceB, test$LowDev30km) #r is 0.002
 cor.test(test$TimeSinceB, test$OpenDev500m) #r is 0.130
 cor.test(test$TimeSinceB, test$OpenDev1km) #r is 0.206
-cor.test(test$TimeSinceB, test$OpenDev5km) #r is 0.201
+cor.test(test$TimeSinceB, test$OpenDev5km) #r is 0.201  #.3
 cor.test(test$TimeSinceB, test$OpenDev30km) #r is 0.168
 cor.test(test$TimeSinceB, test$Grass500m) #r is -0.022
 cor.test(test$TimeSinceB, test$Grass1km) #r is -0.032
@@ -931,7 +930,7 @@ cor.test(test$TimeSinceT, test$LastB) # r is 0.191
 cor.test(test$TimeSinceT, test$LastT) #r is -1     #duh
 cor.test(test$TimeSinceT, test$BA)     #r is 0.210
 cor.test(test$TimeSinceT, test$Nsnags) #r is 0.164
-cor.test(test$TimeSinceT, test$Ccover) #r is 0.199
+cor.test(test$TimeSinceT, test$Ccover) #r is 0.199   0.343
 cor.test(test$TimeSinceT, test$Ldepth) #r is 0.152
 cor.test(test$TimeSinceT, test$TreeHt) #r is 0.083
 cor.test(test$TimeSinceT, test$Age)    #r is 0.157
@@ -1006,27 +1005,27 @@ cor.test(test$HWdens_10, test$Herbicide) # r is -0.137
 cor.test(test$HWdens_10, test$LastB) # r is -0.127
 cor.test(test$HWdens_10, test$LastT) #r is 0.037
 cor.test(test$HWdens_10, test$BA)     #r is -0.462  #high-ISH - close to 0.5
-cor.test(test$HWdens_10, test$Nsnags) #r is -0.282
-cor.test(test$HWdens_10, test$Ccover) #r is -0.385  #high-ISH - under 0.5
-cor.test(test$HWdens_10, test$Ldepth) #r is -0.105
+cor.test(test$HWdens_10, test$Nsnags) #r is -0.282  #-.325
+cor.test(test$HWdens_10, test$Ccover) #r is -0.385  #higher -0.507
+cor.test(test$HWdens_10, test$Ldepth) #r is -0.105   #-0.324
 cor.test(test$HWdens_10, test$TreeHt) #r is 0.128
 cor.test(test$HWdens_10, test$Age)    #r is 0.250
-cor.test(test$HWdens_10, test$Nburns) #r is 0.306  #high-ISH - under 0.5
-cor.test(test$HWdens_10, test$Nthins)  #r is 0.323  #high-ISH - under 0.5
+cor.test(test$HWdens_10, test$Nburns) #r is 0.306  #higher 0.447
+cor.test(test$HWdens_10, test$Nthins)  #r is 0.323  #less now
 cor.test(test$HWdens_10, test$TimeSinceB) #r is -0.296
 cor.test(test$HWdens_10, test$TimeSinceT) #r is -0.115
 #cor.test(test$HWdens_10, test$HWdens_10)  #r is 
-cor.test(test$HWdens_10, test$HWdens_50) #r is 0.670   # ACKNOWLEDGE !!
+cor.test(test$HWdens_10, test$HWdens_50) #r is 0.670   #higher now, duh
 cor.test(test$HWdens_10, test$HWdens_100) #r is 0.428  #slightly less so, but still high
 cor.test(test$HWdens_10, test$FG_herb)   #r is 0.343  #high-ISH
 cor.test(test$HWdens_10, test$FG_shrub)  #r is -0.271
-cor.test(test$HWdens_10, test$NHW_saplings)  #r is 0.189
+cor.test(test$HWdens_10, test$NHW_saplings)  #r is 0.189   0.420
 cor.test(test$HWdens_10, test$NP_over_20cm)  #r is -0.278
 cor.test(test$HWdens_10, test$Rel_HW2P_canopy) #r is 0.046
 cor.test(test$HWdens_10, test$Rel_HW2P_shrubcover) #r is 0.327  #high-ISH; good! should be
 cor.test(test$HWdens_10, test$LCR) #r is -0.125
-cor.test(test$HWdens_10, test$HW_dens_1050) #r is 0.921
-cor.test(test$HWdens_10, test$HW_shrub) #r is 0.382
+cor.test(test$HWdens_10, test$HW_dens_1050) #r is 0.921  0.942
+cor.test(test$HWdens_10, test$HW_shrub) #r is 0.382  0.457
 cor.test(test$HWdens_10, test$Parea) #r is -0.017
 cor.test(test$HWdens_10, test$ShapeIndex) #r is 0.168
 cor.test(test$HWdens_10, test$PAratio) #r is -0.045
@@ -1034,7 +1033,7 @@ cor.test(test$HWdens_10, test$FracDimIndex) #r is 0.149
 cor.test(test$HWdens_10, test$CoreAreaIndex) #r is -0.048
 cor.test(test$HWdens_10, test$Ag500m) #r is -0.295
 cor.test(test$HWdens_10, test$Ag1km) #r is -0.291
-cor.test(test$HWdens_10, test$Ag5km) #r is -0.266
+cor.test(test$HWdens_10, test$Ag5km) #r is -0.266   -0.387
 cor.test(test$HWdens_10, test$Ag30km) #r is -0.430
 cor.test(test$HWdens_10, test$Evergreen500m) #r is 0.330
 cor.test(test$HWdens_10, test$Evergreen1km) #r is 0.356
@@ -1091,18 +1090,18 @@ cor.test(test$HWdens_50, test$Nburns) #r is 0.504  #high
 cor.test(test$HWdens_50, test$Nthins)  #r is 0.331  #high-ISH
 cor.test(test$HWdens_50, test$TimeSinceB) #r is -0.364  #high-ISH
 cor.test(test$HWdens_50, test$TimeSinceT) #r is 0.053
-cor.test(test$HWdens_50, test$HWdens_10)  #r is 0.670  #YES - corr with lower level
+cor.test(test$HWdens_50, test$HWdens_10)  #r is 0.670  0.8 #YES - corr with lower level
 #cor.test(test$HWdens_50, test$HWdens_50) #r is 
 cor.test(test$HWdens_50, test$HWdens_100) #r is 0.705  # YES - corr with highest level
 cor.test(test$HWdens_50, test$FG_herb)   #r is 0.400  #high
 cor.test(test$HWdens_50, test$FG_shrub)  #r is -0.265
-cor.test(test$HWdens_50, test$NHW_saplings)  #r is 0.293  #high-ISH
+cor.test(test$HWdens_50, test$NHW_saplings)  #r is 0.293  #higher 0.501 now
 cor.test(test$HWdens_50, test$NP_over_20cm)  #r is 0.285
 cor.test(test$HWdens_50, test$Rel_HW2P_canopy) #r is -0.003
 cor.test(test$HWdens_50, test$Rel_HW2P_shrubcover) #r is 0.416  #high
 cor.test(test$HWdens_50, test$LCR) #r is -0.274
-cor.test(test$HWdens_50, test$HW_dens_1050) #r is 0.907
-cor.test(test$HWdens_50, test$HW_shrub) #r is 0.563
+cor.test(test$HWdens_50, test$HW_dens_1050) #r is 0.907 0.959
+cor.test(test$HWdens_50, test$HW_shrub) #r is 0.563  #0.660
 cor.test(test$HWdens_50, test$Parea) #r is -0.083
 cor.test(test$HWdens_50, test$ShapeIndex) #r is 0.024
 cor.test(test$HWdens_50, test$PAratio) #r is -0.023
@@ -1249,7 +1248,7 @@ cor.test(test$HWdens_100, test$HWdens_50) #r is 0.705  #YES - corr with mid-leve
 #cor.test(test$HWdens_100, test$HWdens_100) #r is 
 cor.test(test$HWdens_100, test$FG_herb)   #r is 0.267
 cor.test(test$HWdens_100, test$FG_shrub)  #r is -0.229
-cor.test(test$HWdens_100, test$NHW_saplings)  #r is 0.523
+cor.test(test$HWdens_100, test$NHW_saplings)  #r is 0.523  #0.7
 cor.test(test$HWdens_100, test$NP_over_20cm)  #r is -0.218
 cor.test(test$HWdens_100, test$Rel_HW2P_canopy) #r is 0.088
 cor.test(test$HWdens_100, test$Rel_HW2P_shrubcover) #r is 0.493  #high - close to 0.5
@@ -1285,7 +1284,7 @@ cor.test(test$HWdens_100, test$LowDev30km) #r is -0.069
 cor.test(test$HWdens_100, test$OpenDev500m) #r is -0.279
 cor.test(test$HWdens_100, test$OpenDev1km) #r is -0.386
 cor.test(test$HWdens_100, test$OpenDev5km) #r is -0.398
-cor.test(test$HWdens_100, test$OpenDev30km) #r is -0.357
+cor.test(test$HWdens_100, test$OpenDev30km) #r is -0.357  .4
 cor.test(test$HWdens_100, test$Grass500m) #r is -0.314
 cor.test(test$HWdens_100, test$Grass1km) #r is -0.117
 cor.test(test$HWdens_100, test$Grass5km) #r is -0.214
@@ -1388,7 +1387,7 @@ cor.test(test$FG_shrub, test$LastB) # r is 0.203
 cor.test(test$FG_shrub, test$LastT) #r is 0.142
 cor.test(test$FG_shrub, test$BA)     #r is 0.043
 cor.test(test$FG_shrub, test$Nsnags) #r is 0.106
-cor.test(test$FG_shrub, test$Ccover) #r is -0.122
+cor.test(test$FG_shrub, test$Ccover) #r is -0.122  -0.523
 cor.test(test$FG_shrub, test$Ldepth) #r is -0.267
 cor.test(test$FG_shrub, test$TreeHt) #r is -0.332
 cor.test(test$FG_shrub, test$Age)    #r is -0.081
@@ -1405,7 +1404,7 @@ cor.test(test$FG_shrub, test$NHW_saplings)  #r is -0.224
 cor.test(test$FG_shrub, test$NP_over_20cm)  #r is 0.054
 cor.test(test$FG_shrub, test$Rel_HW2P_canopy) #r is -0.123
 cor.test(test$FG_shrub, test$Rel_HW2P_shrubcover) #r is -0.223
-cor.test(test$FG_shrub, test$LCR) #r is 0.254
+cor.test(test$FG_shrub, test$LCR) #r is 0.254  .407
 cor.test(test$FG_shrub, test$HW_dens_1050) #r is 0.093
 cor.test(test$FG_shrub, test$HW_shrub) #r is -0.167
 cor.test(test$FG_shrub, test$Parea) #r is 0.337
@@ -1472,9 +1471,9 @@ cor.test(test$NHW_saplings, test$Nburns) #r is -0.168
 cor.test(test$NHW_saplings, test$Nthins)  #r is 0.080
 cor.test(test$NHW_saplings, test$TimeSinceB) #r is 0.025
 cor.test(test$NHW_saplings, test$TimeSinceT) #r is -0.031
-cor.test(test$NHW_saplings, test$HWdens_10)  #r is 0.189
-cor.test(test$NHW_saplings, test$HWdens_50) #r is 0.293
-cor.test(test$NHW_saplings, test$HWdens_100) #r is 0.522   #high
+cor.test(test$NHW_saplings, test$HWdens_10)  #r is 0.189   0.420
+cor.test(test$NHW_saplings, test$HWdens_50) #r is 0.293  0.501
+cor.test(test$NHW_saplings, test$HWdens_100) #r is 0.522   0.701 #high
 cor.test(test$NHW_saplings, test$FG_herb)   #r is -0.065
 cor.test(test$NHW_saplings, test$FG_shrub)  #r is -0.224
 #cor.test(test$NHW_saplings, test$NHW_saplings)  #r is 
@@ -1482,8 +1481,8 @@ cor.test(test$NHW_saplings, test$NP_over_20cm)  #r is -0.187
 cor.test(test$NHW_saplings, test$Rel_HW2P_canopy) #r is 0.501   #high
 cor.test(test$NHW_saplings, test$Rel_HW2P_shrubcover) #r is 0.305
 cor.test(test$NHW_saplings, test$LCR) #r is -0.360 #ish
-cor.test(test$NHW_saplings, test$HW_dens_1050) #r is 0.260
-cor.test(test$NHW_saplings, test$HW_shrub) #r is 0.526
+cor.test(test$NHW_saplings, test$HW_dens_1050) #r is 0.260   #0.489
+cor.test(test$NHW_saplings, test$HW_shrub) #r is 0.526  #0.721
 cor.test(test$NHW_saplings, test$Parea) #r is 0.012
 cor.test(test$NHW_saplings, test$ShapeIndex) #r is 0.283
 cor.test(test$NHW_saplings, test$PAratio) #r is -0.039
@@ -1492,7 +1491,7 @@ cor.test(test$NHW_saplings, test$CoreAreaIndex) #r is -0.041
 cor.test(test$NHW_saplings, test$Ag500m) #r is -0.053
 cor.test(test$NHW_saplings, test$Ag1km) #r is -0.150
 cor.test(test$NHW_saplings, test$Ag5km) #r is 0.013
-cor.test(test$NHW_saplings, test$Ag30km) #r is -0.002
+cor.test(test$NHW_saplings, test$Ag30km) #r is -0.002  -0.378
 cor.test(test$NHW_saplings, test$Evergreen500m) #r is 0.051
 cor.test(test$NHW_saplings, test$Evergreen1km) #r is -0.051
 cor.test(test$NHW_saplings, test$Evergreen5km) #r is 0.064
@@ -1501,7 +1500,7 @@ cor.test(test$NHW_saplings, test$Imperv500m) #r is -0.041
 cor.test(test$NHW_saplings, test$Imperv1km) #r is -0.039
 cor.test(test$NHW_saplings, test$Imperv5km) #r is -0.160
 cor.test(test$NHW_saplings, test$Imperv30km) #r is -0.097
-cor.test(test$NHW_saplings, test$Protected30km) #r is 0.036
+cor.test(test$NHW_saplings, test$Protected30km) #r is 0.036   0.399
 cor.test(test$NHW_saplings, test$HighDev500m) #r is 0.018
 cor.test(test$NHW_saplings, test$HighDev1km) #r is -0.057
 cor.test(test$NHW_saplings, test$HighDev5km) #r is -0.157
@@ -1512,11 +1511,11 @@ cor.test(test$NHW_saplings, test$LowDev5km) #r is -0.143
 cor.test(test$NHW_saplings, test$LowDev30km) #r is -0.079
 cor.test(test$NHW_saplings, test$OpenDev500m) #r is -0.100
 cor.test(test$NHW_saplings, test$OpenDev1km) #r is -0.247
-cor.test(test$NHW_saplings, test$OpenDev5km) #r is -0.257
+cor.test(test$NHW_saplings, test$OpenDev5km) #r is -0.257   -0.377
 cor.test(test$NHW_saplings, test$OpenDev30km) #r is -0.141
-cor.test(test$NHW_saplings, test$Grass500m) #r is -0.264
+cor.test(test$NHW_saplings, test$Grass500m) #r is -0.264   -0.305
 cor.test(test$NHW_saplings, test$Grass1km) #r is 0.017
-cor.test(test$NHW_saplings, test$Grass5km) #r is -0.076
+cor.test(test$NHW_saplings, test$Grass5km) #r is -0.076   -0.397
 cor.test(test$NHW_saplings, test$Grass30km) #r is -0.094
 cor.test(test$NHW_saplings, test$Schrubs500m) #r is 0.039
 cor.test(test$NHW_saplings, test$Schrubs1km) #r is 0.159
@@ -1549,15 +1548,15 @@ cor.test(test$HW_shrub, test$Nthins) #r is -0.036
 cor.test(test$HW_shrub, test$TimeSinceB) #r is -0.044
 cor.test(test$HW_shrub, test$TimeSinceT) #r is -0.081
 cor.test(test$HW_shrub, test$HWdens_10) #r is 0.382  #ish but wouldnt use
-cor.test(test$HW_shrub, test$HWdens_50) #r is 0.563  #high
-cor.test(test$HW_shrub, test$HWdens_100) #r is 0.778  #highly - but wouldnt use
-cor.test(test$HW_shrub, test$HW_dens_1050)  #r is 0.511 #high
-cor.test(test$HW_shrub, test$FG_herb) #r is 0.212
+cor.test(test$HW_shrub, test$HWdens_50) #r is 0.563  #high - less
+cor.test(test$HW_shrub, test$HWdens_100) #r is 0.778  #highly - but wouldnt use 0.660
+cor.test(test$HW_shrub, test$HW_dens_1050)  #r is 0.511 #high  0.595
+cor.test(test$HW_shrub, test$FG_herb) #r is 0.212   -0.397
 cor.test(test$HW_shrub, test$FG_shrub) #r is -0.167
-cor.test(test$HW_shrub, test$NHW_saplings) #r is 0.526 #wouldn't include
+cor.test(test$HW_shrub, test$NHW_saplings) #r is 0.526 #wouldn't include   0.721
 cor.test(test$HW_shrub, test$NP_over_20cm) #r is -0.096
 cor.test(test$HW_shrub, test$Rel_HW2P_canopy) #r is 0.442 #high
-cor.test(test$HW_shrub, test$Rel_HW2P_shrubcover) #r is 0.477 #high but scrapped variable
+cor.test(test$HW_shrub, test$Rel_HW2P_shrubcover) #r is 0.477 #high but scrapped variable 0.510
 cor.test(test$HW_shrub, test$LCR) #r is -0.328  #ish
 cor.test(test$HW_shrub, test$HW_dens_1050) #r is 0.512
 #cor.test(test$HW_shrub, test$HW_shrub) #r is 
@@ -1568,17 +1567,17 @@ cor.test(test$HW_shrub, test$FracDimIndex) #r is 0.150
 cor.test(test$HW_shrub, test$CoreAreaIndex) #r is 0.203
 cor.test(test$HW_shrub, test$Ag500m) #r is -0.113
 cor.test(test$HW_shrub, test$Ag1km) #r is -0.210
-cor.test(test$HW_shrub, test$Ag5km) #r is -0.165
-cor.test(test$HW_shrub, test$Ag30km) #r is -0.233
+cor.test(test$HW_shrub, test$Ag5km) #r is -0.165  -0.4
+cor.test(test$HW_shrub, test$Ag30km) #r is -0.233  -0.4
 cor.test(test$HW_shrub, test$Evergreen500m) #r is 0.108
 cor.test(test$HW_shrub, test$Evergreen1km) #r is 0.096
-cor.test(test$HW_shrub, test$Evergreen5km) #r is 0.190
-cor.test(test$HW_shrub, test$Evergreen30km) #r is 0.154
+cor.test(test$HW_shrub, test$Evergreen5km) #r is 0.190   0.445
+cor.test(test$HW_shrub, test$Evergreen30km) #r is 0.154  0.278
 cor.test(test$HW_shrub, test$Imperv500m) #r is -0.038
 cor.test(test$HW_shrub, test$Imperv1km) #r is -0.175
 cor.test(test$HW_shrub, test$Imperv5km) #r is -0.284
 cor.test(test$HW_shrub, test$Imperv30km) #r is -0.167
-cor.test(test$HW_shrub, test$Protected30km) #r is 0.195
+cor.test(test$HW_shrub, test$Protected30km) #r is 0.195   0.331
 cor.test(test$HW_shrub, test$HighDev500m) #r is 0.043
 cor.test(test$HW_shrub, test$HighDev1km) #r is -0.181
 cor.test(test$HW_shrub, test$HighDev5km) #r is -0.278
@@ -1616,9 +1615,9 @@ cor.test(test$HW_shrub, test$HydricSoils)  # r is 0.078
 cor.test(test$NP_over_20cm, test$Herbicide) # r is 0.192
 cor.test(test$NP_over_20cm, test$LastB) # r is -0.067
 cor.test(test$NP_over_20cm, test$LastT) #r is 0.104
-cor.test(test$NP_over_20cm, test$BA)     #r is 0.608  #high
-cor.test(test$NP_over_20cm, test$Nsnags) #r is 0.184
-cor.test(test$NP_over_20cm, test$Ccover) #r is 0.508  #high
+cor.test(test$NP_over_20cm, test$BA)     #r is 0.608  #high - yep
+cor.test(test$NP_over_20cm, test$Nsnags) #r is 0.18
+cor.test(test$NP_over_20cm, test$Ccover) #r is 0.508  #high  .3 now
 cor.test(test$NP_over_20cm, test$Ldepth) #r is 0.174
 cor.test(test$NP_over_20cm, test$TreeHt) #r is -0.187
 cor.test(test$NP_over_20cm, test$Age)    #r is -0.487  #high
@@ -1790,7 +1789,7 @@ cor.test(test$Rel_HW2P_shrubcover, test$Rel_HW2P_canopy) #r is 0.290
 #cor.test(test$Rel_HW2P_shrubcover, test$Rel_HW2P_shrubcover) #r is
 cor.test(test$Rel_HW2P_shrubcover, test$LCR) #r is -0.097
 cor.test(test$Rel_HW2P_shrubcover, test$HW_dens_1050) #r is 0.403
-cor.test(test$Rel_HW2P_shrubcover, test$HW_shrub) #r is 0.477
+cor.test(test$Rel_HW2P_shrubcover, test$HW_shrub) #r is 0.477   0.51
 cor.test(test$Rel_HW2P_shrubcover, test$Parea) #r is 0.187
 cor.test(test$Rel_HW2P_shrubcover, test$ShapeIndex) #r is -0.040
 cor.test(test$Rel_HW2P_shrubcover, test$PAratio) #r is -0.228
@@ -1845,22 +1844,22 @@ cor.test(test$Rel_HW2P_shrubcover, test$HydricSoils)  # r is 0.115
 cor.test(test$LCR, test$Herbicide) # r is 0.006
 cor.test(test$LCR, test$LastB) # r is 0.312
 cor.test(test$LCR, test$LastT) #r is 0.053
-cor.test(test$LCR, test$BA)     #r is 0.142
+cor.test(test$LCR, test$BA)     #r is 0.142  0.4
 cor.test(test$LCR, test$Nsnags) #r is -0.091
-cor.test(test$LCR, test$Ccover) #r is -0.041
+cor.test(test$LCR, test$Ccover) #r is -0.041  0.347
 cor.test(test$LCR, test$Ldepth) #r is -0.207
-cor.test(test$LCR, test$TreeHt) #r is -0.630  #CORRELATED ! ACK!
-cor.test(test$LCR, test$Age)    #r is -0.383  #ish
+cor.test(test$LCR, test$TreeHt) #r is -0.630  #-0.479
+cor.test(test$LCR, test$Age)    #r is -0.383  #ish  no, less
 cor.test(test$LCR, test$Nburns) #r is -0.106
 cor.test(test$LCR, test$Nthins)  #r is -0.359  #ish
-cor.test(test$LCR, test$TimeSinceB) #r is 0.103
+cor.test(test$LCR, test$TimeSinceB) #r is 0.103  .3
 cor.test(test$LCR, test$TimeSinceT) #r is 0.137
 cor.test(test$LCR, test$HWdens_10)  #r is -0.125
 cor.test(test$LCR, test$HWdens_50) #r is -0.274
 cor.test(test$LCR, test$HWdens_100) #r is -0.360  #ish
-cor.test(test$LCR, test$FG_herb)   #r is 0.079
-cor.test(test$LCR, test$FG_shrub)  #r is 0.254
-cor.test(test$LCR, test$NHW_saplings)  #r is -0.360  #ish
+cor.test(test$LCR, test$FG_herb)   #r is 0.079  .353
+cor.test(test$LCR, test$FG_shrub)  #r is 0.254  .4
+cor.test(test$LCR, test$NHW_saplings)  #r is -0.360  #ish, no now
 cor.test(test$LCR, test$NP_over_20cm)  #r is -0.021
 cor.test(test$LCR, test$Rel_HW2P_canopy) #r is -0.120
 cor.test(test$LCR, test$Rel_HW2P_shrubcover) #r is -0.097
@@ -1878,7 +1877,7 @@ cor.test(test$LCR, test$Ag5km) #r is -0.249
 cor.test(test$LCR, test$Ag30km) #r is -0.029
 cor.test(test$LCR, test$Evergreen500m) #r is -0.222
 cor.test(test$LCR, test$Evergreen1km) #r is 0.059
-cor.test(test$LCR, test$Evergreen5km) #r is 0.070
+cor.test(test$LCR, test$Evergreen5km) #r is 0.070   .3
 cor.test(test$LCR, test$Evergreen30km) #r is 0.270
 cor.test(test$LCR, test$Imperv500m) #r is 0.020
 cor.test(test$LCR, test$Imperv1km) #r is -0.090
@@ -1888,7 +1887,7 @@ cor.test(test$LCR, test$Protected30km) #r is -0.112
 cor.test(test$LCR, test$HighDev500m) #r is 0.059
 cor.test(test$LCR, test$HighDev1km) #r is -0.092
 cor.test(test$LCR, test$HighDev5km) #r is 0.101
-cor.test(test$LCR, test$HighDev30km) #r is 0.021
+cor.test(test$LCR, test$HighDev30km) #r is 0.021   .5
 cor.test(test$LCR, test$LowDev500m) #r is -0.045
 cor.test(test$LCR, test$LowDev1km) #r is 0.125
 cor.test(test$LCR, test$LowDev5km) #r is 0.151
@@ -1905,7 +1904,7 @@ cor.test(test$LCR, test$Schrubs500m) #r is 0.381
 cor.test(test$LCR, test$Schrubs1km) #r is 0.367
 cor.test(test$LCR, test$Schrubs5km) #r is 0.370
 cor.test(test$LCR, test$Schrubs30km) #r is 0.077
-cor.test(test$LCR, test$Water500m) #r is 0.043
+cor.test(test$LCR, test$Water500m) #r is 0.043  .388
 cor.test(test$LCR, test$Water1km) #r is 0.227
 cor.test(test$LCR, test$Water5km) #r is 0.455
 cor.test(test$LCR, test$Water30km) #r is -0.083
@@ -1936,7 +1935,7 @@ cor.test(test$HW_dens_1050, test$HWdens_50) #r is 0.907
 cor.test(test$HW_dens_1050, test$HWdens_100) #r is 0.615
 cor.test(test$HW_dens_1050, test$FG_herb)   #r is 0.406
 cor.test(test$HW_dens_1050, test$FG_shrub)  #r is -0.292
-cor.test(test$HW_dens_1050, test$NHW_saplings)  #r is 0.260
+cor.test(test$HW_dens_1050, test$NHW_saplings)  #r is 0.260  .489
 cor.test(test$HW_dens_1050, test$NP_over_20cm)  #r is -0.308
 cor.test(test$HW_dens_1050, test$Rel_HW2P_canopy) #r is 0.022
 cor.test(test$HW_dens_1050, test$Rel_HW2P_shrubcover) #r is 0.403
@@ -2008,12 +2007,12 @@ cor.test(test$HW_shrub, test$Nburns) #r is -0.018
 cor.test(test$HW_shrub, test$Nthins)  #r is -0.036
 cor.test(test$HW_shrub, test$TimeSinceB) #r is -0.044
 cor.test(test$HW_shrub, test$TimeSinceT) #r is -0.081
-cor.test(test$HW_shrub, test$HWdens_10)  #r is 0.382
-cor.test(test$HW_shrub, test$HWdens_50) #r is 0.563
+cor.test(test$HW_shrub, test$HWdens_10)  #r is 0.382   .457
+cor.test(test$HW_shrub, test$HWdens_50) #r is 0.563   .660
 cor.test(test$HW_shrub, test$HWdens_100) #r is 0.779
-cor.test(test$HW_shrub, test$FG_herb)   #r is 0.212
+cor.test(test$HW_shrub, test$FG_herb)   #r is 0.212  .397
 cor.test(test$HW_shrub, test$FG_shrub)  #r is -0.167
-cor.test(test$HW_shrub, test$NHW_saplings)  #r is 0.526
+cor.test(test$HW_shrub, test$NHW_saplings)  #r is 0.526   .721
 cor.test(test$HW_shrub, test$NP_over_20cm)  #r is -0.097
 cor.test(test$HW_shrub, test$Rel_HW2P_canopy) #r is 0.442
 cor.test(test$HW_shrub, test$Rel_HW2P_shrubcover) #r is 0.477
@@ -2028,10 +2027,10 @@ cor.test(test$HW_shrub, test$CoreAreaIndex) #r is 0.203
 cor.test(test$HW_shrub, test$Ag500m) #r is -0.113
 cor.test(test$HW_shrub, test$Ag1km) #r is -0.210
 cor.test(test$HW_shrub, test$Ag5km) #r is -0.165
-cor.test(test$HW_shrub, test$Ag30km) #r is -0.233
+cor.test(test$HW_shrub, test$Ag30km) #r is -0.233   -0.463
 cor.test(test$HW_shrub, test$Evergreen500m) #r is 0.108
 cor.test(test$HW_shrub, test$Evergreen1km) #r is 0.096
-cor.test(test$HW_shrub, test$Evergreen5km) #r is 0.190
+cor.test(test$HW_shrub, test$Evergreen5km) #r is 0.190  .4someting
 cor.test(test$HW_shrub, test$Evergreen30km) #r is 0.154
 cor.test(test$HW_shrub, test$Imperv500m) #r is -0.038
 cor.test(test$HW_shrub, test$Imperv1km) #r is -0.175
@@ -2118,7 +2117,7 @@ cor.test(test$Parea, test$FPSiteIndex)  # r is 0.223
 cor.test(test$Parea, test$SiteIndexPrimaryS)  # r is 0.145
 cor.test(test$Parea, test$PISoils)  # r is 0.029
 cor.test(test$Parea, test$SISoils)  # r is -0.373
-cor.test(test$Parea, test$HydricSoils)  # r is 0.617
+cor.test(test$Parea, test$HydricSoils)  # r is 0.617  0.406
 
 
 #ShapeIndex by each
@@ -2249,7 +2248,7 @@ cor.test(test$FracDimIndex, test$OpenDev500m) #r is 0.112
 cor.test(test$FracDimIndex, test$OpenDev1km) #r is -0.058
 cor.test(test$FracDimIndex, test$OpenDev5km) #r is -0.012
 cor.test(test$FracDimIndex, test$OpenDev30km) #r is -0.022
-cor.test(test$FracDimIndex, test$Grass500m) #r is -0.273
+cor.test(test$FracDimIndex, test$Grass500m) #r is -0.273  #0.36
 cor.test(test$FracDimIndex, test$Grass1km) #r is 0.087
 cor.test(test$FracDimIndex, test$Grass5km) #r is -0.064
 cor.test(test$FracDimIndex, test$Grass30km) #r is -0.066
@@ -2308,12 +2307,12 @@ cor.test(test$CoreAreaIndex, test$Water500m) #r is -0.104
 cor.test(test$CoreAreaIndex, test$Water1km) #r is -0.228
 cor.test(test$CoreAreaIndex, test$Water5km) #r is 0.158
 cor.test(test$CoreAreaIndex, test$Water30km) #r is -0.086 
-cor.test(test$CoreAreaIndex, test$NSoilTypes) #r is 0.481
+cor.test(test$CoreAreaIndex, test$NSoilTypes) #r is 0.481   .446
 cor.test(test$CoreAreaIndex, test$FPSiteIndex)  # r is 0.266
 cor.test(test$CoreAreaIndex, test$SiteIndexPrimaryS)  # r is 0.150
 cor.test(test$CoreAreaIndex, test$PISoils)  # r is 0.071
 cor.test(test$CoreAreaIndex, test$SISoils)  # r is -0.382
-cor.test(test$CoreAreaIndex, test$HydricSoils)  # r is 0.629
+cor.test(test$CoreAreaIndex, test$HydricSoils)  # r is 0.629   .460
 
 #Ag500m by each
 #cor.test(test$Ag500m, test$Treatment) #non-numeric
@@ -2500,12 +2499,12 @@ cor.test(test$Ag30km, test$HydricSoils)  # r is 0.124
 #cor.test(test$Evergreen500m, test$Evergreen500m)
 cor.test(test$Evergreen500m, test$Evergreen1km) #r is 0.779
 cor.test(test$Evergreen500m, test$Evergreen5km) #r is 0.394
-cor.test(test$Evergreen500m, test$Evergreen30km) #r is 0.353
+cor.test(test$Evergreen500m, test$Evergreen30km) #r is 0.353  .476
 cor.test(test$Evergreen500m, test$Imperv500m) #r is 0.042
 cor.test(test$Evergreen500m, test$Imperv1km) #r is -0.139
 cor.test(test$Evergreen500m, test$Imperv5km) #r is -0.399
 cor.test(test$Evergreen500m, test$Imperv30km) #r is -0.327
-cor.test(test$Evergreen500m, test$Protected30km) #r is 0.205
+cor.test(test$Evergreen500m, test$Protected30km) #r is 0.205  .080
 cor.test(test$Evergreen500m, test$HighDev500m) #r is -0.055
 cor.test(test$Evergreen500m, test$HighDev1km) #r is -0.139
 cor.test(test$Evergreen500m, test$HighDev5km) #r is -0.388
@@ -2541,7 +2540,7 @@ cor.test(test$Evergreen500m, test$HydricSoils)  # r is 0.032
 #cor.test(test$Evergreen1km, test$Treatment) #non-numeric
 #cor.test(test$Evergreen1km, test$Evergreen1km)
 cor.test(test$Evergreen1km, test$Evergreen5km) #r is 0.695
-cor.test(test$Evergreen1km, test$Evergreen30km) #r is 0.599
+cor.test(test$Evergreen1km, test$Evergreen30km) #r is 0.599  .738
 cor.test(test$Evergreen1km, test$Imperv500m) #r is 0.008
 cor.test(test$Evergreen1km, test$Imperv1km) #r is -0.148
 cor.test(test$Evergreen1km, test$Imperv5km) #r is -0.395
@@ -2601,8 +2600,8 @@ cor.test(test$Evergreen5km, test$OpenDev5km) #r is -0.545
 cor.test(test$Evergreen5km, test$OpenDev30km) #r is -0.774
 cor.test(test$Evergreen5km, test$Grass500m) #r is -0.140
 cor.test(test$Evergreen5km, test$Grass1km) #r is -0.216
-cor.test(test$Evergreen5km, test$Grass5km) #r is -0.601
-cor.test(test$Evergreen5km, test$Grass30km) #r is -0.726   #high
+cor.test(test$Evergreen5km, test$Grass5km) #r is -0.601    -267
+cor.test(test$Evergreen5km, test$Grass30km) #r is -0.726   #high ... -0.162
 cor.test(test$Evergreen5km, test$Schrubs500m) #r is 0.045
 cor.test(test$Evergreen5km, test$Schrubs1km) #r is 0.133
 cor.test(test$Evergreen5km, test$Schrubs5km) #r is 0.491
@@ -2610,7 +2609,7 @@ cor.test(test$Evergreen5km, test$Schrubs30km) #r is 0.728  #high
 cor.test(test$Evergreen5km, test$Water500m) #r is 0.137
 cor.test(test$Evergreen5km, test$Water1km) #r is 0.063
 cor.test(test$Evergreen5km, test$Water5km) #r is -0.024
-cor.test(test$Evergreen5km, test$Water30km) #r is 0.058
+cor.test(test$Evergreen5km, test$Water30km) #r is 0.058  #ish .47
 cor.test(test$Evergreen5km, test$NSoilTypes) #r is 0.023
 cor.test(test$Evergreen5km, test$FPSiteIndex)  # r is 0.292
 cor.test(test$Evergreen5km, test$SiteIndexPrimaryS)  # r is 0.121
@@ -3129,8 +3128,8 @@ cor.test(test$OpenDev1km, test$HydricSoils)  # r is 0.035
 cor.test(test$OpenDev5km, test$OpenDev30km) #r is 0.584
 cor.test(test$OpenDev5km, test$Grass500m) #r is 0.411
 cor.test(test$OpenDev5km, test$Grass1km) #r is 0.382
-cor.test(test$OpenDev5km, test$Grass5km) #r is 0.274
-cor.test(test$OpenDev5km, test$Grass30km) #r is 0.215
+cor.test(test$OpenDev5km, test$Grass5km) #r is 0.274   less
+cor.test(test$OpenDev5km, test$Grass30km) #r is 0.215 less
 cor.test(test$OpenDev5km, test$Schrubs500m) #r is 0.347
 cor.test(test$OpenDev5km, test$Schrubs1km) #r is 0.322
 cor.test(test$OpenDev5km, test$Schrubs5km) #r is 0.040
@@ -3193,7 +3192,7 @@ cor.test(test$Grass500m, test$HydricSoils)  # r is 0.130
 #cor.test(test$Grass1km, test$Treatment) #non-numeric
 #cor.test(test$Grass1km, test$Grass1km)
 cor.test(test$Grass1km, test$Grass5km) #r is 0.275
-cor.test(test$Grass1km, test$Grass30km) #r is -0.003
+cor.test(test$Grass1km, test$Grass30km) #r is -0.003  .3 something
 cor.test(test$Grass1km, test$Schrubs500m) #r is 0.140
 cor.test(test$Grass1km, test$Schrubs1km) #r is 0.198
 cor.test(test$Grass1km, test$Schrubs5km) #r is 0.204
@@ -3222,11 +3221,11 @@ cor.test(test$Grass5km, test$Water1km) #r is 0.127
 cor.test(test$Grass5km, test$Water5km) #r is -0.007
 cor.test(test$Grass5km, test$Water30km) #r is -0.422
 cor.test(test$Grass5km, test$NSoilTypes) #r is 0.126
-cor.test(test$Grass5km, test$FPSiteIndex)  # r is 0.087
-cor.test(test$Grass5km, test$SiteIndexPrimaryS)  # r is 0.207
+cor.test(test$Grass5km, test$FPSiteIndex)  # r is 0.087   .420
+cor.test(test$Grass5km, test$SiteIndexPrimaryS)  # r is 0.207   .491
 cor.test(test$Grass5km, test$PISoils)  # r is 0.012
 cor.test(test$Grass5km, test$SISoils)  # r is -0.086
-cor.test(test$Grass5km, test$HydricSoils)  # r is 0.223
+cor.test(test$Grass5km, test$HydricSoils)  # r is 0.223   .559
 
 #Grass30km by each
 #cor.test(test$Grass30km, test$Treatment) #non-numeric
@@ -3238,13 +3237,13 @@ cor.test(test$Grass30km, test$Schrubs30km) #r is -0.450
 cor.test(test$Grass30km, test$Water500m) #r is -0.045
 cor.test(test$Grass30km, test$Water1km) #r is -0.023
 cor.test(test$Grass30km, test$Water5km) #r is -0.062
-cor.test(test$Grass30km, test$Water30km) #r is -0.563
+cor.test(test$Grass30km, test$Water30km) #r is -0.563   -.294
 cor.test(test$Grass30km, test$NSoilTypes) #r is -0.011
-cor.test(test$Grass30km, test$FPSiteIndex)  # r is 0.089
-cor.test(test$Grass30km, test$SiteIndexPrimaryS)  # r is 0.228
+cor.test(test$Grass30km, test$FPSiteIndex)  # r is 0.089   .383
+cor.test(test$Grass30km, test$SiteIndexPrimaryS)  # r is 0.228   .487
 cor.test(test$Grass30km, test$PISoils)  # r is -0.237
 cor.test(test$Grass30km, test$SISoils)  # r is 0.041
-cor.test(test$Grass30km, test$HydricSoils)  # r is 0.185
+cor.test(test$Grass30km, test$HydricSoils)  # r is 0.185   .505
 
 #Schrubs500m by each
 #cor.test(test$Schrubs500m, test$Treatment) #non-numeric
@@ -3254,7 +3253,7 @@ cor.test(test$Schrubs500m, test$Schrubs5km) #r is 0.344
 cor.test(test$Schrubs500m, test$Schrubs30km) #r is 0.049
 cor.test(test$Schrubs500m, test$Water500m) #r is -0.142
 cor.test(test$Schrubs500m, test$Water1km) #r is 0.154
-cor.test(test$Schrubs500m, test$Water5km) #r is 0.403
+cor.test(test$Schrubs500m, test$Water5km) #r is 0.403   .400
 cor.test(test$Schrubs500m, test$Water30km) #r is 0.026
 cor.test(test$Schrubs500m, test$NSoilTypes) #r is -0.042
 cor.test(test$Schrubs500m, test$FPSiteIndex)  # r is -0.040
@@ -3297,16 +3296,16 @@ cor.test(test$Schrubs5km, test$HydricSoils)  # r is 0.193
 #Schrubs30km by each
 #cor.test(test$Schrubs30km, test$Treatment) #non-numeric
 #cor.test(test$Schrubs30km, test$Schrubs30km)
-cor.test(test$Schrubs30km, test$Water500m) #r is 0.271
+cor.test(test$Schrubs30km, test$Water500m) #r is 0.271   .378
 cor.test(test$Schrubs30km, test$Water1km) #r is 0.254
 cor.test(test$Schrubs30km, test$Water5km) #r is 0.126
 cor.test(test$Schrubs30km, test$Water30km) #r is 0.399
 cor.test(test$Schrubs30km, test$NSoilTypes) #r is 0.207
-cor.test(test$Schrubs30km, test$FPSiteIndex)  # r is 0.230
-cor.test(test$Schrubs30km, test$SiteIndexPrimaryS)  # r is 0.076
+cor.test(test$Schrubs30km, test$FPSiteIndex)  # r is 0.230   .352
+cor.test(test$Schrubs30km, test$SiteIndexPrimaryS)  # r is 0.076   .328
 cor.test(test$Schrubs30km, test$PISoils)  # r is 0.059
-cor.test(test$Schrubs30km, test$SISoils)  # r is -0.055
-cor.test(test$Schrubs30km, test$HydricSoils)  # r is 0.145
+cor.test(test$Schrubs30km, test$SISoils)  # r is -0.055   -.200
+cor.test(test$Schrubs30km, test$HydricSoils)  # r is 0.145   .463
 
 #Water500m by each
 #cor.test(test$Water500m, test$Treatment) #non-numeric
@@ -3319,7 +3318,7 @@ cor.test(test$Water500m, test$FPSiteIndex)  # r is -0.020
 cor.test(test$Water500m, test$SiteIndexPrimaryS)  # r is -0.049
 cor.test(test$Water500m, test$PISoils)  # r is 0.096
 cor.test(test$Water500m, test$SISoils)  # r is 0.083
-cor.test(test$Water500m, test$HydricSoils)  # r is -0.047
+cor.test(test$Water500m, test$HydricSoils)  # r is -0.047   0.139
 
 #Water1km by each
 #cor.test(test$Water1km, test$Treatment) #non-numeric
@@ -3339,16 +3338,16 @@ cor.test(test$Water1km, test$HydricSoils)  # r is -0.196
 cor.test(test$Water5km, test$Water30km) #r is 0.074
 cor.test(test$Water5km, test$NSoilTypes) #r is 0.061
 cor.test(test$Water5km, test$FPSiteIndex)  # r is -0.444
-cor.test(test$Water5km, test$SiteIndexPrimaryS)  # r is -0.444
+cor.test(test$Water5km, test$SiteIndexPrimaryS)  # r is -0.444   -0.410
 cor.test(test$Water5km, test$PISoils)  # r is -0.011
 cor.test(test$Water5km, test$SISoils)  # r is -0.118
-cor.test(test$Water5km, test$HydricSoils)  # r is 0.418
+cor.test(test$Water5km, test$HydricSoils)  # r is 0.418   0.266
 
 #Water30km by each
 #cor.test(test$Water30km, test$Treatment) #non-numeric
 #cor.test(test$Water30km, test$Water30km)
 cor.test(test$Water30km, test$NSoilTypes) #r is 0.101
-cor.test(test$Water30km, test$FPSiteIndex)  # r is 0.264
+cor.test(test$Water30km, test$FPSiteIndex)  # r is 0.264   .166
 cor.test(test$Water30km, test$SiteIndexPrimaryS)  # r is 0.098
 cor.test(test$Water30km, test$PISoils)  # r is 0.024
 cor.test(test$Water30km, test$SISoils)  # r is 0.040
@@ -3359,18 +3358,175 @@ cor.test(test$NSoilTypes, test$FPSiteIndex)  # r is 0.045
 cor.test(test$NSoilTypes, test$SiteIndexPrimaryS)  # r is -0.077
 cor.test(test$NSoilTypes, test$PISoils)  # r is -0.077
 cor.test(test$NSoilTypes, test$SISoils)  # r is -0.262
-cor.test(test$NSoilTypes, test$HydricSoils)  # r is 0.533    #medium!
+cor.test(test$NSoilTypes, test$HydricSoils)  # r is 0.533   #medium! 0.352
+cor.test(test$NSoilTypes, test$TreeHt)
 
-cor.test(test$FPSiteIndex, test$SiteIndexPrimaryS) #0.875   #HIGHLY, duh
-cor.test(test$FPSiteIndex, test$PISoils) #-.130
-cor.test(test$FPSiteIndex, test$SISoils) #0.181
-cor.test(test$FPSiteIndex, test$HydricSoils) #-0.064
+cor.test(test$FPSiteIndex, test$SiteIndexPrimaryS) #0.875   #HIGHLY, duh 0.932
+cor.test(test$FPSiteIndex, test$PISoils) #-.130  -0.101
+cor.test(test$FPSiteIndex, test$SISoils) #0.181  0.090
+cor.test(test$FPSiteIndex, test$HydricSoils) #-0.064    0.262
+cor.test(test$FPSiteIndex, test$TreeHt)
 
-cor.test(test$SiteIndexPrimaryS, test$PISoils) #-0.172
-cor.test(test$SiteIndexPrimaryS, test$SISoils) #0.308   #medium
-cor.test(test$SiteIndexPrimaryS, test$HydricSoils)  #-0.147
+cor.test(test$SiteIndexPrimaryS, test$PISoils) #-0.172   -0.092
+cor.test(test$SiteIndexPrimaryS, test$SISoils) #0.308   #medium   0.146
+cor.test(test$SiteIndexPrimaryS, test$HydricSoils)  #-0.147  0.264
+cor.test(test$SiteIndexPrimaryS, test$TreeHt)
 
-cor.test(test$PISoils, test$SISoils) #-0.358    medium
-cor.test(test$PISoils, test$HydricSoils) #0.043
+cor.test(test$PISoils, test$SISoils) #-0.358    medium  -0.315
+cor.test(test$PISoils, test$HydricSoils) #0.043  0.087
 
-cor.test(test$SISoils, test$HydricSoils) #-0.361   #medium
+cor.test(test$SISoils, test$HydricSoils) #-0.361   #medium   -0.349
+
+
+#Latitude by each    ###IGNORE ALL NUMBERS IN GREEN
+#cor.test(test$Latitude, test$Treatment) #non-numeric
+cor.test(test$Latitude, test$Herbicide) #r is 0.164  #-0.010
+cor.test(test$Latitude, test$LastB) #r is 0.164  #-0.010
+cor.test(test$Latitude, test$LastT) #r is -0.169  #-0.041
+cor.test(test$Latitude, test$BA)     #r is -0.173  #0.0.049
+cor.test(test$Latitude, test$Nsnags) #r is 0.007  #0.054
+cor.test(test$Latitude, test$Ccover) #r is -0.209  #-0.090
+cor.test(test$Latitude, test$Ldepth) #r is -0.059  #-0.350
+cor.test(test$Latitude, test$TreeHt) #r is -0.167 #-0.342   #ish
+cor.test(test$Latitude, test$Age)    #r is 0.102  #0.093
+cor.test(test$Latitude, test$Nburns) #r is 0.350   #high-ISH  #0.295
+cor.test(test$Latitude, test$Nthins)  #r is 0.101   #0.132
+cor.test(test$Latitude, test$TimeSinceB) #r is -0.300  #-0.352   #ish
+cor.test(test$Latitude, test$TimeSinceT) #r is -0.064   #-0.145
+cor.test(test$Latitude, test$HWdens_10)  #r is -0.137    #-0.190
+cor.test(test$Latitude, test$HWdens_50) #r is -0.041  #-0.173
+cor.test(test$Latitude, test$HWdens_100) #r is -0.135  #-0.073
+cor.test(test$Latitude, test$FG_herb)   #r is 0.221   #0.066
+cor.test(test$Latitude, test$FG_shrub)  #r is -0.038   #0.173
+cor.test(test$Latitude, test$NHW_saplings)  #r is -0.205  #-0.319   #ish
+cor.test(test$Latitude, test$NP_over_20cm)  #r is -0.192   #0.207
+cor.test(test$Latitude, test$Rel_HW2P_canopy) #r is -0.390   #highest but still not 0.5 #cool  #-0.076
+cor.test(test$Latitude, test$Rel_HW2P_shrubcover) #r is -0.118  #-0.047
+cor.test(test$Latitude, test$LCR) #r is 0.006    #0.175
+cor.test(test$Latitude, test$HW_dens_1050) #r is -0.974   #-0.191
+cor.test(test$Latitude, test$HW_shrub) #r is -0.366   #-0.244
+cor.test(test$Latitude, test$Parea) #r is -0.277   #-0.245
+cor.test(test$Latitude, test$ShapeIndex) #r is -0.260   #-0.308   #ish
+cor.test(test$Latitude, test$PAratio) #r is 0.169  #0.130
+cor.test(test$Latitude, test$FracDimIndex) #r is -0.136   #-0.199
+cor.test(test$Latitude, test$CoreAreaIndex) #r is -0.228   #0.151
+cor.test(test$Latitude, test$Ag500m) #r is 0.062  #0.055
+cor.test(test$Latitude, test$Ag1km) #r is -0.074  #0.033
+cor.test(test$Latitude, test$Ag5km) #r is -0.085   #0.116
+cor.test(test$Latitude, test$Ag30km) #r is -0.055   #0.079
+cor.test(test$Latitude, test$Evergreen500m) #r is 0.076  #0.106
+cor.test(test$Latitude, test$Evergreen1km) #r is 0.321 #0.248
+cor.test(test$Latitude, test$Evergreen5km) #r is 0.235  #0.147
+cor.test(test$Latitude, test$Evergreen30km) #r is 0.270  #0.281
+cor.test(test$Latitude, test$Imperv500m) #r is -0.075  -0.099
+cor.test(test$Latitude, test$Imperv1km) #r is 0.078   0.072
+cor.test(test$Latitude, test$Imperv5km) #r is 0.125   0.098
+cor.test(test$Latitude, test$Imperv30km) #r is -0.323  -0.329   #ish
+cor.test(test$Latitude, test$Protected30km) #r is 0.073  -
+cor.test(test$Latitude, test$HighDev500m) #r is -0.169 
+cor.test(test$Latitude, test$HighDev1km) #r is 0.079
+cor.test(test$Latitude, test$HighDev5km) #r is 0.126
+cor.test(test$Latitude, test$HighDev30km) #r is 0.169
+cor.test(test$Latitude, test$LowDev500m) #r is 0.179
+cor.test(test$Latitude, test$LowDev1km) #r is 0.168
+cor.test(test$Latitude, test$LowDev5km) #r is 0.151
+cor.test(test$Latitude, test$LowDev30km) #r is -0.340
+cor.test(test$Latitude, test$OpenDev500m) #r is 0.390  -0.300
+cor.test(test$Latitude, test$OpenDev1km) #r is 0.352  0.338
+cor.test(test$Latitude, test$OpenDev5km) #r is 0.158
+cor.test(test$Latitude, test$OpenDev30km) #r is -0.247
+cor.test(test$Latitude, test$Grass500m) #r is 0
+cor.test(test$Latitude, test$Grass1km) #r is -0.338  -0.339
+cor.test(test$Latitude, test$Grass5km) #r is -0.335  nah
+cor.test(test$Latitude, test$Grass30km) #r is -0.237
+cor.test(test$Latitude, test$Schrubs500m) #r is -0.135
+cor.test(test$Latitude, test$Schrubs1km) #r is -0.049
+cor.test(test$Latitude, test$Schrubs5km) #r is 0.037   -
+cor.test(test$Latitude, test$Schrubs30km) #r is -0.009  +
+cor.test(test$Latitude, test$Water500m) #r is 0.050
+cor.test(test$Latitude, test$Water1km) #r is 0.100
+cor.test(test$Latitude, test$Water5km) #r is 0.170
+cor.test(test$Latitude, test$Water30km) #r is -0.002
+cor.test(test$Latitude, test$NSoilTypes) #r is -0.267
+cor.test(test$Latitude, test$FPSiteIndex)  # r is -0.226
+cor.test(test$Latitude, test$SiteIndexPrimaryS)  # r is -0.203
+cor.test(test$Latitude, test$PISoils)  # r is 0.229
+cor.test(test$Latitude, test$SISoils)  # r is 0.070  - 
+cor.test(test$Latitude, test$HydricSoils)  # r is -0.130  +
+
+#Longitude by each    ###IGNORE ALL NUMBERS IN GREEN
+#cor.test(test$Longitude, test$Treatment) #non-numeric
+cor.test(test$Longitude, test$Herbicide) #r is 0.164  #-0.010
+cor.test(test$Longitude, test$LastB) #r is 0.164  #-0.010
+cor.test(test$Longitude, test$LastT) #r is -0.169  #-0.041
+cor.test(test$Longitude, test$BA)     #r is -0.173  #0.0.049
+cor.test(test$Longitude, test$Nsnags) #r is 0.007  #0.054
+cor.test(test$Longitude, test$Ccover) #r is -0.209  #-0.090
+cor.test(test$Longitude, test$Ldepth) #r is -0.059  #-0.350
+cor.test(test$Longitude, test$TreeHt) #r is -0.167 #-0.342   #ish
+cor.test(test$Longitude, test$Age)    #r is 0.102  #0.093
+cor.test(test$Longitude, test$Nburns) #r is 0.350   #high-ISH  #0.295
+cor.test(test$Longitude, test$Nthins)  #r is 0.101   #0.132
+cor.test(test$Longitude, test$TimeSinceB) #r is -0.300  #-0.352   #ish
+cor.test(test$Longitude, test$TimeSinceT) #r is -0.064   #-0.145
+cor.test(test$Longitude, test$HWdens_10)  #r is -0.137    #-0.190
+cor.test(test$Longitude, test$HWdens_50) #r is -0.041  #-0.173
+cor.test(test$Longitude, test$HWdens_100) #r is -0.135  #-0.073
+cor.test(test$Longitude, test$FG_herb)   #r is 0.221   #0.066
+cor.test(test$Longitude, test$FG_shrub)  #r is -0.038   #0.173
+cor.test(test$Longitude, test$NHW_saplings)  #r is -0.205  #-0.319   #ish
+cor.test(test$Longitude, test$NP_over_20cm)  #r is -0.192   #0.207
+cor.test(test$Longitude, test$Rel_HW2P_canopy) #r is -0.390   #highest but still not 0.5 #cool  #-0.076
+cor.test(test$Longitude, test$Rel_HW2P_shrubcover) #r is -0.118  #-0.047
+cor.test(test$Longitude, test$LCR) #r is 0.006    #0.175
+cor.test(test$Longitude, test$HW_dens_1050) #r is -0.974   #-0.191
+cor.test(test$Longitude, test$HW_shrub) #r is -0.366   #-0.244
+cor.test(test$Longitude, test$Parea) #r is -0.277   #-0.245
+cor.test(test$Longitude, test$ShapeIndex) #r is -0.260   #-0.308   #ish
+cor.test(test$Longitude, test$PAratio) #r is 0.169  #0.130
+cor.test(test$Longitude, test$FracDimIndex) #r is -0.136   #-0.199
+cor.test(test$Longitude, test$CoreAreaIndex) #r is -0.228   #0.151
+cor.test(test$Longitude, test$Ag500m) #r is 0.062  #0.055
+cor.test(test$Longitude, test$Ag1km) #r is -0.074  #0.033
+cor.test(test$Longitude, test$Ag5km) #r is -0.085   #0.116
+cor.test(test$Longitude, test$Ag30km) #r is -0.055   #0.079
+cor.test(test$Longitude, test$Evergreen500m) #r is 0.076  #0.106
+cor.test(test$Longitude, test$Evergreen1km) #r is 0.321 #0.248
+cor.test(test$Longitude, test$Evergreen5km) #r is 0.235  #0.147
+cor.test(test$Longitude, test$Evergreen30km) #r is 0.270  #0.281
+cor.test(test$Longitude, test$Imperv500m) #r is -0.075  -0.099
+cor.test(test$Longitude, test$Imperv1km) #r is 0.078   0.072
+cor.test(test$Longitude, test$Imperv5km) #r is 0.125   0.098
+cor.test(test$Longitude, test$Imperv30km) #r is -0.323  -0.329   #ish
+cor.test(test$Longitude, test$Protected30km) #r is 0.073  -
+cor.test(test$Longitude, test$HighDev500m) #r is -0.169 
+cor.test(test$Longitude, test$HighDev1km) #r is 0.079
+cor.test(test$Longitude, test$HighDev5km) #r is 0.126
+cor.test(test$Longitude, test$HighDev30km) #r is 0.169
+cor.test(test$Longitude, test$LowDev500m) #r is 0.179
+cor.test(test$Longitude, test$LowDev1km) #r is 0.168
+cor.test(test$Longitude, test$LowDev5km) #r is 0.151
+cor.test(test$Longitude, test$LowDev30km) #r is -0.340
+cor.test(test$Longitude, test$OpenDev500m) #r is 0.390  -0.300
+cor.test(test$Longitude, test$OpenDev1km) #r is 0.352  0.338
+cor.test(test$Longitude, test$OpenDev5km) #r is 0.158
+cor.test(test$Longitude, test$OpenDev30km) #r is -0.247
+cor.test(test$Longitude, test$Grass500m) #r is 0
+cor.test(test$Longitude, test$Grass1km) #r is -0.338  -0.339
+cor.test(test$Longitude, test$Grass5km) #r is -0.335  nah
+cor.test(test$Longitude, test$Grass30km) #r is -0.237
+cor.test(test$Longitude, test$Schrubs500m) #r is -0.135
+cor.test(test$Longitude, test$Schrubs1km) #r is -0.049
+cor.test(test$Longitude, test$Schrubs5km) #r is 0.037   -
+cor.test(test$Longitude, test$Schrubs30km) #r is -0.009  +
+cor.test(test$Longitude, test$Water500m) #r is 0.050
+cor.test(test$Longitude, test$Water1km) #r is 0.100
+cor.test(test$Longitude, test$Water5km) #r is 0.170
+cor.test(test$Longitude, test$Water30km) #r is -0.002
+cor.test(test$Longitude, test$NSoilTypes) #r is -0.267
+cor.test(test$Longitude, test$FPSiteIndex)  # r is -0.226
+cor.test(test$Longitude, test$SiteIndexPrimaryS)  # r is -0.203
+cor.test(test$Longitude, test$PISoils)  # r is 0.229
+cor.test(test$Longitude, test$SISoils)  # r is 0.070  - 
+cor.test(test$Longitude, test$HydricSoils)  # r is -0.130  +
+cor.test(test$Longitude, test$Latitude)  # r is -0.130  +

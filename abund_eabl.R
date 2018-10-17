@@ -122,7 +122,7 @@ msN.ybch@Full
 msN.ybch
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#more appropriate detection covariates ()
+#more appropriate detection covariates (date)
 null.eabl <- pcount(~ Jdate ~1, eabl.abund, mixture="P", K=80)
 global.eabl <- pcount(~ Jdate
                       ~ Treatment + Herbicide + BA + Nsnags +Ccover

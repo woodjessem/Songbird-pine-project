@@ -1,0 +1,450 @@
+---
+title: "Results - overall SR"
+author: "Jesse Wood"
+date: "Oct 10, 2018"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+
+Setup
+```{r}
+library("unmarked")
+library("ggplot2")
+library(sjPlot)
+#library(sjmisc)
+setwd("C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds")
+
+```
+
+#Point Count Data Only#
+  ## all 4 2017 PC visits & 3 2018 visits pooled ## 
+```{r}
+#sr_covs CSV file is SR by sites by point counts (pooled 1-4) file for 2017 and pooled 1-3 for 2018 (NP flyovers excluded)
+richness <-read.csv("sr_covs.csv") #SR by sites by point count overall SR #all effort
+summary(richness)
+str(richness)
+```
+
+```{r}
+myear<-lm(SR ~ YearCat, richness)
+summary(myear)
+confint(myear, level=0.95)
+plot(SR ~ YearCat, data=richness)
+```
+#yes, sig difference between years (so keep separate?!)
+
+```{r}
+richness <-read.csv("sr_covs.csv")
+
+quantiles_95<-function(x){
+  r<-quantile(x,probs=c(0.025,0.25,0.5,0.75,0.975))
+  names(r)<-c("ymin","lower","middle","upper","ymax")
+  r
+}
+
+fig1<-ggplot(data=richness,aes(x=YearCat,y=SR,fill=YearCat))+scale_fill_manual(name="Survey Year", values=c("red", "blue"),labels=c("2017","2018"))+stat_summary(fun.data=quantiles_95,geom="boxplot")+labs(x="Survey year",y="Species Richness")+coord_cartesian(ylim=c(18, 36)) + scale_y_continuous(breaks=seq(20, 35, 5))+ geom_text(x=1, y=35, label="a",color=1)+ geom_text(x=2, y=31, label="b",color=1) + theme(panel.border = element_blank(),panel.grid.major = element_blank(),panel.grid.minor = element_blank(), legend.position="right", legend.box = "vertical",legend.background=element_blank(),legend.key = element_blank())
+
+
+#legend.position="bottom", legend.box = "horizontal"
+fig1
+```
+
+
+```{r}
+#just 2017 for a moment - NO SIG
+richness17 <-read.csv("17_SR_by_Site_w_exclusions.csv") #SR by sites by point count overall SR
+lm(SR ~ Treatment, richness17)
+summary(lm(SR ~ Treatment, richness17))   #sig diff Treatment 3B (0.001)
+plot(SR ~ Treatment, data=richness17)
+confint(lm(richness17$SR~richness17$Treatment))
+
+a2 <- aov(richness17$SR ~ richness17$Treatment)
+posthoc <- TukeyHSD(x=a2, 'richness17$Treatment', conf.level=0.95)
+posthoc  #sig difference between 3 & 0 and 3 & 1
+```
+
+```{r}
+#just 2018 for a moment - NO SIG
+richness18 <-read.csv("18_SR_by_Site_w_exclusions.csv") #SR by sites by point count overall SR
+lm(SR ~ Treatment, richness18)
+summary(lm(SR ~ Treatment, richness18))   #no sig diff for 2018 alone
+plot(SR ~ Treatment, data=richness18)
+confint(lm(richness18$SR~richness18$Treatment))
+```
+
+```{r}
+#both years again! 
+richness <-read.csv("sr_covs.csv") #SR by sites by point count overall SR
+Tx<-lm(SR ~ Treatment, richness)
+summary(Tx)   #3B statistically different from others
+plot(Tx)
+confint(Tx,level=0.95)
+plot(SR ~ Treatment, data=richness)
+```
+
+```{r}
+richness <-read.csv("sr_covs.csv") #SR by sites by point count overall SR
+Tx<-lm(SR ~ Treatment, richness)
+summary(Tx)   #3B statistically different from others
+confint(Tx,level=0.95)
+
+Tx2<-lm(SR ~ Treatment + YearCat, richness)
+summary(Tx2)
+confint(Tx2,level=0.95)
+
+Tx3<-lm(SR ~ Treatment * YearCat, richness)
+summary(Tx3)
+confint(Tx3,level=0.95)
+
+AIC(Tx,Tx2,Tx3)   #interactive is best...
+```
+
+```{r}
+a1 <- aov(richness$SR ~ richness$Treatment)
+summary(a1)
+posthoc <- TukeyHSD(x=a1, 'richness$Treatment', conf.level=0.95)
+posthoc
+```
+# try again whn package working!
+```{r}
+#https://rpubs.com/aaronsc32/post-hoc-analysis-tukey
+
+library(agricolae)
+HSD.test(Tx, 'richness$Treatment')
+
+#plant.lm <- lm(weight ~ group, data = PlantGrowth)
+#plant.av <- aov(plant.lm)
+#summary(plant.av)tukey.test2 <- HSD.test(plant.av, trt = 'group')
+#tukey.test2
+#
+```
+
+
+
+# Try this again when package working!
+```{r}
+#richness <-read.csv("sr_covs.csv") #SR by sites by point count overall SR #all effort
+#richness$Herbicide <- factor(richness$Herbicide)
+#sapply(richness, mean, na.rm=TRUE)
+library(psych)
+sumtable <- describeBy(richness$SR, group=richness$Treatment)
+sumtable
+write.table(sumtable, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/SR_summary_by_Treatment.xls",sep="\t")
+
+```
+
+
+#?
+```{r}
+lm(SR ~ Site, richness)
+summary(lm(SR ~ Site, richness))
+plot(SR ~ Site, data=richness)
+```
+
+```{r}
+#begin simple explorations of some exp variables
+plot(richness$SR ~ richness$Age)
+plot(richness$SR ~ richness$Nburns)
+plot(richness$SR ~ richness$BA)
+plot(richness$SR ~ richness$Parea)
+plot(richness$SR ~ richness$Nthins)
+plot(richness$SR ~ richness$Nburns)
+
+```
+
+```{r}
+mBA<-lm(SR ~ BA, richness)         #sig p(0.01)
+summary(mBA)
+confint(mBA, level=0.95)
+anova(mBA)
+plot(mBA)
+```
+```{r}
+BA2<-(richness$BA)^2
+#BA2
+mBA2<-lm(SR ~ BA + BA2, richness)         #sig p(0.01)
+summary(mBA2)
+confint(mBA2, level=0.95)
+anova(mBA2)
+plot(mBA2)
+```
+
+```{r}
+#best fitting one!
+mBAy<-lm(SR ~ BA + YearCat, richness)  #very sig, BA - (year2 is -)
+summary(mBAy)
+confint(mBAy, level=0.95)
+#anova(mBAy)
+#plot(mBAy)
+```
+
+```{r}
+mBAy2<-lm(SR ~ BA*YearCat, richness)   #both ind sig, NOT interaction term
+summary(mBAy2)
+confint(mBAy2, level=0.95)
+#anova(mBAy2)
+plot(mBAy2)
+```
+
+```{r}
+AIC(mBA,mBA2)           #this says that linear BA is better model...
+AIC(mBA,mBAy, mBAy2)     #MBAy (BA+Year) (additive) is best
+```
+
+```{r}
+fig5<- plot_model(mBAy, type="pred",terms=c("BA", "YearCat"))
+fig5<- fig5 + labs(x="Basal area", y="Species Richness") + set_theme(title.color = "white") + theme(legend.position="none") + coord_cartesian(ylim=c(18,35))
+fig5
+plot_model(mBA, type="pred", terms=c("BA")) #without year incorporated
+plot_model(mBAy)
+```
+
+
+```{r}
+mAge<-lm(SR ~ Age, richness)     #non-sig
+summary(mAge)
+confint(mAge, level=0.95)
+#anova(mAge)
+plot(mAge)
+```
+
+```{r}
+Age2<-(richness$Age)^2            #non-sig and not better
+#Age2
+mAge2<-lm(SR ~ Age2, richness)
+summary(mAge2)
+confint(mAge2, level=0.95)
+#anova(mAge2)
+plot(mAge2)
+```
+
+```{r}
+#technically this model is sig, but only because of year effect
+mAgey<-lm(SR ~ Age + YearCat, richness)  #age not sig
+summary(mAgey)
+confint(mAgey, level=0.95)
+#anova(mAgey)
+plot(mAgey)
+```
+
+```{r}
+mAgey2<-lm(SR ~ Age*YearCat, richness)   #yes, actually! age barely sig but interactive term, yes!
+summary(mAgey2)
+confint(mAgey2, level=0.95)
+#anova(mAgey2)
+```
+
+```{r}
+AIC(mAgey2,mAgey,mAge)
+```
+
+
+```{r}
+fig6<-plot_model(mAgey2, type="pred",terms=c("Age", "YearCat"))
+fig6<- fig6 + labs(x="Stand age", y="Species Richness")+ theme(legend.position="none")  + coord_cartesian(ylim=c(18,35))
+fig6
+#plot_model(mAgey2)
+```
+
+```{r}
+lm(SR ~ Herbicide, richness)
+summary(lm(SR ~ Herbicide, richness))   #nothing going on here - no stat sig difference bw 0 or 1
+plot(SR ~ Herbicide, data=richness)
+boxplot(SR ~ Herbicide, data=richness)
+```
+
+```{r}
+summary(lm(SR ~ Herbicide+YearCat, richness))   #no, still not
+#and not interactive either
+```
+
+```{r}
+q1<-lm(SR ~ Nthins+YearCat, data=richness)
+q0<-lm(SR ~ Nthins, data=richness)          #nthins non-sig
+summary(q1, data=richness)  #only sig bc of year effect
+confint(q1, level=0.95)
+q2<-lm(SR ~ Nthins * YearCat, data=richness)
+summary(q2)  #sig, but only just barely?
+confint(q2, level=0.95) #says nthins sig
+#anova(lm(SR ~ Nthins*YearCat, data=richness))   #says only YEAR sig...
+#plot(SR ~ Nthins, data=richness)
+AIC(q0,q1,q2)   #says additive is best...
+```
+
+```{r}
+fig4<-plot_model(lm(SR ~ Nthins*YearCat, data=richness), type="pred",terms=c("Nthins", "YearCat"))
+fig4 <- fig4 + labs(x="Number of thins", y="Species Richness")+ theme(legend.position="none")  + coord_cartesian(ylim=c(18,35))
+fig4
+plot_model(lm(SR ~ Nthins*YearCat, data=richness))
+```
+
+
+
+```{r}
+summary(lm(SR ~ Parea, richness))   #nonsig, so no species-area relationsip
+plot(lm(SR ~ Parea, richness))
+```
+
+```{r}
+summary(lm(SR ~ Parea + I(Parea^2), richness)) #no, definitely not quad.
+summary(lm(SR ~ Parea + YearCat, richness))    #no
+summary(lm(SR ~ Parea * YearCat, richness))    #no, still not.
+```
+
+```{r}
+lm(SR ~ Nburns, data=richness)
+burns1<-lm(SR ~ Nburns, data=richness)         #burns sig! p=0.047 which =0.05
+summary(burns1)
+burns2<- lm(SR ~ Nburns + YearCat, data=richness)  #yes, both sig effects
+summary(burns2)
+burns3<-lm(SR ~ Nburns * YearCat, data=richness)    #also sig - burns!
+summary(burns3)
+confint(burns3, level=0.95)  #says nburns sig but not year or interaction
+#anova(burns3)   #says burns AND year sig - not interaction term
+AIC(burns1, burns2, burns3)        #says additive model is best, not int.
+  #plot(SR ~ Nburns, data=richness)
+```
+
+```{r}
+fig3<-plot_model(burns2, type="pred",terms=c("Nburns", "YearCat"))
+fig3 <- fig3 + labs(x="Number of burns", y="Species Richness") + theme(legend.position="none")  + coord_cartesian(ylim=c(18,35))
+fig3
+plot_model(burns2)
+```
+
+
+```{r}
+#fit<-lm(SR ~ Treatment + BA, data=richness)
+#summary(fit)
+#confint(fit, level=0.95)
+#anova(fit)
+```
+
+
+```{r}
+#plot(SR ~ Age, ann=FALSE, type="n", xlim=c(10,60), ylim=c(10,40), data=richness)
+#lines(SR~Age,lwd=2, data=richness)
+```
+
+```{r}
+#richness <-read.csv("sr_covs.csv")
+mHW<-lm(SR ~ NHW_saplings, richness)         #no, hw saplings
+summary(mHW)
+confint(mHW, level=0.95)
+#plot(mHW)
+```
+
+```{r}
+mHW2<-lm(SR ~ HW_dens_1050*YearCat, richness)    #YES, HW & interaction term
+summary(mHW2)
+confint(mHW2, level=0.95)
+fig7 <- plot_model(mHW2, type="pred", terms=c("HW_dens_1050", "YearCat"))
+fig7 <- fig7 + labs(x="Understory hardwoods (<50cm)", y="Species Richness") + theme(legend.position="none")  + coord_cartesian(ylim=c(18,35))
+fig7
+plot_model(mHW2)
+```
+
+```{r}
+mHW2b<-lm(SR ~ HW_dens_1050 + YearCat, richness)         #YES, 
+summary(mHW2b)
+confint(mHW2b, level=0.95)
+plot_model(mHW2b, type="pred", terms=c("HW_dens_1050", "YearCat"))
+plot_model(mHW2b)
+```
+
+```{r}
+AIC(mHW2, mHW2b, mHW3, mHW3b)     #interactive year best, interactive & quadratic second best
+
+```
+
+```{r}    
+plot(SR ~ HW_dens_1050, richness, pch=16, axes=F, xlab="", ylab="")
+axis(1,cex.axis=0.8)
+mtext(text="Hardwood density <50cm", side = 1, line = 3)
+axis(2,las=1)
+mtext(text="Species Richness", side = 2, line = 3)
+box(bty="l")
+x<-seq(min(richness$HW_dens_1050), max(richness$HW_dens_1050),l=1000)
+points(x, predict(lm(SR~HW_dens_1050,richness), data.frame(HW_dens_1050=x)),type="l")
+```
+
+
+```{r}
+HW_dens_1050_B<-(richness$HW_dens_1050)^2
+#HW_dens_1050_B
+mHW3<-lm(SR ~ HW_dens_1050 + HW_dens_1050_B, richness)
+summary(mHW3)
+confint(mHW3, level=0.95)
+plot(mHW3)
+```
+
+```{r}
+HW_dens_1050_B<-(richness$HW_dens_1050)^2
+#HW_dens_1050_B
+mHW3b<-lm(SR ~ HW_dens_1050 + HW_dens_1050_B * YearCat, richness)
+summary(mHW3b)
+confint(mHW3b, level=0.95)
+plot(mHW3b)
+```
+
+
+#panels
+```{r}
+library(gridExtra)
+#grid.arrange(fig3, fig4, nrow = 1)
+g1<-list(fig1,fig3,fig4,fig5,fig6,fig7)
+grid.arrange(grobs=g1, widths=c(2,2), layout_matrix = rbind(c(1,2),c(3,4),c(5,6)))
+```
+
+
+
+Good fig of SR by Burn Treatment
+```{r}
+richness <-read.csv("sr_covs.csv")
+levels(richness$Treatment)
+
+quantiles_95<-function(x){
+  r<-quantile(x,probs=c(0.025,0.25,0.5,0.75,0.975))
+  names(r)<-c("ymin","lower","middle","upper","ymax")
+  r
+}
+
+ggplot(data=richness,aes(x=Treatment,y=SR,fill=Treatment))+guides(fill=F)+stat_summary(fun.data=quantiles_95,geom="boxplot")+scale_fill_brewer(type="seq",direction=1,palette="Greens")+labs(x="Burn treatment",y="Species Richness")+coord_cartesian(ylim=c(18, 36)) + 
+    scale_y_continuous(breaks=seq(18, 36, 2))+ geom_text(x=4, y=35, label="b",color=1) + geom_text(x=1, y=30, label="a",color=1) + geom_text(x=2, y=32, label="a b",color=1) + geom_text(x=3, y=32, label="a b",color=1) +
+  theme(panel.border = element_blank(),panel.grid.major =element_blank(), panel.grid.minor = element_blank())
+
+#removed geom_jitter()
+```
+
+```{r}
+#but the boxplot above does not show year effects... and interactive was best
+Tx3<-lm(SR ~ Treatment * YearCat, richness)
+summary(Tx3)   #3B statistically different from others
+confint(Tx3,level=0.95)
+
+a2 <- aov(richness$SR ~ richness$Treatment * richness$YearCat)
+summary(a2)
+posthoc1 <- TukeyHSD(x=a2, 'richness$Treatment', conf.level=0.95)
+posthoc1
+
+posthoc2 <- TukeyHSD(x=a2, 'richness$YearCat', conf.level=0.95)
+posthoc2
+
+#plot_model(Tx3)
+
+figx <- plot_model(Tx3, type="int", terms=c("Treatment","YearCat"))
+figx + labs(x= "Burn treatment * Survey year", y="Species Richness") + set_theme(title.color = "white") + xlim(c("0B","1B","2B","3B"))
+#base=theme_classic() and also axis.tickslen=0 would make background white instead of gray and hides grid lines - so issue isn't as apparent. but all other figure backgrounds ARE gray so I would like to be consistent...
+#plot.margins = ?
+
+```

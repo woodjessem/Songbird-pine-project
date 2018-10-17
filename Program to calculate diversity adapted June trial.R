@@ -3,13 +3,14 @@
 ##  For Community Ecology 2016    - adapted by Jesse in JUNE 2018 for project                                                          ##
 ##############################################################################################
 
-#First set the working director where your data are stored and where you want the output to go
+#First set the working directory where your data are stored and where you want the output to go
 setwd("C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds")
 
 #Then read in your file you have saved as a comma-delimited file. It will automatically assign the first
 # line as column names (variables)
 D<-read.csv(file="17_acdata_dels.csv")
 ##Jesse data on audio counts version from 06-22-18 manipulating - ALL UNKNS taken out!!
+###            but not yet all IDs from meeting with Amy in
 
 #Load the 'vegan' package into R so that its functions will be accessible
 library(vegan)
@@ -81,12 +82,12 @@ write.table(file="Diversity and Richness Estimates Trial 17AC data dels.csv",sep
 #Determine the number of individuals found in the Site with the most (maximum) individuals
 maxNum<-max(rowSums(d))
 #Output this number
-maxNum
+maxNum           #78 as of Aug 27, 2018 (2017 data)
 
 #Rarefy the species in each site from 1 individual to the maximum number of individuals found in the Site with the most individuals
 #R will give a warning message because you can't rarefy past the number of individuals in each Site
 #Don't worry about the error message because we won't be using the numbers or plotting past the number of individuals in each site
-Rare1<-rarefy(d,c(1:maxNum))
+Rare1<-rarefy(d,c(1:maxNum))   #adjust if maxNum different
 #Transpose this matrix and make it a dataframe
 Rare2<-as.data.frame(t(Rare1))
 #Set the column names as the Sites

@@ -1,0 +1,101 @@
+---
+title: "help with sjplot"
+author: "Jesse Wood"
+date: "October 15, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+Setup
+```{r}
+library(unmarked)
+library(sjPlot)
+#library(sjmisc) not necessary - just sample data
+library(ggplot2)
+library(gridExtra)
+setwd("C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds")
+```
+
+# visit 1 -
+```{r}
+#File read-in
+methodYSR1 <-read.csv("17_18_1by1_ACPC_SR.csv") #SR by count #1 each - Site Type SR
+#summary(methodYSR1)
+#str(methodYSR1)
+```
+
+examples of two that work - can change colors successfully within plot_model
+```{r}
+#AC & PC methods combined in this example - that's ok
+evaluationYV2B<-lm(SR ~ Sdate * Year, methodYSR1)
+plot_model(evaluationYV2B, type="pred", terms=c("Sdate","Year"),colors = c("cadetblue","coral"))
+```
+
+```{r}
+#this just calls upon AC data - so shown in 2 shades of blue to stick with blue / coral theme
+evaluationYV5<-lm(SR ~ Pmin + Year, methodYSR1)
+summary(evaluationYV5)
+fig7 <- plot_model(evaluationYV5, type="pred",terms=c("Pmin", "Year"),colors=c("deepskyblue", "dodgerblue4"))
+fig7 <- fig7 + labs(x= "Time spent processing audio files", y="AC Species Richness  (visit 1)")
+fig7
+```
+
+# Visit 3
+
+
+regular plotting of JUST survey date (no year effect) for SR for visit #3
+as you can see, trying to include the ", colors="coral" part inside parentheses does not work!
+```{r}
+# JUST PC data - Sdate by method by year (AC not shown here, not sig)
+methodYSR3pc <-read.csv("17_18_3by3_ACPC_SR_pc.csv") #SR by count #3 each JUST FOR PC DATA
+evaluationpc3d<-lm(SR ~ Sdate, methodYSR3pc)
+summary(evaluationpc3d)
+confint(evaluationpc3d, level=0.95)
+
+fig3 <- plot_model(evaluationpc3d, type="pred", terms=c("Sdate")) #, colors="coral3"
+fig3<- fig3 + labs(x= "Survey date (in season)", y="PC Species Richness  (visit 3)") + set_theme(title.color = "white")
+fig3
+
+#demo("colors")
+#sjplot_pal(pal = "deep reefs")
+```
+
+
+tried to do some ggplot stuff instead:
+```{r}
+#+ geom_polygon(aes(group=methodYSR3pc$Sdate),color="cadetblue")  
+#+sjp.grpfrq($Sdate,geom.colors="cadetblue")  
+#theme(scale_color_sjplot(palette = "deep reefs"), scale_fill_sjplot(palette = "deep reefs"))
+
+
+print(ggplot(data=methodYSR3pc,aes(x=Sdate,y=SR)) + geom_line(size=1, color="coral")
+      +geom_smooth(method=evaluationpc3d,fullrange=TRUE,color="coral",size=0.5) +
+           labs(x="Survey date (in season)",y="PC Species Richness  (visit 3)"))
+
+
+
+print(qplot(x = Sdate, y = SR, color = Sdate, data = evaluationpc3d, geom = "smooth"))
+
+
+
+#some more trials
+Plot.T<-ggplot(data=methodYSR3pc, aes(x=Sdate, y=SR))+
+      coord_cartesian(ylim = c(10,18))+  
+      geom_line(size=1, color="coral")+
+      geom_ribbon(aes(ymin=SR-se, ymax=SR+se,fill=Sdate),alpha=.2)+
+      ylab("")+
+      xlab("")+
+      theme_grey()+ 
+        theme(panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank())+
+      scale_fill_grey()
+Plot.T
+
+```
+
+

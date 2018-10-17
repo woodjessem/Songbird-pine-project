@@ -3,7 +3,8 @@ title: "VEG_figures"
 author: "Jesse Wood"
 date: "July 19, 2018"
 output:
-  word_document: default
+  word_document: 
+    fig_width: 5
   html_document: default
 ---
 
@@ -37,6 +38,7 @@ ccover.lm<-lm(Ccover~Nburns,data=vdata)
 summary(ccover.lm)
 confint.lm(ccover.lm)
 plot(ccover.lm)
+
 
 #summary(vdata)
 #levels(vdata$Treatment)
@@ -201,6 +203,15 @@ confint.lm(fgherbT.lm)
 fgherbB.lm<-lm(FG_herb~Nburns,data=vdata)
 summary(fgherbB.lm)
 confint.lm(fgherbB.lm)
+
+```
+
+```{r}
+fgherbTSB.lm<-lm(FG_herb~TimeSinceB,data=vdata)
+summary(fgherbTSB.lm)
+confint.lm(fgherbTSB.lm)
+
+plot(FG_herb ~ TimeSinceB,vdata, xlim=c(0,10))
 ```
 
 ```{r}
@@ -255,6 +266,13 @@ fig<-print(ggplot(vdata,aes(x=Nburns,y=HW_dens_1050,colour=Treatment))
   +scale_color_brewer(palette="Greens")+theme(panel.background = element_rect(fill = "tan",colour = "lightgray",size = 0.5, linetype = "solid"))) #or tan1 or lightsalmon1 or navajowhite2
 ```
 
+```{r}
+hw1050TSB.lm<-lm(HW_dens_1050~TimeSinceB,data=vdata)
+summary(hw1050TSB.lm)
+confint.lm(hw1050TSB.lm)
+
+plot(HW_dens_1050 ~ TimeSinceB,vdata, xlim=c(0,10))
+```
 
 ```{r}
 #treatment
@@ -276,10 +294,170 @@ print(ggplot(data=vdata,aes(Nburns,HW_dens_1050))+geom_smooth(xlab="Increasing n
 
 ```
 
+#FG_shrub non-sig
+```{r}
+fgshrubB.lm<-lm(FG_shrub~Nburns,data=vdata)
+summary(fgshrubB.lm)
+confint.lm(fgshrubB.lm)
+```
+
+#NHW_saplings sig!
+```{r}
+HWsaplingsB.lm<-lm(NHW_saplings~Nburns,data=vdata)
+summary(HWsaplingsB.lm)
+confint.lm(HWsaplingsB.lm)
+```
+
+```{r}
+fig<-print(ggplot(vdata,aes(x=Nburns,y=NHW_saplings,colour=Treatment))
+  +geom_jitter()
+  +geom_smooth(method=lm,fullrange=TRUE,color="black",size=0.5)
+  +labs(x="Increasing # of burns",y="Hardwood saplings (midstory)")
+  +scale_color_brewer(palette="Greens")+theme(panel.background = element_rect(fill = "tan",colour = "lightgray",size = 0.5, linetype = "solid"))) #or tan1 or lightsalmon1 or navajowhite2
+```
+
+# snags non-sig
+```{r}
+snagsB.lm<-lm(Nsnags~Nburns,data=vdata)
+summary(snagsB.lm)
+confint.lm(snagsB.lm)
+```
+
+# snags non-sig
+```{r}
+snagsB.lm<-lm(Nsnags~Nburns,data=vdata)
+summary(snagsB.lm)
+confint.lm(snagsB.lm)
+```
+
+
 #thins and age were correlated
 ```{r}
 fig<-plot(Nthins ~ Age, vdata)
 abline(lm(vdata$Nthins ~ vdata$Age),col="blue")
-cor.test(vdata$Nthins,vdata$Age) #r=0.702
+cor.test(vdata$Nthins,vdata$Age) #r=0.671
 ```
 
+```{r}
+cor.test(vdata$Nthins,vdata$Nburns) #r=0.506
+```
+
+```{r}
+thins.lm<-lm(Ccover~Nthins,data=vdata)
+summary(thins.lm)
+confint.lm(thins.lm)
+#plot(thins.lm)
+```
+```{r}
+BAthins.lm<-lm(BA~Nthins,data=vdata)
+summary(BAthins.lm)
+confint.lm(BAthins.lm)
+#plot(thins.lm)
+```
+
+```{r}
+Hhw1050.lm<-lm(HW_dens_1050~Herbicide,data=vdata)
+summary(Hhw1050.lm)
+confint.lm(Hhw1050.lm)
+```
+
+```{r}
+Hhws.lm<-lm(NHW_saplings~Herbicide,data=vdata)
+summary(Hhws.lm)
+confint.lm(Hhws.lm)
+boxplot(NHW_saplings ~ Herbicide, vdata)
+
+quantiles_95<-function(x){
+  r<-quantile(x,probs=c(0.025,0.25,0.5,0.75,0.975))
+  names(r)<-c("ymin","lower","middle","upper","ymax")
+  r
+}
+
+ggplot(data=richness,aes(x=Herbicide,y=NHW_saplings,color=Herbicide))+guides(fill=T)+stat_summary(fun.data=quantiles_95,geom="boxplot", color=c("gray40","orange"), labels=c("0","1"))+labs(x="Herbicide",y="# Hardwood Saplings")+coord_cartesian(ylim=c(0, 50)) +
+  geom_text(x=0, y=44, label="a",color=1) + geom_text(x=1, y=34, label="b",color=1) +
+  theme(panel.border = element_blank(),panel.grid.major =element_blank(), panel.grid.minor = element_blank())
+
+
+scale_y_continuous(breaks=seq(18, 36, 2))
+
+ggplot(data=richness,aes(x=YearCat,y=SR,fill=YearCat))+scale_fill_manual(name="Survey Year", values=c("red", "blue"),labels=c("2017","2018"))+stat_summary(fun.data=quantiles_95,geom="boxplot")+labs(x="Survey year",y="Species Richness")+coord_cartesian(ylim=c(18, 36)) + scale_y_continuous(breaks=seq(20, 35, 5))+ geom_text(x=1, y=35, label="a",color=1)+ geom_text(x=2, y=31, label="b",color=1) + theme(panel.border = element_blank(),panel.grid.major = element_blank(),panel.grid.minor = element_blank(), legend.position="right", legend.box = "vertical",legend.background=element_blank(),legend.key = element_blank(), )
+
+
+```
+
+
+
+```{r}
+Hhwshrub.lm<-lm(HW_shrub~Herbicide,data=vdata)
+summary(Hhwshrub.lm)
+confint.lm(Hhwshrub.lm)
+boxplot(HW_shrub ~ Herbicide, vdata)
+
+ggplot(data=richness,aes(x=Herbicide,y=HW_shrub,color=Herbicide))+guides(fill=T)+
+  stat_summary(fun.data=quantiles_95,geom="boxplot", color=c("gray40","orange"), labels=c("0","1"))+labs(x="Herbicide",y="Hardwood cover (midstory)")+coord_cartesian(ylim=c(0, 65)) +
+  geom_text(x=0, y=60, label="a",color=1) + geom_text(x=1, y=43, label="b",color=1) +
+  theme(panel.border = element_blank(),panel.grid.major =element_blank(), panel.grid.minor = element_blank())
+```
+
+#nonsig with FG_shrub or FG_herb
+
+```{r}
+Hhw2p.lm<-lm(Rel_HW2P_canopy~Herbicide,data=vdata)
+summary(Hhw2p.lm)
+confint.lm(Hhw2p.lm)
+boxplot(Rel_HW2P_canopy ~ Herbicide, vdata)
+
+ggplot(data=richness,aes(x=Herbicide,y=Rel_HW2P_canopy,color=Herbicide))+guides(fill=T)+
+  stat_summary(fun.data=quantiles_95,geom="boxplot", color=c("gray40","orange"), labels=c("0","1"))+labs(x="Herbicide",y="Hardwood to pine ratio")+coord_cartesian(ylim=c(0, 1)) +
+  geom_text(x=0, y=.8, label="a",color=1) + geom_text(x=1, y=.6, label="b",color=1) +
+  theme(panel.border = element_blank(),panel.grid.major =element_blank(),
+        panel.grid.minor = element_blank())
+```
+
+
+NOT using anymore
+#boxes/volume
+```{r}
+plot(Treatment ~ Ccover, data=vdata)
+plot(Treatment ~ Rel_HW2P_canopy, data=vdata)
+plot(Treatment ~ Ldepth, data=vdata)
+plot(Treatment ~ BA, data=vdata)
+plot(Treatment ~ FG_herb, data=vdata)
+plot(Treatment ~ HW_dens_1050, data=vdata)
+```
+
+#simple boxes
+```{r}
+plot(Ccover ~ Treatment, data=vdata)
+plot(Rel_HW2P_canopy ~ Treatment, data=vdata)
+plot(Ldepth ~ Treatment, data=vdata)
+plot(BA ~ Treatment, data=vdata)
+plot(FG_herb ~ Treatment, data=vdata)
+plot(HW_dens_1050 ~ Treatment, data=vdata)
+```
+
+#scatter, ordered
+```{r}
+library("ggplot2")
+print(ggplot(vdata, aes(Treatment, Ccover)) + geom_point())
+print(ggplot(vdata, aes(Treatment, Rel_HW2P_canopy)) + geom_point())
+print(ggplot(vdata, aes(Treatment, Ldepth)) + geom_point())
+print(ggplot(vdata, aes(Treatment, BA)) + geom_point())
+print(ggplot(vdata, aes(Treatment, FG_herb)) + geom_point())
+print(ggplot(vdata, aes(Treatment, HW_dens_1050)) + geom_point())
+```
+
+#jittered and color-coded treatment (nburns axis) instead
+```{r}
+print(ggplot(vdata, aes(Nburns, Ccover, colour=Treatment)) + geom_jitter())
+print(ggplot(vdata, aes(Nburns, Rel_HW2P_canopy, colour=Treatment)) + geom_jitter())
+print(ggplot(vdata, aes(Nburns, Ldepth, colour=Treatment)) + geom_jitter())
+print(ggplot(vdata, aes(Nburns, BA, colour=Treatment)) + geom_jitter())
+print(ggplot(vdata, aes(Nburns, FG_herb, colour=Treatment)) + geom_jitter())
+print(ggplot(vdata, aes(Nburns, HW_dens_1050, colour=Treatment)) + geom_jitter())
+```
+
+```{r}
+fig<-plot(Nthins ~ Age, vdata)
+abline(lm(vdata$Nthins ~ vdata$Age),col="blue")
+```

@@ -1,0 +1,3562 @@
+---
+title: "All_SPP"
+author: "Jesse Wood"
+date: "September 13, 2018"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## INDIVIDUAL SPECIES ##
+setup for all
+```{r}
+library("unmarked")
+library("AICcmodavg")
+library("VGAM")
+library("ggplot2")
+setwd("C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds")
+```
+
+#can always experiment with funky figures or those with year effect factor("A",levels=c("A","B"))
+
+# bhnu #
+```{r}
+bhnu.abund<- csvToUMF("bhnu_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+#summary(bhnu.abund)
+#str(bhnu.abund)
+#scale all observation covariates (covs of detection)
+obsCovs(bhnu.abund)= scale (obsCovs(bhnu.abund))
+#select particular site covariates to scale below
+#(note: NOT ALL - not year, treatment, herbicide, last years ones)
+sc <- siteCovs(bhnu.abund)
+sc[,c(6:77)] <- scale(sc[, c(6:77)])
+siteCovs(bhnu.abund) <- sc
+```
+
+```{r}
+#test for NB or Poisson - most should use Poisson
+testP.bhnu <- pcount(~1 ~1, bhnu.abund, mixture="P", K=4)
+testNB.bhnu <- pcount(~1 ~1, bhnu.abund, mixture="NB", K=4)
+fmsTEST <- fitList(testP.bhnu, testNB.bhnu)
+msTEST.bhnu <- modSel(fmsTEST)
+msTEST.bhnu
+#Poisson is best for bhnu.
+```
+
+```{r}
+#test for some possible quadratic terms
+testR.bhnu <- pcount(~1 ~BA, bhnu.abund, mixture="P", K=4)
+testQ.bhnu <- pcount(~1 ~BA + I(BA^2), bhnu.abund, mixture="P", K=4)
+testC.bhnu <- pcount(~1 ~BA + I(BA^2) + I(BA^3), bhnu.abund, mixture="P", K=4)
+msBAtest <- fitList(testR.bhnu, testQ.bhnu, testC.bhnu)
+BAtest.bhnu <- modSel(msBAtest)
+BAtest.bhnu
+#
+testC.bhnu
+plot(testC.bhnu)
+
+```
+
+```{r}
+testC.bhnu <- pcount(~1 ~BA + I(BA^2) + I(BA^3), bhnu.abund, mixture="P", K=4)
+NewData.BA  <-data.frame(BA=seq(min(sc$BA),max(sc$BA),length=100))
+bhnu.est.ba <- predict(testC.bhnu, type="state",
+                                newdata=NewData.BA,appendData=TRUE)
+
+plot(Predicted~ BA, data=bhnu.est.ba, ylim=c(0,10), type="l", lwd=3,
+     xlab="BA", ylab="Est. bhnu Abundance")
+##95% confidence intervals
+lines(lower~ BA, data=bhnu.est.ba,  type="l", lwd=3, col="darkgray")
+lines(upper~ BA, data=bhnu.est.ba, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+testQ.bhnu <- pcount(~1 ~BA + I(BA^2), bhnu.abund, mixture="P", K=4)
+NewData.BA  <-data.frame(BA=seq(min(sc$BA),max(sc$BA),length=100))
+bhnu.est.ba <- predict(testQ.bhnu, type="state",
+                                newdata=NewData.BA,appendData=TRUE)
+
+plot(Predicted~ BA, data=bhnu.est.ba, ylim=c(0,10), type="l", lwd=3,
+     xlab="BA", ylab="Est. bhnu Abundance")
+##95% confidence intervals
+lines(lower~ BA, data=bhnu.est.ba,  type="l", lwd=3, col="darkgray")
+lines(upper~ BA, data=bhnu.est.ba, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+matplot(residuals(testR.bhnu))
+matplot(residuals(testQ.bhnu))
+matplot(residuals(testC.bhnu))
+```
+
+```{r}
+#test for some possible quadratic terms
+testRhw.bhnu <- pcount(~1 ~HW_dens_1050, bhnu.abund, mixture="P", K=4)
+testQhw.bhnu <- pcount(~1 ~HW_dens_1050 + I(HW_dens_1050^2), bhnu.abund, mixture="P", K=4)
+testChw.bhnu <- pcount(~1 ~HW_dens_1050 + I(HW_dens_1050^2) + I(HW_dens_1050^3), bhnu.abund, mixture="P", K=4)
+msHW1050test <- fitList(testR.bhnu, testQ.bhnu, testC.bhnu)
+HW1050test.bhnu <- modSel(msHW1050test)
+HW1050test.bhnu
+#
+```
+
+```{r}
+matplot(residuals(testRhw.bhnu))
+matplot(residuals(testQhw.bhnu))
+matplot(residuals(testChw.bhnu))
+```
+
+```{r}
+det.date.bhnu <- pcount(~ Jdate ~1, bhnu.abund, mixture="P", K=15)
+det.date2.bhnu <- pcount(~ Jdate + I(Jdate^2) ~1, bhnu.abund, mixture="P", K=15)
+mstestDATE <- fitList(det.date.bhnu, det.date2.bhnu)
+DATEtest.bhnu <- modSel(mstestDATE)
+DATEtest.bhnu
+
+
+det.time.bhnu <-pcount(~ Time ~1, bhnu.abund, mixture="P",K=15)
+det.time2.bhnu <-pcount(~ Time + I(Time^2) ~1, bhnu.abund, mixture="P",K=15)
+mstestTIME <- fitList(det.time.bhnu, det.time2.bhnu)
+TIMEtest.bhnu <- modSel(mstestTIME)
+TIMEtest.bhnu
+
+```
+
+```{r}
+#detection covariates first
+det.null.bhnu <- pcount(~1 ~1, bhnu.abund, mixture="P", K=15)
+det.weather.bhnu <- pcount(~ Wind + Sky ~1, bhnu.abund, mixture="P", K=15)
+det.global.bhnu <- pcount(~ Jdate + Wind + Sky + Noise +Time ~1, bhnu.abund, mixture="P", K=15)
+det.sound.bhnu <- pcount(~ Noise + Wind ~1, bhnu.abund, mixture="P", K=15)
+det.date.bhnu <- pcount(~ Jdate ~1, bhnu.abund, mixture="P", K=15)
+det.detect.bhnu <- pcount(~ Jdate + Noise + Time ~1, bhnu.abund, mixture="P", K=15)
+det.notdate.bhnu <-pcount(~ Wind + Sky + Noise ~1, bhnu.abund, mixture="P", K=15)
+det.time.bhnu <-pcount(~ Time ~1, bhnu.abund, mixture="P",K=15)
+
+fmsDC <- fitList(det.null.bhnu, det.weather.bhnu, det.global.bhnu,
+               det.sound.bhnu, det.date.bhnu, det.detect.bhnu, det.notdate.bhnu, det.time.bhnu)
+msDC.bhnu <- modSel(fmsDC)
+msDC.bhnu
+#msDC.bhnu@Full
+#summary: changed with 2018 data 
+#2017 old: 1st is Time, 2nd null, 3rd detect (Jdate,Noise,Time), 4th date (Jdate)
+#Both yrs: det.detect.bhnu is top model and only one <d2. (global is 2.07)
+```
+
+```{r}
+det.detect.bhnu   #+ relationship with Date & Time
+confint(det.detect.bhnu, type="det",method="normal")
+confint(det.detect.bhnu, type="state",method="normal")  #significant
+```
+
+```{r}
+#date within detect model
+det.detect.bhnu <- pcount(~ Jdate + Noise + Time ~1, bhnu.abund, mixture="P", K=15)
+
+ND.bhnud <-data.frame(Jdate=seq(-1.75,2.25,length=100),Time=0,Noise=0)
+bhnu.est.date <- predict(det.detect.bhnu, type="det",
+                                newdata=ND.bhnud,appendData=TRUE)
+
+plot(Predicted~ Jdate, data=bhnu.est.date, ylim=c(0,1), type="l", lwd=3,
+     xlab="Survey date", ylab="BHNU Detection Probability")
+##95% confidence intervals
+lines(lower~ Jdate, data=bhnu.est.date,  type="l", lwd=3, col="darkgray")
+lines(upper~ Jdate, data=bhnu.est.date, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+#time within detect model
+det.detect.bhnu <- pcount(~ Jdate + Noise + Time ~1, bhnu.abund, mixture="P", K=15)
+
+#summary(obsCovs(bhnu.abund))
+ND.bhnud2 <-data.frame(Time=seq(-1.5,2.5,length=100),Jdate=0,Noise=0)
+bhnu.est.time <- predict(det.detect.bhnu, type="det",
+                                newdata=ND.bhnud2,appendData=TRUE)
+
+plot(Predicted~ Time, data=bhnu.est.time, ylim=c(0,1), type="l", lwd=3,
+     xlab="Survey start time", ylab="BHNU Detection Probability")
+##95% confidence intervals
+lines(lower~ Time, data=bhnu.est.time,  type="l", lwd=3, col="darkgray")
+lines(upper~ Time, data=bhnu.est.time, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+write.table(msDC.bhnu@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/bhnu_top_models_msDC.xls",sep="\t")
+```
+^bhnu: detection model best fit, + relationship with survey date & time
+
+```{r}
+#run this when have CSV with both years
+null.bhnu <- pcount(~Jdate + Noise + Time ~1, bhnu.abund, mixture="P", K=40)
+year.bhnu <- pcount(~Jdate + Noise + Time ~ YearCat, bhnu.abund, mixture="P", K=40)
+fms.year.bhnu<- fitList(null.bhnu, year.bhnu)
+year.ms.bhnu<-modSel(fms.year.bhnu)
+year.ms.bhnu
+```
+^ null better fit, but year model came in under d<2 (1.28) so... imp to include?
+
+What you can & can't use:
+*as with before, just don't use Water, or LowDev, or Impervious
+HWdens_1050 & NHW_saplings ok
+500m:  evergreen & ag ok, scrubs & ag ok
+1km:  scrubs & ag ok
+
+500
+              # fine to use evergreen & ag
+              # fine to use scrubs & ag
+1
+              #### can't use evergreen & ag at 1km
+              # fine to use scrubs & ag
+5
+                  # - can't use Evergreen&Ag,
+                  #+ can't use HighDev&OpenDev together
+                #### can't use open & water
+                #### can't use evergreen & open
+                #### can't use Ag & scrubs
+30
+#### can't use evergreen & protected together!!
+#### can't use evergreen & scrubs together!!
+#### can't use ag & water together!!
+#### can't use open & scrubs together!!
+                  #+ can't use Water&Protected together                  
+                  #+ can't use Ag&OpenDev together
+                  #+ can't use Grass&Ag together
+                  #- can't use Protected&Ag together
+                  #- can't use Ag&HighDev together
+                  #- can't use HighDev&OpenDev together
+                 #- can't use Evergreen&Ag together
+                 #- can't use Schrubs&OpenDev together
+#+ fine to use Schrubs&HighDev together
+
+updated detection covariates
+```{r}
+#other detection covariates (Detection best model given msDC.bhnu)
+null.bhnu <- pcount(~ Jdate + Noise + Time ~1, bhnu.abund, mixture="P", K=40)
+global.bhnu <- pcount(~ Jdate + Noise + Time
+                      ~ Treatment + Herbicide + BA + Nsnags +Ccover
+                      + Ldepth + TreeHt + Age + TimeSinceB + TimeSinceT + Nthins
+                      + NP_over_20cm + Rel_HW2P_canopy 
+                      + PISoils + NSoilTypes
+                      + Parea + ShapeIndex + YearCat
+                      , bhnu.abund, mixture="P", K=40)  #FPSiteIndex removed
+local.bhnu <- pcount(~ Jdate + Noise + Time
+                     ~ Ccover + TreeHt + Ldepth + YearCat
+                     , bhnu.abund, mixture="P", K=40) #can only include BA OR CCover
+lh.bhnu <- pcount(~ Jdate + Noise + Time
+                  ~ Ccover + Age + Nsnags + TreeHt
+                  + NP_over_20cm + Rel_HW2P_canopy + YearCat
+                  , bhnu.abund, mixture="P", K=40)
+landmetrics.bhnu <- pcount (~ Jdate + Noise + Time
+                          ~ Parea + ShapeIndex + YearCat
+                        , bhnu.abund, mixture="P",K=40)
+landscape500.bhnu <- pcount(~ Jdate + Noise + Time
+                        ~ Evergreen500m + HighDev500m + OpenDev500m + YearCat
+                            , bhnu.abund, mixture="P", K=40)
+landscape1.bhnu <- pcount(~ Jdate + Noise + Time
+                       ~ Evergreen1km + HighDev1km + OpenDev1km + YearCat
+                          , bhnu.abund, mixture="P", K=40)
+landscape5.bhnu <- pcount(~ Jdate + Noise + Time
+                       ~ Evergreen5km + OpenDev5km + YearCat
+                          , bhnu.abund, mixture="P", K=40)
+landscape30.bhnu <- pcount(~ Jdate + Noise + Time
+                       ~ Evergreen30km + OpenDev30km + YearCat
+                           , bhnu.abund, mixture="P", K=40) #rmoved Protected
+treatment.bhnu <- pcount(~ Jdate + Noise + Time
+                         ~ Treatment + Nthins + YearCat
+                         , bhnu.abund, mixture ="P", K=40)
+management.bhnu <- pcount(~ Jdate + Noise + Time
+                          ~ Treatment + BA + TimeSinceB + TimeSinceT
+                          + Herbicide + YearCat
+                          , bhnu.abund, mixture="P", K=40)
+management2.bhnu <- pcount(~ Jdate + Noise + Time
+                          ~ Treatment + BA + I(BA^2) + TimeSinceB + TimeSinceT
+                          + Herbicide + YearCat
+                          , bhnu.abund, mixture="P", K=40)
+#management3.bhnu <- pcount(~ Jdate + Noise + Time
+#                          ~ Treatment + BA + I(BA^2) + I(BA^3) + TimeSinceB + TimeSinceT
+#                          + Herbicide + YearCat
+#                          , bhnu.abund, mixture="P", K=40)
+disturbance.bhnu <- pcount(~ Jdate + Noise + Time
+                           ~ TimeSinceB + TimeSinceT + YearCat
+                           , bhnu.abund, mixture="P", K=40)
+siteprod.bhnu <- pcount(~ Jdate + Noise + Time ~ PISoils + NSoilTypes + YearCat
+                        , bhnu.abund, mixture="P", K=40) #FPSiteIndex removed
+upstate.bhnu <- pcount(~ Jdate + Noise + Time ~ Parea + HighDev5km + BA
+                       + TreeHt + YearCat
+                       , bhnu.abund, mixture="P", K=40)
+upstate2.bhnu <- pcount(~ Jdate + Noise + Time ~ Parea + HighDev5km + BA + I(BA^2)
+                        + TreeHt + YearCat
+                       , bhnu.abund, mixture="P", K=40)
+coord.bhnu <- pcount (~Jdate + Noise + Time ~ Latitude + Longitude + YearCat
+                      , bhnu.abund, mixture="P", K=80)
+
+
+fms <- fitList(null.bhnu, global.bhnu, local.bhnu, lh.bhnu, landmetrics.bhnu,
+               landscape500.bhnu, landscape1.bhnu, landscape5.bhnu, landscape30.bhnu,treatment.bhnu, management.bhnu, management2.bhnu, disturbance.bhnu, siteprod.bhnu, upstate.bhnu, upstate2.bhnu, coord.bhnu)
+ms.bhnu <- modSel(fms) #note this does not include some of site.prod, nor management3.bhnu,
+ms.bhnu
+#ms.bhnu@Full
+```
+changed with 2018 data - now Tx is best and LH is second best, landscape 1 third best
+#changed AGAIN with cubing of BA - now cubic BA management model is 4th best, also under delta 2.0! but cubic doesn't make sense - when ran with quadratic, that model 4th best but >2.0
+
+```{r}
+matplot(residuals(management.bhnu))
+```
+
+```{r}
+treatment.bhnu
+confint(treatment.bhnu, type="state",method="normal")
+
+lh.bhnu
+confint(lh.bhnu, type="state",method="normal")
+
+landscape1.bhnu
+confint(landscape1.bhnu, type="state",method="normal")
+
+#management2.bhnu    #just curious - this is no longer a top model
+#confint(management2.bhnu, type="state",method="normal")
+```
+bhnu treatment: only Treatment3B sig (+)
+bhnu life history: only Rel_HW2P_canopy is sig (-)
+bhnu landscape1: Evergreen1km(+), HighDev(+)
+--- not top bhnu management2: BA^2(-) is close but not sig
+```{r}
+###graphing CI
+##if different number of covariates, change the 5s to match
+datap <- data.frame(covariate= character(3), coef= numeric(3), se = numeric(3))
+datap$covariate=c('Rel_HW2P_canopy','HighDev1km','Evergreen1km')
+datap$coef=c(-0.369,0.157,0.215)
+datap$se=c(0.117,0.063,0.093)
+
+#xlim and ylim ranges will likey need to be changed to reflect your confidence intervals
+par(mar=c(5,7,4,5)+0.1)
+x=1:3
+plot(datap$coef, y=1:3,yaxt='n', 
+     xlim=range(c(-1,1)),
+     pch=19, ylim=range(c(.5,5.5)), xlab='Effect size', ylab=NA,
+     main="Parameter Effects")
+
+axis(2, at = c(1,2,3), labels = c("HW:pine ratio","HighDev.1km","Evergreen.1km"), las=1)
+axis(4, at = c(1,2,3), labels = c("BHNU","BHNU","BHNU"), las=1)
+# horizontal error bars
+arrows(datap$coef-(2*(datap$se)), x, datap$coef+(2*(datap$se)),x, length=0.05, angle=90, code=3)
+abline(v=0, lty=2)
+```
+
+```{r}
+#for figures:  treatment model (Treatment)
+
+treatment.bhnu <- pcount(~ Jdate + Noise + Time
+                         ~ Treatment + Nthins + YearCat
+                         , bhnu.abund, mixture ="P", K=40)
+
+##
+error.bar <- function(x, y, upper, lower=upper, length=0.1,...){
+  if(length(x) != length(y) | length(y) !=length(lower) | length(lower) != length(upper))
+    stop("vectors must be same length")
+  arrows(x,y+upper, x, y-lower, angle=90, code=3, length=length, ...)
+}
+##
+
+ND.bhnu  <- data.frame(Treatment=factor(c("0B","1B","2B","3B")),
+                              Nthins=0, YearCat=0)
+bhnu.est.tx <- predict(treatment.bhnu, type="state",
+                           newdata=ND.bhnu,appendData=TRUE)
+
+data.mean<-bhnu.est.tx$Predicted
+data.sd<-bhnu.est.tx$SE
+
+bar.p <-barplot(data.mean,
+                names.arg=c("0B","1B","2B","3B"),
+                ylim = c(0, 8), ylab="Est. BHNU Abundance", xlab="Treatment",
+                #cex.names = 1.5, cex.axis=1.5, cex.lab=1.5, 
+                col="darkblue")
+error.bar(bar.p,data.mean,data.sd) #sd
+```
+
+```{r}
+lh.bhnu <- pcount(~ Jdate + Noise + Time
+                  ~ Ccover + Age + Nsnags + TreeHt
+                  + NP_over_20cm + Rel_HW2P_canopy + YearCat
+                  , bhnu.abund, mixture="P", K=40)
+#life history (-Rel_HW2P_canopy)
+
+ND2.bhnu <-data.frame(Rel_HW2P_canopy=seq(min(sc$Rel_HW2P_canopy),max(sc$Rel_HW2P_canopy),length=100),Ccover=0,Age=0,Nsnags=0,TreeHt=0,NP_over_20cm=0,YearCat=0)
+bhnu.est.hw2p <- predict(lh.bhnu, type="state",
+newdata=ND2.bhnu,appendData=TRUE)
+
+plot(Predicted~ Rel_HW2P_canopy, data=bhnu.est.hw2p, ylim=c(0,20), type="l", lwd=3,
+xlab="Relative hardwood to pine ratio (in canopy)", ylab="Est. BHNU Abundance")
+##95% confidence intervals
+lines(lower~ Rel_HW2P_canopy, data=bhnu.est.hw2p, type="l", lwd=3, col="darkgray")
+lines(upper~ Rel_HW2P_canopy, data=bhnu.est.hw2p, type="l", lwd=3, col="darkgray")
+
+```
+
+```{r}
+#new.pred=predict(lh.bhnu, bhnu.est.hw2p, type="state") 
+#trial=data.frame(est=new.pred$Predicted, SE=new.pred$SE, l95=new.pred$lower, u95=new.pred$upper) 
+#trial
+
+k <- ggplot(ND2.bhnu, aes(Rel_HW2P_canopy,bhnu.est.hw2p$Predicted, ymin = bhnu.est.hw2p$lower, ymax = bhnu.est.hw2p$upper))
+k + geom_pointrange()
+
+```
+
+
+
+```{r}
+#landscape 1 model (evergreen1km, highdev1km)
+landscape1.bhnu <- pcount(~ Jdate + Noise + Time
+                       ~ Evergreen1km + HighDev1km + OpenDev1km + YearCat
+                          , bhnu.abund, mixture="P", K=40)
+ND3.bhnu <-data.frame(Evergreen1km=seq(min(sc$Evergreen1km),max(sc$Evergreen1km),length=100),HighDev1km=0,OpenDev1km=0,YearCat=0)
+bhnu.est.evergreen1 <- predict(landscape1.bhnu, type="state",
+newdata=ND3.bhnu,appendData=TRUE)
+
+plot(Predicted~ Evergreen1km, data=bhnu.est.evergreen1, ylim=c(0,20), type="l", lwd=3,
+xlab="Evergreen habitat within 1km of site", ylab="Est. BHNU Abundance")
+##95% confidence intervals
+lines(lower~ Evergreen1km, data=bhnu.est.evergreen1, type="l", lwd=3, col="darkgray")
+lines(upper~ Evergreen1km, data=bhnu.est.evergreen1, type="l", lwd=3, col="darkgray")
+
+```
+
+```{r}
+#landscape 1 model (evergreen1km, highdev1km)
+landscape1.bhnu <- pcount(~ Jdate + Noise + Time
+                       ~ Evergreen1km + HighDev1km + OpenDev1km + YearCat
+                          , bhnu.abund, mixture="P", K=40)
+ND4.bhnu <-data.frame(HighDev1km=seq(min(sc$HighDev1km),max(sc$HighDev1km),length=100),Evergreen1km=0,OpenDev1km=0,YearCat=0)
+bhnu.est.hdev1 <- predict(landscape1.bhnu, type="state",
+newdata=ND4.bhnu,appendData=TRUE)
+
+plot(Predicted~ HighDev1km, data=bhnu.est.hdev1, ylim=c(0,20), type="l", lwd=3,
+xlab="Med/High Developed area within 1km of site", ylab="Est. BHNU Abundance")
+##95% confidence intervals
+lines(lower~ HighDev1km, data=bhnu.est.hdev1, type="l", lwd=3, col="darkgray")
+lines(upper~ HighDev1km, data=bhnu.est.hdev1, type="l", lwd=3, col="darkgray")
+
+```
+
+```{r}
+write.table(ms.bhnu@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/bhnu_top_models_ms.xls",sep="\t")
+```
+
+```{r, echo=FALSE}
+#put species' top model in place of "landscape5.prwa" & up nsim
+Nmix.gof.test(treatment.bhnu, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+#?Nmix.gof.test()
+Nmix.chisq(treatment.bhnu)
+```
+
+```{r, echo=FALSE}
+Nmix.gof.test(lh.bhnu, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+#?Nmix.gof.test()
+Nmix.chisq(lh.bhnu)
+```
+
+bhnu summary:
+P distribution
+DCs: detect best model (+ date, + time, non-sig with noise)
+SCs, using detect model:
+  bhnu treatment:
+      only Treatment3B sig (+)
+  bhnu life history:
+      only Rel_HW2P_canopy is sig (-)
+  bhnu landscape1:
+      Evergreen1km(+), HighDev(+)
+
+      
+#cawr#
+
+```{r}
+cawr.abund<- csvToUMF("cawr_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+#summary(cawr.abund)
+#str(cawr.abund)
+#scale all observation covariates (covs of detection)
+obsCovs(cawr.abund)= scale (obsCovs(cawr.abund))
+#select particular site covariates to scale below
+sc <- siteCovs(cawr.abund)
+sc[,c(6:77)] <- scale(sc[, c(6:77)])
+siteCovs(cawr.abund) <- sc
+```
+
+```{r}
+#run this when have CSV with both years
+null.cawr <- pcount(~Jdate + Noise + Time ~1, cawr.abund, mixture="P", K=40)
+year.cawr <- pcount(~Jdate + Noise + Time ~ YearCat, cawr.abund, mixture="P", K=40)
+fms.year.cawr<- fitList(null.cawr, year.cawr)
+year.ms.cawr<-modSel(fms.year.cawr)
+year.ms.cawr
+```
+^null is best but year <d1.81
+
+
+```{r}
+det.date.cawr <- pcount(~ Jdate ~1, cawr.abund, mixture="P", K=15)
+det.date2.cawr <- pcount(~ Jdate + I(Jdate^2) ~1, cawr.abund, mixture="P", K=15)
+mstestDATE <- fitList(det.date.cawr, det.date2.cawr)
+DATEtest.cawr <- modSel(mstestDATE)
+DATEtest.cawr
+#date quadratic
+
+det.time.cawr <-pcount(~ Time ~1, cawr.abund, mixture="P",K=15)
+det.time2.cawr <-pcount(~ Time + I(Time^2) ~1, cawr.abund, mixture="P",K=15)
+mstestTIME <- fitList(det.time.cawr, det.time2.cawr)
+TIMEtest.cawr <- modSel(mstestTIME)
+TIMEtest.cawr
+#time not
+
+```
+
+```{r}
+#detection covariates first
+det.null.cawr <- pcount(~1 ~1, cawr.abund, mixture="P", K=15)
+det.weather.cawr <- pcount(~ Wind + Sky ~1, cawr.abund, mixture="P", K=15)
+det.global.cawr <- pcount(~ Jdate + Wind + Sky + Noise + Time ~1, cawr.abund, mixture="P", K=15)
+det.sound.cawr <- pcount(~ Noise + Wind ~1, cawr.abund, mixture="P", K=15)
+det.date.cawr <- pcount(~ Jdate ~1, cawr.abund, mixture="P", K=15)
+det.date2.cawr <- pcount(~ Jdate + I(Jdate^2) ~1, cawr.abund, mixture="P", K=15)
+det.detect.cawr <- pcount(~ Noise + Time + Jdate ~1, cawr.abund, mixture="P", K=15)
+det.detect2.cawr <- pcount(~ Noise + Time + Jdate + I(Jdate^2) ~1, cawr.abund, mixture="P", K=15)
+det.notdate.cawr <-pcount(~ Wind + Sky + Noise ~1, cawr.abund, mixture="P", K=15)
+det.time.cawr <-pcount(~ Time ~1, cawr.abund, mixture="P",K=15)
+det.timing.cawr <-pcount(~ Time + Jdate ~1, cawr.abund, mixture="P", K=15)
+det.timing2.cawr <-pcount(~ Time + Jdate + I(Jdate^2) ~1, cawr.abund, mixture="P", K=15)
+
+fmsDC <- fitList(det.null.cawr, det.weather.cawr, det.global.cawr,
+                 det.sound.cawr, det.date.cawr, det.date2.cawr,
+                 det.detect.cawr, det.detect2.cawr, det.notdate.cawr,
+                 det.time.cawr, det.timing.cawr, det.timing2.cawr)
+msDC.cawr <- modSel(fmsDC)
+msDC.cawr
+#msDC.cawr@Full
+#summary: null best, date second best 0.21, detect (Jdate+Noise+Time) 1.57, then sound, time
+#new summary w quadratic - date now best, detect second, timing third! all with jdate^2
+```
+date2 model (+), then detect2 (date^2 +, rest nonsig), then timing2 (date^2 +, rest nonsig) (all under 2.0)
+
+```{r}
+det.date2.cawr
+confint(det.date2.cawr, type="det",method="normal")
+confint(det.date2.cawr, type="state",method="normal")
+```
+
+```{r}
+det.detect2.cawr
+confint(det.detect2.cawr, type="det",method="normal")
+confint(det.detect2.cawr, type="state",method="normal")
+```
+
+```{r}
+det.timing2.cawr
+confint(det.timing2.cawr, type="det",method="normal")
+confint(det.timing2.cawr, type="state",method="normal")
+```
+
+```{r}
+#date first - model-averaged
+det.date2.cawr <- pcount(~ Jdate + I(Jdate^2) ~1, cawr.abund, mixture="P", K=15)
+det.detect2.cawr <- pcount(~ Noise + Time + Jdate + I(Jdate^2) ~1, cawr.abund, mixture="P", K=15)
+det.timing2.cawr <-pcount(~ Time + Jdate + I(Jdate^2) ~1, cawr.abund, mixture="P", K=15)
+
+dms_top.cawrd <- fitList(det.date2.cawr,det.detect2.cawr,det.timing2.cawr)
+ND.cawrd  <-data.frame(Jdate=seq(-1.75,2.25,length=100),Noise=0,Time=0)
+cawr.est.date <- predict(dms_top.cawrd, type="det",
+                                newdata=ND.cawrd,appendData=TRUE)
+
+plot(Predicted~ Jdate, data=cawr.est.date, ylim=c(0,1), type="l", lwd=3,
+     xlab="Survey date", ylab="CAWR Detection Probability")
+##95% confidence intervals
+lines(lower~ Jdate, data=cawr.est.date,  type="l", lwd=3, col="darkgray")
+lines(upper~ Jdate, data=cawr.est.date, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+write.table(msDC.cawr@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/cawr_top_models_msDC.xls",sep="\t")
+```
+
+```{r}
+#test for some possible quadratic terms  - for BA, definitely NON quadratic
+testR.cawr <- pcount(~1 ~BA, cawr.abund, mixture="P", K=4)
+testQ.cawr <- pcount(~1 ~BA + I(BA^2), cawr.abund, mixture="P", K=4)
+testC.cawr <- pcount(~1 ~BA + I(BA^2) + I(BA^3), cawr.abund, mixture="P", K=4)
+msBAtest <- fitList(testR.cawr, testQ.cawr, testC.cawr)
+BAtest.cawr <- modSel(msBAtest)
+BAtest.cawr
+#
+```
+
+#quadratic not better for cawr: BA, HW_dens_1050, FG_herb, FG_shrub, NHW_saplings
+```{r}
+testR.cawr <- pcount(~1 ~BA, cawr.abund, mixture="P", K=4)
+testQ.cawr <- pcount(~1 ~BA + I(BA^2), cawr.abund, mixture="P", K=4)
+msBAtest <- fitList(testR.cawr, testQ.cawr)
+BAtest.cawr <- modSel(msBAtest)
+BAtest.cawr
+
+testR.cawr <- pcount(~1 ~HW_dens_1050, cawr.abund, mixture="P", K=4)
+testQ.cawr <- pcount(~1 ~HW_dens_1050 + I(HW_dens_1050^2), cawr.abund, mixture="P", K=4)
+msHW1050test <- fitList(testR.cawr, testQ.cawr)
+HW1050test.cawr <- modSel(msHW1050test)
+HW1050test.cawr
+
+testR.cawr <- pcount(~1 ~FG_herb, cawr.abund, mixture="P", K=4)
+testQ.cawr <- pcount(~1 ~FG_herb + I(FG_herb^2), cawr.abund, mixture="P", K=4)
+msFGHtest <- fitList(testR.cawr, testQ.cawr)
+FGHtest.cawr <- modSel(msFGHtest)
+FGHtest.cawr
+
+testR.cawr <- pcount(~1 ~FG_shrub, cawr.abund, mixture="P", K=4)
+testQ.cawr <- pcount(~1 ~FG_shrub + I(FG_shrub^2), cawr.abund, mixture="P", K=4)
+msFGStest <- fitList(testR.cawr, testQ.cawr)
+FGStest.cawr <- modSel(msFGStest)
+FGStest.cawr
+
+testR.cawr <- pcount(~1 ~NHW_saplings, cawr.abund, mixture="P", K=4)
+testQ.cawr <- pcount(~1 ~NHW_saplings + I(NHW_saplings^2), cawr.abund, mixture="P", K=4)
+msHWStest <- fitList(testR.cawr, testQ.cawr)
+HWStest.cawr <- modSel(msHWStest)
+HWStest.cawr
+```
+
+```{r}
+matplot(residuals(testR.cawr))
+matplot(residuals(testQ.cawr))
+matplot(residuals(testC.cawr))
+```
+
+
+```{r}
+##site covariates next
+#null detection covariates (this was the best model...run)
+#cawr (open woodlands, insects, cavity, foliage gleaner - brushy thickets, shrubby) 
+# covariates: density (BA not Ccover), Nsnags, midstory (NHW_saplings, midstory), OpenDev
+
+null.cawr <- pcount(~Jdate + I(Jdate^2) ~1
+                     ,cawr.abund, mixture="P", K=40)
+global.cawr <- pcount(~ Jdate + I(Jdate^2)
+                       ~ Treatment + Herbicide + BA + Nsnags +Ccover
+                       + Ldepth + TreeHt + Age + TimeSinceB + TimeSinceT + Nthins
+                       + HW_dens_1050 + FG_herb + FG_shrub + NHW_saplings
+                      + PISoils + NSoilTypes
+                       + Parea + ShapeIndex + YearCat
+                      , cawr.abund, mixture="P", K=40)   #FPSiteIndex removed + Rel_HW2P_canopy  + NP_over_20cm 
+local.cawr <- pcount(~ Jdate + I(Jdate^2)
+                      ~ Ccover + TreeHt + Ldepth + YearCat
+                      , cawr.abund, mixture="P", K=40)
+lh.cawr <- pcount(~ Jdate + I(Jdate^2)
+                    ~ BA + Nsnags + HW_dens_1050 + FG_herb + FG_shrub + NHW_saplings + YearCat
+                   , cawr.abund, mixture="P", K=40)
+landmetrics.cawr <- pcount (~ Jdate + I(Jdate^2) ~ Parea + ShapeIndex + YearCat
+                             , cawr.abund, mixture="P",K=40)
+landscape500.cawr <- pcount(~ Jdate + I(Jdate^2) ~ Evergreen500m + OpenDev500m + HighDev500m + Schrubs500m + YearCat
+                             , cawr.abund, mixture="P", K=40)
+landscape1.cawr <- pcount(~ Jdate + I(Jdate^2) ~ Evergreen1km + OpenDev1km + HighDev1km + Schrubs1km + YearCat
+                           , cawr.abund, mixture="P", K=40)
+landscape5.cawr <- pcount(~ Jdate + I(Jdate^2) ~ Evergreen5km + HighDev5km + Schrubs5km + YearCat
+                           , cawr.abund, mixture="P", K=40)
+landscape30.cawr <- pcount(~ Jdate + I(Jdate^2) ~ Evergreen30km + OpenDev30km + YearCat
+                            , cawr.abund, mixture="P", K=40)
+treatment.cawr <- pcount(~ Jdate + I(Jdate^2) ~ Treatment + Nthins + YearCat
+                          , cawr.abund, mixture ="P", K=40)
+management.cawr <- pcount(~ Jdate + I(Jdate^2) ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide + YearCat
+                           , cawr.abund, mixture="P", K=40)
+disturbance.cawr <- pcount(~ Jdate + I(Jdate^2) ~ TimeSinceB + TimeSinceT + YearCat
+                            , cawr.abund, mixture="P", K=40)
+siteprod.cawr <- pcount(~ Jdate + I(Jdate^2) ~ PISoils  + NSoilTypes + YearCat
+                         , cawr.abund, mixture="P", K=40)   #FPSiteIndex removed
+upstate.cawr <- pcount(~ Jdate + I(Jdate^2) ~ Ag5km + Parea + YearCat, cawr.abund, mixture="P", K=40)
+coord.cawr <- pcount (~Jdate + I(Jdate^2) ~ Latitude + Longitude + YearCat
+                      , cawr.abund, mixture="P", K=40)
+
+fms <- fitList(null.cawr, global.cawr, local.cawr, lh.cawr, landmetrics.cawr, landscape500.cawr, landscape1.cawr, landscape5.cawr, landscape30.cawr,
+                treatment.cawr, management.cawr, disturbance.cawr,
+                siteprod.cawr, upstate.cawr, coord.cawr)
+
+ms.cawr <- modSel(fms)
+#ms.cawr@Full
+ms.cawr
+```
+
+```{r}
+# summary: null is best model but upstate second best model (+ with Ag5km)
+upstate.cawr
+confint(upstate.cawr, type="state",method="normal")
+```
+
+```{r}
+# upstate model (+ with Ag5km)
+upstate.cawr <- pcount(~ Jdate + I(Jdate^2) ~ Ag5km + Parea + YearCat, cawr.abund, mixture="P", K=40)
+
+ND.cawr <-data.frame(Ag5km=seq(min(sc$Ag5km),max(sc$Ag5km),length=100),Parea=0,YearCat=0)
+cawr.est.ag5 <- predict(upstate.cawr, type="state",
+newdata=ND.cawr,appendData=TRUE)
+
+plot(Predicted~ Ag5km, data=cawr.est.ag5, ylim=c(0,20), type="l", lwd=3,
+xlab="Agricultural area within 1km of site", ylab="Est. CAWR Abundance")
+##95% confidence intervals
+lines(lower~ Ag5km, data=cawr.est.ag5, type="l", lwd=3, col="darkgray")
+lines(upper~ Ag5km, data=cawr.est.ag5, type="l", lwd=3, col="darkgray")
+
+```
+
+```{r}
+write.table(ms.cawr@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/cawr_top_models_ms.xls",sep="\t")
+```
+
+```{r, echo=FALSE}
+#put species' top model in place of "landscape5.prwa" & up nsim
+Nmix.gof.test(upstate.cawr, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+#?Nmix.gof.test()
+Nmix.chisq(upstate.cawr)
+```
+
+cawr summary:
+P distribution
+DCs: DATE2 model, then DETECT2, then TIMING2 (all under 2.0) - + quad with date
+Using date^2 model for detection covariates:
+  null model best
+  upstate model second best (+ with ag5km)
+
+
+#CACH#
+
+```{r}
+cach.abund<- csvToUMF("cach_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+#summary(cach.abund)
+#str(cach.abund)
+#scale all observation covariates (covs of detection)
+obsCovs(cach.abund)= scale (obsCovs(cach.abund))
+#select particular site covariates to scale below
+sc <- siteCovs(cach.abund)
+sc[,c(6:77)] <- scale(sc[, c(6:77)])
+siteCovs(cach.abund) <- sc
+```
+
+```{r}
+#run this when have CSV with both years
+null.cach <- pcount(~Jdate + Noise + Time ~1, cach.abund, mixture="P", K=40)
+year.cach <- pcount(~Jdate + Noise + Time ~ YearCat, cach.abund, mixture="P", K=40)
+fms.year.cach<- fitList(null.cach, year.cach)
+year.ms.cach<-modSel(fms.year.cach)
+year.ms.cach
+```
+^year is definitely best!  null far above d2
+
+```{r}
+#test for NB or Poisson - most should use Poisson ... 
+testP.cach <- pcount(~1 ~1, cach.abund, mixture="P", K=12)
+testNB.cach <- pcount(~1 ~1, cach.abund, mixture="NB", K=12)
+fmsTEST <- fitList(testP.cach, testNB.cach)
+msTEST.cach <- modSel(fmsTEST)
+msTEST.cach
+## P is best for this species.
+```
+
+```{r}
+#date2 is better but time quadratic is not
+det.date.cach <- pcount(~ Jdate ~1, cach.abund, mixture="P", K=15)
+det.date2.cach <- pcount(~ Jdate + I(Jdate^2) ~1, cach.abund, mixture="P", K=15)
+mstestDATE <- fitList(det.date.cach, det.date2.cach)
+DATEtest.cach <- modSel(mstestDATE)
+DATEtest.cach
+
+det.time.cach <-pcount(~ Time ~1, cach.abund, mixture="P",K=15)
+det.time2.cach <-pcount(~ Time + I(Time^2) ~1, cach.abund, mixture="P",K=15)
+mstestTIME <- fitList(det.time.cach, det.time2.cach)
+TIMEtest.cach <- modSel(mstestTIME)
+TIMEtest.cach
+```
+
+```{r}
+#detection covariates first
+det.null.cach <- pcount(~1 ~1, cach.abund, mixture="P", K=15)
+det.weather.cach <- pcount(~ Wind + Sky ~1, cach.abund, mixture="P", K=15)
+det.global2.cach <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise + Time ~1, cach.abund, mixture="P", K=15)
+det.sound.cach <- pcount(~ Noise + Wind ~1, cach.abund, mixture="P", K=15)
+det.date2.cach <- pcount(~ Jdate + I(Jdate^2) ~1, cach.abund, mixture="P", K=15)
+det.detect2.cach <- pcount(~ Jdate + I(Jdate^2) + Noise + Time ~1, cach.abund, mixture="P", K=15)
+det.notdate.cach <-pcount(~ Wind + Sky + Noise ~1, cach.abund, mixture="P", K=15)
+det.time.cach <-pcount(~ Time ~1, cach.abund, mixture="P",K=15)
+det.timing2.cach <-pcount(~ Time + Jdate + I(Jdate^2) ~1, cach.abund, mixture="P", K=15)
+
+fmsDC <- fitList(det.null.cach, det.weather.cach, det.global2.cach,
+                 det.sound.cach, det.date2.cach, det.detect2.cach, det.notdate.cach,
+                 det.time.cach, det.timing2.cach)
+msDC.cach <- modSel(fmsDC)
+msDC.cach
+#msDC.cach@Full
+#summary: null best, time second best, then weather, then date
+#summary NOW with quad: null, date2, time, weather
+```
+^ null best, date2, time, then weather
+
+```{r}
+det.date2.cach  #second best model - none sig
+confint(det.date2.cach, type="det",method="normal")
+confint(det.date2.cach, type="state",method="normal")
+```
+
+##actually don't run following chunk because Jdate^2 NOT sig
+det.date2.cach <- pcount(~ Jdate + I(Jdate^2) ~1, cach.abund, mixture="P", K=15)
+
+#summary(obsCovs(cach.abund))
+NewData.cach <-data.frame(Jdate=seq(-1.75,2.25,length=100))
+cach.est.date2 <- predict(det.date2.cach, type="det", newdata=NewData.cach,appendData=TRUE)
+
+plot(Predicted~ Jdate, data=cach.est.date2, ylim=c(0,1), type="l", lwd=3,
+xlab="Survey date", ylab="Est. Chickadee Detection Probability")
+##95% confidence intervals
+lines(lower~ Jdate, data=cach.est.date2, type="l", lwd=3, col="darkgray")
+lines(upper~ Jdate, data=cach.est.date2, type="l", lwd=3, col="darkgray")
+
+
+```{r}
+det.time.cach  #third best model - time not sig
+confint(det.time.cach, type="det",method="normal")
+confint(det.time.cach, type="state",method="normal")
+```
+
+```{r}
+det.weather.cach  #4th best - non-sig variables
+confint(det.weather.cach, type="det",method="normal")
+confint(det.weather.cach, type="state",method="normal")
+```
+
+```{r}
+write.table(msDC.cach@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/cach_top_models_msDC.xls",sep="\t")
+```
+
+```{r}
+# not BA, HWdens, FG_herb, FG_shrub, HW_saplings
+testR.cach <- pcount(~1 ~BA, cach.abund, mixture="P", K=15)
+testQ.cach <- pcount(~1 ~BA + I(BA^2), cach.abund, mixture="P", K=15)
+msBAtest <- fitList(testR.cach, testQ.cach)
+BAtest.cach <- modSel(msBAtest)
+BAtest.cach
+
+testR.cach <- pcount(~1 ~HW_dens_1050, cach.abund, mixture="P", K=15)
+testQ.cach <- pcount(~1 ~HW_dens_1050 + I(HW_dens_1050^2), cach.abund, mixture="P", K=15)
+msHW1050test <- fitList(testR.cach, testQ.cach)
+HW1050test.cach <- modSel(msHW1050test)
+HW1050test.cach
+
+testR.cach <- pcount(~1 ~FG_herb, cach.abund, mixture="P", K=15)
+testQ.cach <- pcount(~1 ~FG_herb + I(FG_herb^2), cach.abund, mixture="P", K=15)
+msFGHtest <- fitList(testR.cach, testQ.cach)
+FGHtest.cach <- modSel(msFGHtest)
+FGHtest.cach
+
+testR.cach <- pcount(~1 ~FG_shrub, cach.abund, mixture="P", K=15)
+testQ.cach <- pcount(~1 ~FG_shrub + I(FG_shrub^2), cach.abund, mixture="P", K=15)
+msFGStest <- fitList(testR.cach, testQ.cach)
+FGStest.cach <- modSel(msFGStest)
+FGStest.cach
+
+testR.cach <- pcount(~1 ~NHW_saplings, cach.abund, mixture="P", K=15)
+testQ.cach <- pcount(~1 ~NHW_saplings + I(NHW_saplings^2), cach.abund, mixture="P", K=15)
+msHWStest <- fitList(testR.cach, testQ.cach)
+HWStest.cach <- modSel(msHWStest)
+HWStest.cach
+```
+
+```{r}
+##site covariates next
+#null detection covariates (this was the best model)
+Nnull.cach <- pcount(~1 ~1
+                     ,cach.abund, mixture="P", K=40)
+Nglobal.cach <- pcount(~ 1
+                       ~ Treatment + Herbicide + BA + Nsnags +Ccover
+                       + Ldepth + TreeHt + Age + TimeSinceB + TimeSinceT + Nthins
+                       + Rel_HW2P_canopy
+                      + PISoils + NSoilTypes
+                       + Parea + ShapeIndex + YearCat
+                      , cach.abund, mixture="P", K=40)   #FPSiteIndex removed + HW_dens_1050 + FG_herb + FG_shrub + NHW_saplings + NP_over_20cm 
+Nlocal.cach <- pcount(~ 1
+                      ~ Ccover + TreeHt + Ldepth + YearCat
+                      , cach.abund, mixture="P", K=40)
+Nlh.cach <- pcount(~ 1
+                  ~ TreeHt + Ccover + Nsnags + Rel_HW2P_canopy + YearCat
+                  , cach.abund, mixture="P", K=40)
+Nlandmetrics.cach <- pcount (~ 1
+                            ~ Parea + ShapeIndex + YearCat
+                            , cach.abund, mixture="P",K=40)
+Nlandscape500.cach <- pcount(~ 1
+                            ~ Evergreen500m + OpenDev500m + Schrubs500m + Ag500m + YearCat
+                            , cach.abund, mixture="P", K=40)
+Nlandscape1.cach <- pcount(~ 1
+                          ~ Evergreen1km + OpenDev1km + Schrubs1km + YearCat
+                          , cach.abund, mixture="P", K=40)
+Nlandscape5.cach <- pcount(~ 1
+                          ~ Evergreen5km + OpenDev5km + Schrubs1km + YearCat
+                          , cach.abund, mixture="P", K=40)
+Nlandscape30.cach <- pcount(~ 1
+                           ~ Evergreen30km + OpenDev30km + YearCat
+                           , cach.abund, mixture="P", K=40)
+Ntreatment.cach <- pcount(~ 1 ~ Treatment + Nthins + YearCat
+                          , cach.abund, mixture ="P", K=40)
+Nmanagement.cach <- pcount(~ 1 ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide + YearCat
+                           , cach.abund, mixture="P", K=40)
+Ndisturbance.cach <- pcount(~ 1 ~ TimeSinceB + TimeSinceT + YearCat
+                            , cach.abund, mixture="P", K=40)
+Nsiteprod.cach <- pcount(~ 1 ~ PISoils  + NSoilTypes + YearCat
+                         , cach.abund, mixture="P", K=40)   #FPSiteIndex removed
+Nupstate.cach <- pcount(~ 1 ~ TreeHt + Ccover + Parea + YearCat, cach.abund, mixture="P", K=40)
+Ncoord.cach <- pcount (~1 ~ Latitude + Longitude + YearCat
+                      , cach.abund, mixture="P", K=40)
+
+fmsN <- fitList(Nnull.cach, Nglobal.cach, Nlocal.cach, Nlh.cach,
+                Nlandmetrics.cach,
+                Nlandscape500.cach, Nlandscape1.cach, Nlandscape5.cach, Nlandscape30.cach,
+                Ntreatment.cach, Nmanagement.cach, Ndisturbance.cach,
+                Nsiteprod.cach, Nupstate.cach, Ncoord.cach)
+
+msN.cach <- modSel(fmsN)
+#msN.cach@Full
+msN.cach
+#summary: siteprod best model, landmetrics next, then disturbance, upstate, & landscape1
+```
+
+# only significant variable is year in the next 5 models - no figures
+```{r}
+Nsiteprod.cach
+confint(Nsiteprod.cach, type="state",method="normal")
+```
+
+```{r}
+Nlandmetrics.cach
+confint(Nlandmetrics.cach, type="state",method="normal")
+```
+
+```{r}
+Ndisturbance.cach
+confint(Ndisturbance.cach, type="state",method="normal")
+```
+
+```{r}
+Nupstate.cach
+confint(Nupstate.cach, type="state",method="normal")
+```
+
+```{r}
+Nlandscape1.cach
+confint(Nlandscape1.cach, type="state",method="normal")
+```
+
+```{r}
+write.table(msN.cach@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/cach_top_models_msN.xls",sep="\t")
+```
+
+```{r, echo=FALSE}
+#put species' top model in place of "landscape5.prwa" & up nsim
+Nmix.gof.test(Nsiteprod.cach, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+#?Nmix.gof.test()
+Nmix.chisq(Nsiteprod.cach)
+```
+
+```{r}
+# using second best DC model (DATE^2 but not better than null)
+null.cach <- pcount(~ Jdate + I(Jdate^2) ~1, cach.abund, mixture="P", K=40)
+global.cach <- pcount(~ Jdate + I(Jdate^2) 
+                      ~ Treatment + Herbicide + BA + Nsnags +Ccover
+                      + Ldepth + TreeHt + Age + TimeSinceB + TimeSinceT + Nthins
+                      + HW_dens_1050 + FG_herb + FG_shrub + NHW_saplings
+                      + PISoils + NSoilTypes
+                      + Parea + ShapeIndex + YearCat
+                      , cach.abund, mixture="P", K=40)
+local.cach <- pcount(~ Jdate + I(Jdate^2)
+                     ~ Ccover + TreeHt + Ldepth + YearCat
+                     , cach.abund, mixture="P", K=40) #can only include BA OR CCover
+lh.cach <- pcount(~ Jdate + I(Jdate^2)
+                  ~ TreeHt + Ccover + Nsnags + Rel_HW2P_canopy + YearCat
+                  , cach.abund, mixture="P", K=40)
+landmetrics.cach <- pcount (~ Jdate + I(Jdate^2)
+                            ~ Parea + ShapeIndex + YearCat
+                            , cach.abund, mixture="P",K=40)
+landscape500.cach <- pcount(~ Jdate + I(Jdate^2)
+                            ~ Evergreen500m + OpenDev500m + Schrubs500m + Ag500m + YearCat
+                            , cach.abund, mixture="P", K=40)
+landscape1.cach <- pcount(~ Jdate + I(Jdate^2)
+                          ~ Evergreen1km + OpenDev1km + Schrubs1km + YearCat
+                          , cach.abund, mixture="P", K=40)
+landscape5.cach <- pcount(~ Jdate + I(Jdate^2)
+                          ~ Evergreen5km + OpenDev5km + Schrubs1km + YearCat
+                          , cach.abund, mixture="P", K=40)
+landscape30.cach <- pcount(~ Jdate + I(Jdate^2)
+                           ~ Evergreen30km + OpenDev30km + YearCat
+                           , cach.abund, mixture="P", K=40)
+treatment.cach <- pcount(~ Jdate + I(Jdate^2)
+                         ~ Treatment + Nthins + YearCat
+                         , cach.abund, mixture ="P", K=40)
+management.cach <- pcount(~ Jdate + I(Jdate^2)
+                          ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide + YearCat
+                          , cach.abund, mixture="P", K=40)
+disturbance.cach <- pcount(~ Jdate + I(Jdate^2)
+                           ~ TimeSinceB + TimeSinceT + YearCat
+                           , cach.abund, mixture="P", K=40)
+siteprod.cach <- pcount(~ Jdate + I(Jdate^2) ~ PISoils + NSoilTypes + YearCat
+                        , cach.abund, mixture="P", K=40)  #FPSiteIndex removed
+upstate.cach <- pcount(~ Jdate + I(Jdate^2)
+                       ~ TreeHt + Ccover + Parea + YearCat, cach.abund, mixture="P", K=40)
+coord.cach <- pcount (~Jdate + I(Jdate^2) ~ Latitude + Longitude + YearCat
+                      , cach.abund, mixture="P", K=40)
+
+
+fmsCACH <- fitList(null.cach, global.cach, local.cach, lh.cach, landmetrics.cach,
+               landscape500.cach, landscape1.cach, landscape5.cach, landscape30.cach,
+               treatment.cach, management.cach, disturbance.cach,
+               siteprod.cach, upstate.cach, coord.cach)
+ms.cach <- modSel(fmsCACH)
+ms.cach
+#ms.cach@Full
+
+```
+^# diff results as with null - landmetrics best, siteprod next, disturbance 3rd, upstate 4th, landscape1 5th. But still, no variables significant except year, so no figures.
+
+```{r}
+landmetrics.cach
+confint(landmetrics.cach, type="state",method="normal")
+```
+
+```{r}
+siteprod.cach
+confint(Nsiteprod.cach, type="state",method="normal")
+```
+
+```{r}
+disturbance.cach
+confint(disturbance.cach, type="state",method="normal")
+```
+
+```{r}
+upstate.cach
+confint(upstate.cach, type="state",method="normal")
+```
+
+```{r}
+landscape1.cach
+confint(landscape1.cach, type="state",method="normal")
+```
+
+```{r}
+#write.table(ms.cch@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/cach_top_models_ms.xls",sep="\t")
+```
+
+CACH summary:
+P distribution
+DCs: null best, date2 second best (Jdate^2 is - sig), time third best, then weather
+SCs, using null:
+  Site prod best (- with YearB,)
+  landmetrics next (- with YearB)
+  then disturbance (- with YearB)
+  then upstate (- with YearB)
+  then landscape1 (- with YearB)
+
+SCs, using Date^2:
+    all same.
+
+  
+
+# EABL #
+```{r}
+eabl.abund<- csvToUMF("eabl_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+#summary(eabl.abund)
+#str(eabl.abund)
+#scale all observation covariates (covs of detection)
+obsCovs(eabl.abund)= scale (obsCovs(eabl.abund))
+#select particular site covariates to scale below
+sc <- siteCovs(eabl.abund)
+sc[,c(6:77)] <- scale(sc[, c(6:77)])
+siteCovs(eabl.abund) <- sc
+```
+
+```{r}
+#run this when have CSV with both years
+null.eabl <- pcount(~Jdate + Noise + Time ~1, eabl.abund, mixture="P", K=40)
+year.eabl <- pcount(~Jdate + Noise + Time ~ YearCat, eabl.abund, mixture="P", K=40)
+fms.year.eabl<- fitList(null.eabl, year.eabl)
+year.ms.eabl<-modSel(fms.year.eabl)
+year.ms.eabl
+```
+^null best but year <d.2
+
+```{r}
+#date is quad but not time
+det.date.eabl <- pcount(~ Jdate ~1, eabl.abund, mixture="P", K=15)
+det.date2.eabl <- pcount(~ Jdate + I(Jdate^2) ~1, eabl.abund, mixture="P", K=15)
+mstestDATE <- fitList(det.date.eabl, det.date2.eabl)
+DATEtest.eabl <- modSel(mstestDATE)
+DATEtest.eabl
+
+det.time.eabl <-pcount(~ Time ~1, eabl.abund, mixture="P",K=15)
+det.time2.eabl <-pcount(~ Time + I(Time^2) ~1, eabl.abund, mixture="P",K=15)
+mstestTIME <- fitList(det.time.eabl, det.time2.eabl)
+TIMEtest.eabl <- modSel(mstestTIME)
+TIMEtest.eabl
+```
+
+```{r}
+#detection covariates first
+det.null.eabl <- pcount(~1 ~1, eabl.abund, mixture="P", K=15)
+det.weather.eabl <- pcount(~ Wind + Sky ~1, eabl.abund, mixture="P", K=15)
+det.global2.eabl <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time ~1, eabl.abund, mixture="P", K=15)
+det.sound.eabl <- pcount(~ Noise + Wind ~1, eabl.abund, mixture="P", K=15)
+det.date2.eabl <- pcount(~ Jdate + I(Jdate^2) ~1, eabl.abund, mixture="P", K=15)
+det.detect2.eabl <- pcount(~ Jdate + I(Jdate^2) + Noise + Time ~1, eabl.abund, mixture="P", K=15)
+det.notdate.eabl <-pcount(~ Wind + Sky + Noise ~1, eabl.abund, mixture="P", K=15)
+det.time.eabl <-pcount(~ Time ~1, eabl.abund, mixture="P",K=15)
+det.timing2.eabl <-pcount(~ Time + Jdate + I(Jdate^2) ~1, eabl.abund, mixture="P", K=15)
+
+fmsDC <- fitList(det.null.eabl, det.weather.eabl, det.global2.eabl,
+                 det.sound.eabl, det.date2.eabl, det.detect2.eabl, det.notdate.eabl,
+                 det.time.eabl, det.timing2.eabl)
+msDC.eabl <- modSel(fmsDC)
+msDC.eabl
+#msDC.eabl@Full
+#summary: date is best, closely followed by null, timing is also <2 (didn't change)
+```
+
+```{r}
+det.date2.eabl   #non-sig with Jdate
+confint(det.date2.eabl, type="det",method="normal")
+confint(det.date2.eabl, type="state",method="normal")
+```
+
+```{r}
+det.timing2.eabl   #non-sig with either
+confint(det.timing2.eabl, type="det",method="normal")
+confint(det.timing2.eabl, type="state",method="normal")
+```
+
+```{r}
+write.table(msDC.eabl@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/eabl_top_models_msDC.xls",sep="\t")
+```
+
+```{r}
+#BA IS quad! also HW_dens, FG_herb
+#not FG_shrub, NHW_saplings
+testR.eabl <- pcount(~1 ~BA, eabl.abund, mixture="P", K=4)
+testQ.eabl <- pcount(~1 ~BA + I(BA^2), eabl.abund, mixture="P", K=4)
+msBAtest <- fitList(testR.eabl, testQ.eabl)
+BAtest.eabl <- modSel(msBAtest)
+BAtest.eabl
+
+testR.eabl <- pcount(~1 ~HW_dens_1050, eabl.abund, mixture="P", K=4)
+testQ.eabl <- pcount(~1 ~HW_dens_1050 + I(HW_dens_1050^2), eabl.abund, mixture="P", K=4)
+msHW1050test <- fitList(testR.eabl, testQ.eabl)
+HW1050test.eabl <- modSel(msHW1050test)
+HW1050test.eabl
+
+testR.eabl <- pcount(~1 ~FG_herb, eabl.abund, mixture="P", K=4)
+testQ.eabl <- pcount(~1 ~FG_herb + I(FG_herb^2), eabl.abund, mixture="P", K=4)
+msFGHtest <- fitList(testR.eabl, testQ.eabl)
+FGHtest.eabl <- modSel(msFGHtest)
+FGHtest.eabl
+
+#not
+testR.eabl <- pcount(~1 ~FG_shrub, eabl.abund, mixture="P", K=4)
+testQ.eabl <- pcount(~1 ~FG_shrub + I(FG_shrub^2), eabl.abund, mixture="P", K=4)
+msFGStest <- fitList(testR.eabl, testQ.eabl)
+FGStest.eabl <- modSel(msFGStest)
+FGStest.eabl
+
+#not
+testR.eabl <- pcount(~1 ~NHW_saplings, eabl.abund, mixture="P", K=4)
+testQ.eabl <- pcount(~1 ~NHW_saplings + I(NHW_saplings^2), eabl.abund, mixture="P", K=4)
+msHWStest <- fitList(testR.eabl, testQ.eabl)
+HWStest.eabl <- modSel(msHWStest)
+HWStest.eabl
+```
+
+```{r}
+#site covariates using   detection covariates (date)
+null.eabl <- pcount(~ Jdate + I(Jdate^2) ~1, eabl.abund, mixture="P", K=80)
+global.eabl <- pcount(~ Jdate + I(Jdate^2)
+                      ~ Treatment + Herbicide + BA + I(BA^2) + Nsnags +Ccover
+                       + Ldepth + TreeHt + Age + TimeSinceB + TimeSinceT + Nthins
+                       + HW_dens_1050 + I(HW_dens_1050^2) + FG_herb + I(FG_herb^2)
+                      + NHW_saplings
+                       + PISoils + NSoilTypes
+                       + Parea + ShapeIndex + YearCat
+                       , eabl.abund, mixture="P", K=80)
+local.eabl <- pcount(~ Jdate + I(Jdate^2)
+                     ~ Ccover + TreeHt + Ldepth + YearCat
+                     , eabl.abund, mixture="P", K=80) #can only include BA OR CCover
+lh.eabl <- pcount(~ Jdate + I(Jdate^2)
+                  ~ BA + I(BA^2) + FG_herb + I(FG_herb^2) 
+                  + HW_dens_1050 + I(HW_dens_1050^2) + NHW_saplings + Nsnags + YearCat
+                  , eabl.abund, mixture="P", K=80)
+# covariates: BA, canopy cover, low height and mid-height veg (lack thereof), cavities
+landmetrics.eabl <- pcount (~ Jdate + I(Jdate^2)
+                          ~ Parea + ShapeIndex + YearCat
+                        , eabl.abund, mixture="P",K=80)
+landscape500.eabl <- pcount(~ Jdate + I(Jdate^2)
+                        ~ Grass500m + OpenDev500m + Schrubs500m + Ag500m + YearCat
+                            , eabl.abund, mixture="P", K=80)
+landscape1.eabl <- pcount(~ Jdate + I(Jdate^2)
+                       ~ Grass1km + OpenDev1km + Schrubs1km + Ag1km + YearCat
+                          , eabl.abund, mixture="P", K=80)
+landscape5.eabl <- pcount(~ Jdate + I(Jdate^2)
+                       ~ Grass5km + OpenDev5km + Schrubs5km + YearCat
+                          , eabl.abund, mixture="P", K=80)
+landscape30.eabl <- pcount(~ Jdate + I(Jdate^2)
+                       ~ Grass30km + OpenDev30km + YearCat
+                           , eabl.abund, mixture="P", K=80)
+treatment.eabl <- pcount(~ Jdate + I(Jdate^2)
+                         ~ Treatment + Nthins + YearCat
+                         , eabl.abund, mixture ="P", K=80)
+management.eabl <- pcount(~ Jdate + I(Jdate^2)
+                          ~ Treatment + BA + I(BA^2) + TimeSinceB + TimeSinceT
+                          + Herbicide + YearCat
+                          , eabl.abund, mixture="P", K=80)
+disturbance.eabl <- pcount(~ Jdate + I(Jdate^2)
+                           ~ TimeSinceB + TimeSinceT + YearCat
+                           , eabl.abund, mixture="P", K=80)
+siteprod.eabl <- pcount(~ Jdate + I(Jdate^2) ~ PISoils + NSoilTypes + YearCat
+                        , eabl.abund, mixture="P", K=80) # + FPSiteIndex
+#upstate.eabl <- pcount(~ Jdate + I(Jdate^2) ~ X + Y + Z, eabl.abund, mixture="P", K=80)
+coord.eabl <- pcount (~Jdate + I(Jdate^2) ~ Latitude + Longitude + YearCat
+                      , eabl.abund, mixture="P", K=80)
+
+fmsEABL <- fitList(null.eabl, global.eabl, local.eabl, lh.eabl, landmetrics.eabl,
+               landscape500.eabl, landscape1.eabl, landscape5.eabl, landscape30.eabl,
+               treatment.eabl, management.eabl, disturbance.eabl,
+                siteprod.eabl, coord.eabl)  
+ms.eabl <- modSel(fmsEABL) #note this does not include upstate
+ms.eabl
+#ms.eabl@Full
+#LH best and only under 2.0 (land metrics pushed out) (didnt change with quads)
+```
+
+```{r}
+lh.eabl
+confint(lh.eabl, type="state",method="normal")
+```
+LH (- with BA, + with Nsnags)
+
+```{r}
+#life history (-BA)
+lh.eabl <- pcount(~ Jdate + I(Jdate^2)
+                  ~ BA + I(BA^2) + FG_herb + I(FG_herb^2) 
+                  + HW_dens_1050 + I(HW_dens_1050^2) + NHW_saplings + Nsnags + YearCat
+                  , eabl.abund, mixture="P", K=80)
+
+ND.eabl <-data.frame(BA=seq(min(sc$BA),max(sc$BA),length=100),FG_herb=0, HW_dens_1050=0,NHW_saplings=0,Nsnags=0,YearCat=0)
+eabl.est.ba <- predict(lh.eabl, type="state",
+newdata=ND.eabl,appendData=TRUE)
+
+plot(Predicted~ BA, data=eabl.est.ba, ylim=c(0,20), type="l", lwd=3,
+xlab="Basal area", ylab="Est. EABL Abundance")
+##95% confidence intervals
+lines(lower~ BA, data=eabl.est.ba, type="l", lwd=3, col="darkgray")
+lines(upper~ BA, data=eabl.est.ba, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+#life history (+Nsnags)
+lh.eabl <- pcount(~ Jdate + I(Jdate^2)
+                  ~ BA + I(BA^2) + FG_herb + I(FG_herb^2) 
+                  + HW_dens_1050 + I(HW_dens_1050^2) + NHW_saplings + Nsnags + YearCat
+                  , eabl.abund, mixture="P", K=80)
+
+ND2.eabl <-data.frame(Nsnags=seq(min(sc$Nsnags),max(sc$Nsnags),length=100),FG_herb=0, HW_dens_1050=0,NHW_saplings=0,BA=0,YearCat=0)
+eabl.est.snags <- predict(lh.eabl, type="state",
+newdata=ND2.eabl,appendData=TRUE)
+
+plot(Predicted~ Nsnags, data=eabl.est.snags, ylim=c(0,20), type="l", lwd=3,
+xlab="Number of snags", ylab="Est. EABL Abundance")
+##95% confidence intervals
+lines(lower~ Nsnags, data=eabl.est.snags, type="l", lwd=3, col="darkgray")
+lines(upper~ Nsnags, data=eabl.est.snags, type="l", lwd=3, col="darkgray")
+```
+
+
+```{r}
+write.table(ms.eabl@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/XXX_top_models_msX.xls",sep="\t")
+```
+
+```{r, echo=FALSE}
+Nmix.gof.test(lh.eabl, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+#?Nmix.gof.test()
+Nmix.chisq(lh.eabl)
+```
+
+EABL summary
+P distribution
+SCs: date2, null, timing all under 2.0 (non sig with any)
+DCs using date2 model:
+LH only top model
+  (- with BA, + with Nsnags)
+
+
+
+#EAWP#
+# EAWP (forests (prefer deciduious or more edgy?), tree-nester, flycatching, insectivore) 
+# covariates: less canopy cover? less dense stand? hardwoody?
+
+```{r}
+eawp.abund<- csvToUMF("eawp_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+#summary(eawp.abund)
+#str(eawp.abund)
+#scale all observation covariates (covs of detection)
+obsCovs(eawp.abund)= scale (obsCovs(eawp.abund))
+#select particular site covariates to scale below
+sc <- siteCovs(eawp.abund)
+sc[,c(6:77)] <- scale(sc[, c(6:77)])
+siteCovs(eawp.abund) <- sc
+```
+
+```{r}
+#run this when have CSV with both years
+null.eawp <- pcount(~Jdate + Noise + Time ~1, eawp.abund, mixture="P", K=40)
+year.eawp <- pcount(~Jdate + Noise + Time ~ YearCat, eawp.abund, mixture="P", K=40)
+fms.year.eawp<- fitList(null.eawp, year.eawp)
+year.ms.eawp<-modSel(fms.year.eawp)
+year.ms.eawp
+```
+^ null ranked higher but year 1.47 <2
+
+```{r}
+#neither of these better quadratic
+det.date.eawp <- pcount(~ Jdate ~1, eawp.abund, mixture="P", K=15)
+det.date2.eawp <- pcount(~ Jdate + I(Jdate^2) ~1, eawp.abund, mixture="P", K=15)
+mstestDATE <- fitList(det.date.eawp, det.date2.eawp)
+DATEtest.eawp <- modSel(mstestDATE)
+DATEtest.eawp
+
+det.time.eawp <-pcount(~ Time ~1, eawp.abund, mixture="P",K=15)
+det.time2.eawp <-pcount(~ Time + I(Time^2) ~1, eawp.abund, mixture="P",K=15)
+mstestTIME <- fitList(det.time.eawp, det.time2.eawp)
+TIMEtest.eawp <- modSel(mstestTIME)
+TIMEtest.eawp
+```
+
+```{r}
+#detection covariates first
+det.null.eawp <- pcount(~1 ~1, eawp.abund, mixture="P", K=15)
+det.weather.eawp <- pcount(~ Wind + Sky ~1, eawp.abund, mixture="P", K=15)
+det.global.eawp <- pcount(~ Jdate + Wind + Sky + Noise +Time ~1, eawp.abund, mixture="P", K=15)
+det.sound.eawp <- pcount(~ Noise + Wind ~1, eawp.abund, mixture="P", K=15)
+det.date.eawp <- pcount(~ Jdate ~1, eawp.abund, mixture="P", K=15)
+det.detect.eawp <- pcount(~ Jdate + Noise + Time ~1, eawp.abund, mixture="P", K=15)
+det.notdate.eawp <-pcount(~ Wind + Sky + Noise ~1, eawp.abund, mixture="P", K=15)
+det.time.eawp <-pcount(~ Time ~1, eawp.abund, mixture="P",K=15)
+det.timing.eawp <-pcount(~ Time + Jdate ~1, eawp.abund, mixture="P", K=15)
+
+fmsDC <- fitList(det.null.eawp, det.weather.eawp, det.global.eawp,
+                 det.sound.eawp, det.date.eawp, det.detect.eawp, det.notdate.eawp,
+                 det.time.eawp, det.timing.eawp)
+msDC.eawp <- modSel(fmsDC)
+msDC.eawp
+#msDC.ybch@Full
+#summary: weather best model (wind, sky) then null then time then notdate <2
+```
+
+```{r}
+det.weather.eawp
+confint(det.weather.eawp, type="det",method="normal")
+confint(det.weather.eawp, type="state",method="normal")
+```
+
+```{r}
+write.table(msDC.eawp@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/eawp_top_models_msDC.xls",sep="\t")
+
+```
+
+```{r}
+#none of these better quadratic
+testR.eawp <- pcount(~1 ~BA, eawp.abund, mixture="P", K=4)
+testQ.eawp <- pcount(~1 ~BA + I(BA^2), eawp.abund, mixture="P", K=4)
+msBAtest <- fitList(testR.eawp, testQ.eawp)
+BAtest.eawp <- modSel(msBAtest)
+BAtest.eawp
+
+testR.eawp <- pcount(~1 ~HW_dens_1050, eawp.abund, mixture="P", K=4)
+testQ.eawp <- pcount(~1 ~HW_dens_1050 + I(HW_dens_1050^2), eawp.abund, mixture="P", K=4)
+msHW1050test <- fitList(testR.eawp, testQ.eawp)
+HW1050test.eawp <- modSel(msHW1050test)
+HW1050test.eawp
+
+testR.eawp <- pcount(~1 ~FG_herb, eawp.abund, mixture="P", K=4)
+testQ.eawp <- pcount(~1 ~FG_herb + I(FG_herb^2), eawp.abund, mixture="P", K=4)
+msFGHtest <- fitList(testR.eawp, testQ.eawp)
+FGHtest.eawp <- modSel(msFGHtest)
+FGHtest.eawp
+
+testR.eawp <- pcount(~1 ~FG_shrub, eawp.abund, mixture="P", K=4)
+testQ.eawp <- pcount(~1 ~FG_shrub + I(FG_shrub^2), eawp.abund, mixture="P", K=4)
+msFGStest <- fitList(testR.eawp, testQ.eawp)
+FGStest.eawp <- modSel(msFGStest)
+FGStest.eawp
+
+testR.eawp <- pcount(~1 ~NHW_saplings, eawp.abund, mixture="P", K=4)
+testQ.eawp <- pcount(~1 ~NHW_saplings + I(NHW_saplings^2), eawp.abund, mixture="P", K=4)
+msHWStest <- fitList(testR.eawp, testQ.eawp)
+HWStest.eawp <- modSel(msHWStest)
+HWStest.eawp
+```
+
+```{r}
+#more appropriate detection covariates (weather - wind + sky)
+null.eawp <- pcount(~ Wind + Sky ~1, eawp.abund, mixture="P", K=40)
+global.eawp <- pcount(~ Wind + Sky
+                      ~ Treatment + Herbicide + BA +Ccover
+                       + Ldepth + TreeHt  + TimeSinceB + TimeSinceT + Nthins
+                        + NHW_saplings + Rel_HW2P_canopy
+                        + PISoils + NSoilTypes
+                       + Parea + ShapeIndex + YearCat
+                       , eawp.abund, mixture="P", K=40)
+#took out: Nsnags, Age, FPSiteIndex + HW_dens_1050 + FG_herb + FG_shrub + NP_over_20cm
+local.eawp <- pcount(~ Wind + Sky
+                     ~ Ccover + TreeHt + Ldepth + YearCat
+                     , eawp.abund, mixture="P", K=40) #can only include BA OR CCover
+lh.eawp <- pcount(~ Wind + Sky
+                  ~ Rel_HW2P_canopy + Ccover + NHW_saplings + YearCat
+                  , eawp.abund, mixture="P", K=40)
+landmetrics.eawp <- pcount (~ Wind + Sky
+                          ~ Parea + ShapeIndex + YearCat
+                        , eawp.abund, mixture="P",K=40)
+landscape500.eawp <- pcount(~ Wind + Sky
+                        ~ Evergreen500m + Ag500m + HighDev500m + YearCat
+                            , eawp.abund, mixture="P", K=40)
+landscape1.eawp <- pcount(~ Wind + Sky
+                       ~ Evergreen1km + HighDev1km + YearCat
+                          , eawp.abund, mixture="P", K=40)
+landscape5.eawp <- pcount(~ Wind + Sky
+                       ~ Evergreen5km + HighDev5km + YearCat
+                          , eawp.abund, mixture="P", K=40)
+landscape30.eawp <- pcount(~ Wind + Sky
+                       ~ Evergreen30km + HighDev30km + YearCat
+                           , eawp.abund, mixture="P", K=40) #protected removed
+treatment.eawp <- pcount(~ Wind + Sky
+                         ~ Treatment + Nthins + YearCat
+                         , eawp.abund, mixture ="P", K=40)
+management.eawp <- pcount(~ Wind + Sky
+                          ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide + YearCat
+                          , eawp.abund, mixture="P", K=40)
+disturbance.eawp <- pcount(~ Wind + Sky
+                           ~ TimeSinceB + TimeSinceT + YearCat
+                           , eawp.abund, mixture="P", K=40)
+siteprod.eawp <- pcount(~ Wind + Sky ~ PISoils + NSoilTypes + YearCat
+                        , eawp.abund, mixture="P", K=40) #FPSiteIndex out
+#upstate.eawp <- pcount(~ Wind + Sky ~ X + Y + Z, eawp.abund, mixture="P", K=40)
+coord.eawp <- pcount (~ Wind + Sky ~ Latitude + Longitude + YearCat
+                      , eawp.abund, mixture="P", K=40)
+
+fms <- fitList(null.eawp, global.eawp, local.eawp, lh.eawp, landmetrics.eawp,
+               landscape500.eawp, landscape1.eawp, landscape5.eawp, landscape30.eawp,
+               treatment.eawp, management.eawp, disturbance.eawp,
+                siteprod.eawp, coord.eawp)
+ms.eawp <- modSel(fms) #note this does not include upstate or FPSiteIndex
+ms.eawp
+#ms.eawp@Full
+#summary: treatment, disturbance
+```
+
+```{r}
+treatment.eawp
+confint(treatment.eawp, type="state",method="normal")
+```
+```{r}
+#treatment model (treatment variable)
+treatment.eawp <- pcount(~ Wind + Sky
+                         ~ Treatment + Nthins + YearCat
+                         , eawp.abund, mixture ="P", K=40)
+
+##
+error.bar <- function(x, y, upper, lower=upper, length=0.1,...){
+  if(length(x) != length(y) | length(y) !=length(lower) | length(lower) != length(upper))
+    stop("vectors must be same length")
+  arrows(x,y+upper, x, y-lower, angle=90, code=3, length=length, ...)
+}
+##
+
+ND.eawp  <- data.frame(Treatment=factor(c("0B","1B","2B","3B")),
+                              Nthins=0, YearCat=0)
+eawp.est.tx <- predict(treatment.eawp, type="state",
+                           newdata=ND.eawp,appendData=TRUE)
+
+data.mean<-eawp.est.tx$Predicted
+data.sd<-eawp.est.tx$SE
+
+bar.p <-barplot(data.mean,
+                names.arg=c("0B","1B","2B","3B"),
+                ylim = c(0, 8), ylab="Est. EAWP Abundance", xlab="Treatment",
+                #cex.names = 1.5, cex.axis=1.5, cex.lab=1.5, 
+                col="darkblue")
+error.bar(bar.p,data.mean,data.sd) #sd
+```
+
+```{r}
+disturbance.eawp
+confint(disturbance.eawp, type="state",method="normal")
+```
+
+```{r}
+#disturbance model with timesinceburn
+disturbance.eawp <- pcount(~ Wind + Sky
+                           ~ TimeSinceB + TimeSinceT + YearCat
+                           , eawp.abund, mixture="P", K=40)
+
+ND2.eawp <-data.frame(TimeSinceB=seq(min(sc$TimeSinceB),max(sc$TimeSinceB),length=100),TimeSinceT=0,YearCat=0)
+eawp.est.timeb <- predict(disturbance.eawp, type="state",
+newdata=ND2.eawp,appendData=TRUE)
+
+plot(Predicted~ TimeSinceB, data=eawp.est.timeb, ylim=c(0,8), type="l", lwd=3,
+xlab="Time since last burn", ylab="Est.EAWP Abundance")
+##95% confidence intervals
+lines(lower~ TimeSinceB, data=eawp.est.timeb, type="l", lwd=3, col="darkgray")
+lines(upper~ TimeSinceB, data=eawp.est.timeb, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+write.table(ms.eawp@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/eawp_top_models_ms.xls",sep="\t")
+```
+
+```{r, echo=FALSE}
+Nmix.gof.test(treatment.eawp, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+#?Nmix.gof.test()
+Nmix.chisq(treatment.eawp)
+```
+
+```{r, echo=FALSE}
+Nmix.gof.test(disturbance.eawp, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+#?Nmix.gof.test()
+Nmix.chisq(disturbance.eawp)
+```
+
+EAWP Summary
+P distribution
+nothing quadratic
+DCs: weather (none actually sig), null, time, notdate
+SCs using weather:
+    Treatment (+ with 2B, + with 3B)
+    Disturbance (- with TimeSinceB)
+
+
+# INBU #
+# (foliage gleaner, shrub-nesting, insects, open woodland habitat & EDGES)
+# covariates: grasses, shrub density, within a meter above ground, low branches, tree age
+```{r}
+inbu.abund<- csvToUMF("inbu_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+#summary(inbu.abund)
+#str(inbu.abund)
+#scale all observation covariates (covs of detection)
+obsCovs(inbu.abund)= scale (obsCovs(inbu.abund))
+#select particular site covariates to scale below
+sc <- siteCovs(inbu.abund)
+sc[,c(6:77)] <- scale(sc[, c(6:77)]) #from 26 to 74 +landscape+soils
+siteCovs(inbu.abund) <- sc
+```
+
+```{r}
+#run this when have CSV with both years
+null.inbu <- pcount(~Jdate + Noise + Time ~1, inbu.abund, mixture="P", K=40)
+year.inbu <- pcount(~Jdate + Noise + Time ~ YearCat, inbu.abund, mixture="P", K=40)
+fms.year.inbu<- fitList(null.inbu, year.inbu)
+year.ms.inbu<-modSel(fms.year.inbu)
+year.ms.inbu
+```
+^ definite year effect - null model is way above 2.0
+
+```{r}
+det.date.inbu <- pcount(~ Jdate ~1, inbu.abund, mixture="P", K=15)
+det.date2.inbu <- pcount(~ Jdate + I(Jdate^2) ~1, inbu.abund, mixture="P", K=15)
+mstestDATE <- fitList(det.date.inbu, det.date2.inbu)
+DATEtest.inbu <- modSel(mstestDATE)
+DATEtest.inbu
+
+det.time.inbu <-pcount(~ Time ~1, inbu.abund, mixture="P",K=15)
+det.time2.inbu <-pcount(~ Time + I(Time^2) ~1, inbu.abund, mixture="P",K=15)
+mstestTIME <- fitList(det.time.inbu, det.time2.inbu)
+TIMEtest.inbu <- modSel(mstestTIME)
+TIMEtest.inbu
+```
+
+```{r}
+#detection covariates first
+det.null.inbu <- pcount(~1 ~1, inbu.abund, mixture="P", K=15)
+det.weather.inbu <- pcount(~ Wind + Sky ~1, inbu.abund, mixture="P", K=15)
+det.global2.inbu <- pcount(~ Jdate + Wind + Sky + Noise +Time + I(Time^2) ~1, inbu.abund, mixture="P", K=15)
+det.sound.inbu <- pcount(~ Noise + Wind ~1, inbu.abund, mixture="P", K=15)
+det.date.inbu <- pcount(~ Jdate ~1, inbu.abund, mixture="P", K=15)
+det.detect2.inbu <- pcount(~ Jdate + Noise + Time + I(Time^2) ~1, inbu.abund, mixture="P", K=15)
+det.notdate.inbu <-pcount(~ Wind + Sky + Noise ~1, inbu.abund, mixture="P", K=15)
+det.time2.inbu <-pcount(~ Time + I(Time^2) ~1, inbu.abund, mixture="P",K=15)
+det.timing2.inbu <-pcount(~ Time + I(Time^2) + Jdate ~1, inbu.abund, mixture="P", K=15)
+
+fmsDC <- fitList(det.null.inbu, det.weather.inbu, det.global2.inbu,
+                 det.sound.inbu, det.date.inbu, det.detect2.inbu, det.notdate.inbu,
+                 det.time2.inbu, det.timing2.inbu)
+msDC.inbu <- modSel(fmsDC)
+msDC.inbu
+#msDC.inbu@Full
+#summary: detect (Date+Noise+Time) first, then global (same)
+```
+
+```{r}
+det.detect2.inbu
+confint(det.detect2.inbu, type="det",method="normal")
+confint(det.detect2.inbu, type="state",method="normal")
+```
+^ Detect best model (+Date, +Time2, -Noise), global next best model
+```{r}
+det.global2.inbu
+confint(det.global2.inbu, type="det",method="normal")
+confint(det.global2.inbu, type="state",method="normal")
+```
+
+
+```{r}
+#detect2 model - jdate variable - averaged with global model too
+det.global2.inbu <- pcount(~ Jdate + Wind + Sky + Noise +Time + I(Time^2) ~1, inbu.abund, mixture="P", K=15)
+det.detect2.inbu <- pcount(~ Jdate + Noise + Time + I(Time^2) ~1, inbu.abund, mixture="P", K=15)
+
+#summary(inbu.abund)
+dms_top.inbu <- fitList(det.detect2.inbu,det.global2.inbu)
+ND.inbud  <-data.frame(Jdate=seq(-1.75,2.25,length=100),Noise=0,Time=0, Wind=0, Sky=0)
+inbu.est.date <- predict(dms_top.inbu, type="det",
+                                newdata=ND.inbud,appendData=TRUE)
+
+plot(Predicted~ Jdate, data=inbu.est.date, ylim=c(0,1), type="l", lwd=3,
+     xlab="Survey date", ylab="INBU Detection Probability")
+##95% confidence intervals
+lines(lower~ Jdate, data=inbu.est.date,  type="l", lwd=3, col="darkgray")
+lines(upper~ Jdate, data=inbu.est.date, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+#detect2 model - TIME variable - averaged with global model too
+det.global2.inbu <- pcount(~ Jdate + Wind + Sky + Noise +Time + I(Time^2) ~1, inbu.abund, mixture="P", K=15)
+det.detect2.inbu <- pcount(~ Jdate + Noise + Time + I(Time^2) ~1, inbu.abund, mixture="P", K=15)
+
+#summary(obsCovs(inbu.abund))
+dms_top.inbu <- fitList(det.detect2.inbu,det.global2.inbu)
+ND.inbud2  <-data.frame(Time=seq(-1.5,2.5,length=100),Noise=0,Jdate=0, Wind=0, Sky=0)
+inbu.est.time <- predict(dms_top.inbu, type="det",
+                                newdata=ND.inbud2,appendData=TRUE)
+
+plot(Predicted~ Time, data=inbu.est.time, ylim=c(0,1), type="l", lwd=3,
+     xlab="Survey start time", ylab="INBU Detection Probability")
+##95% confidence intervals
+lines(lower~ Time, data=inbu.est.time,  type="l", lwd=3, col="darkgray")
+lines(upper~ Time, data=inbu.est.time, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+#detect2 model - NOISE variable - averaged with global model too
+det.global2.inbu <- pcount(~ Jdate + Wind + Sky + Noise +Time + I(Time^2) ~1, inbu.abund, mixture="P", K=15)
+det.detect2.inbu <- pcount(~ Jdate + Noise + Time + I(Time^2) ~1, inbu.abund, mixture="P", K=15)
+
+#summary(obsCovs(inbu.abund))
+dms_top.inbu <- fitList(det.detect2.inbu,det.global2.inbu)
+ND.inbud3  <-data.frame(Noise=seq(-1.75,2.25,length=100),Time=0,Jdate=0, Wind=0, Sky=0)
+inbu.est.noise <- predict(dms_top.inbu, type="det",
+                                newdata=ND.inbud3,appendData=TRUE)
+
+plot(Predicted~ Noise, data=inbu.est.noise, ylim=c(0,1), type="l", lwd=3,
+     xlab="Ambient noise", ylab="INBU Detection Probability")
+##95% confidence intervals
+lines(lower~ Noise, data=inbu.est.noise,  type="l", lwd=3, col="darkgray")
+lines(upper~ Noise, data=inbu.est.noise, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+write.table(msDC.inbu@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/inbu_top_models_msDC.xls",sep="\t")
+```
+
+```{r}
+#not using for now
+#predict(det.detect.inbu, type="det")  #gave me 204 rows...
+#backTransform(det.detect.inbu, "psi", method=normal)
+```
+
+```{r}
+#none of these better quadratic
+testR.inbu <- pcount(~1 ~BA, inbu.abund, mixture="P", K=4)
+testQ.inbu <- pcount(~1 ~BA + I(BA^2), inbu.abund, mixture="P", K=4)
+msBAtest <- fitList(testR.inbu, testQ.inbu)
+BAtest.inbu <- modSel(msBAtest)
+BAtest.inbu
+
+testR.inbu <- pcount(~1 ~HW_dens_1050, inbu.abund, mixture="P", K=4)
+testQ.inbu <- pcount(~1 ~HW_dens_1050 + I(HW_dens_1050^2), inbu.abund, mixture="P", K=4)
+msHW1050test <- fitList(testR.inbu, testQ.inbu)
+HW1050test.inbu <- modSel(msHW1050test)
+HW1050test.inbu
+
+testR.inbu <- pcount(~1 ~FG_herb, inbu.abund, mixture="P", K=4)
+testQ.inbu <- pcount(~1 ~FG_herb + I(FG_herb^2), inbu.abund, mixture="P", K=4)
+msFGHtest <- fitList(testR.inbu, testQ.inbu)
+FGHtest.inbu <- modSel(msFGHtest)
+FGHtest.inbu
+
+testR.inbu <- pcount(~1 ~FG_shrub, inbu.abund, mixture="P", K=4)
+testQ.inbu <- pcount(~1 ~FG_shrub + I(FG_shrub^2), inbu.abund, mixture="P", K=4)
+msFGStest <- fitList(testR.inbu, testQ.inbu)
+FGStest.inbu <- modSel(msFGStest)
+FGStest.inbu
+
+testR.inbu <- pcount(~1 ~NHW_saplings, inbu.abund, mixture="P", K=4)
+testQ.inbu <- pcount(~1 ~NHW_saplings + I(NHW_saplings^2), inbu.abund, mixture="P", K=4)
+msHWStest <- fitList(testR.inbu, testQ.inbu)
+HWStest.inbu <- modSel(msHWStest)
+HWStest.inbu
+```
+
+```{r}
+#more appropriate detection covariates (detect best model)
+null.inbu <- pcount(~ Jdate + Noise + Time + I(Time^2) ~1, inbu.abund, mixture="P", K=40)
+global.inbu <- pcount(~ Jdate + Noise + Time + I(Time^2)
+                      ~ Treatment + Herbicide + BA +Ccover
+                       + Ldepth + TreeHt + Age + TimeSinceB + TimeSinceT + Nthins
+                       + HW_dens_1050 + FG_herb + FG_shrub + NHW_saplings
+                       + PISoils + NSoilTypes
+                       + Parea + ShapeIndex + YearCat
+                       , inbu.abund, mixture="P", K=40)
+#doesn't include FPSiteIndex + NP_over_20cm + Rel_HW2P_canopy + Nsnags
+local.inbu <- pcount(~ Jdate + Noise + Time + I(Time^2)
+                     ~ Ccover + TreeHt + Ldepth + YearCat
+                     , inbu.abund, mixture="P", K=40) #can only include BA OR CCover
+lh.inbu <- pcount(~ Jdate + Noise + Time + I(Time^2)
+                  ~ HW_dens_1050 + FG_herb + FG_shrub + Age + NHW_saplings + YearCat
+                  , inbu.abund, mixture="P", K=40)
+landmetrics.inbu <- pcount (~ Jdate + Noise + Time + I(Time^2)
+                          ~ Parea + ShapeIndex + YearCat
+                        , inbu.abund, mixture="P",K=40)
+landscape500.inbu <- pcount(~ Jdate + Noise + Time + I(Time^2)
+                        ~ Evergreen500m + Grass500m + Ag500m + HighDev500m
+                        + Schrubs500m + YearCat
+                            , inbu.abund, mixture="P", K=40)
+landscape1.inbu <- pcount(~ Jdate + Noise + Time + I(Time^2)
+                       ~ Grass1km + Ag1km + HighDev1km + Schrubs1km + YearCat
+                          , inbu.abund, mixture="P", K=40)
+landscape5.inbu <- pcount(~ Jdate + Noise + Time + I(Time^2)
+                       ~ Evergreen5km + Grass5km + HighDev5km + Schrubs5km + YearCat
+                          , inbu.abund, mixture="P", K=40)
+landscape30.inbu <- pcount(~ Jdate + Noise + Time + I(Time^2)
+                       ~ Evergreen30km + Grass30km + HighDev30km + YearCat
+                           , inbu.abund, mixture="P", K=40) #removed Protected
+treatment.inbu <- pcount(~ Jdate + Noise + Time + I(Time^2)
+                         ~ Treatment + Nthins + YearCat
+                         , inbu.abund, mixture ="P", K=40)
+management.inbu <- pcount(~ Jdate + Noise + Time + I(Time^2)
+                          ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide + YearCat
+                          , inbu.abund, mixture="P", K=40)
+disturbance.inbu <- pcount(~ Jdate + Noise + Time + I(Time^2)
+                           ~ TimeSinceB + TimeSinceT + YearCat
+                           , inbu.abund, mixture="P", K=40)
+siteprod.inbu <- pcount(~ Jdate + Noise + Time + I(Time^2)
+                        ~ PISoils + NSoilTypes + YearCat
+                        , inbu.abund, mixture="P", K=40)
+#upstate n/a no data
+coord.inbu <- pcount (~Jdate + Noise + Time + I(Time^2)
+                      ~ Latitude + Longitude + YearCat
+                      , inbu.abund, mixture="P", K=80)
+
+
+fms <- fitList(null.inbu, global.inbu, local.inbu, lh.inbu, landmetrics.inbu,
+               landscape500.inbu, landscape1.inbu, landscape5.inbu, landscape30.inbu,
+               treatment.inbu, management.inbu, disturbance.inbu,
+                siteprod.inbu, coord.inbu)
+ms.inbu <- modSel(fms) #note this does not include upstate or some of site.prod
+ms.inbu
+#ms.inbu@Full
+#summary: local best, treatment second, disturbance third, life history 4th, siteprod also d<2
+```
+^local best (), treatment second, disturbance third, life history 4th, siteprod also d<2
+^^with updated quad time: local, life history, disturbance, treatment...
+
+```{r}
+write.table(ms.inbu@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/inbu_top_models_ms.xls",sep="\t")
+```
+
+```{r}
+local.inbu
+confint(local.inbu, type="state",method="normal")
+
+lh.inbu
+confint(lh.inbu, type="state",method="normal")
+
+disturbance.inbu
+confint(disturbance.inbu, type="state",method="normal")
+
+treatment.inbu
+confint(treatment.inbu, type="state",method="normal")
+
+```
+
+```{r}
+#site productivity with # soil types
+local.inbu <- pcount(~ Jdate + Noise + Time + I(Time^2)
+                     ~ Ccover + TreeHt + Ldepth + YearCat
+                     , inbu.abund, mixture="P", K=40)
+
+ND.inbu2 <-data.frame(Ldepth=seq(min(sc$Ldepth),max(sc$Ldepth),length=100),Ccover=0,TreeHt=0,YearCat=0)
+inbu.est.litter <- predict(local.inbu, type="state",
+newdata=ND.inbu2,appendData=TRUE)
+
+plot(Predicted~ Ldepth, data=inbu.est.litter, ylim=c(0,10), type="l", lwd=3,
+xlab="Litter depth", ylab="Est. INBU Abundance")
+##95% confidence intervals
+lines(lower~ Ldepth, data=inbu.est.litter, type="l", lwd=3, col="darkgray")
+lines(upper~ Ldepth, data=inbu.est.litter, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+#treatment model (treatment variable)
+treatment.inbu <- pcount(~ Jdate + Noise + Time + I(Time^2)
+                         ~ Treatment + Nthins + YearCat
+                         , inbu.abund, mixture ="P", K=40)
+
+##
+error.bar <- function(x, y, upper, lower=upper, length=0.1,...){
+  if(length(x) != length(y) | length(y) !=length(lower) | length(lower) != length(upper))
+    stop("vectors must be same length")
+  arrows(x,y+upper, x, y-lower, angle=90, code=3, length=length, ...)
+}
+##
+
+ND.inbu  <- data.frame(Treatment=factor(c("0B","1B","2B","3B")),
+                              Nthins=0, YearCat=0)
+inbu.est.tx <- predict(treatment.inbu, type="state",
+                           newdata=ND.inbu,appendData=TRUE)
+
+data.mean<-inbu.est.tx$Predicted
+data.sd<-inbu.est.tx$SE
+
+bar.p <-barplot(data.mean,
+                names.arg=c("0B","1B","2B","3B"),
+                ylim = c(0, 8), ylab="Est. INBU Abundance", xlab="Treatment",
+                #cex.names = 1.5, cex.axis=1.5, cex.lab=1.5, 
+                col="darkblue")
+error.bar(bar.p,data.mean,data.sd) #sd
+```
+
+
+```{r, echo=FALSE}
+Nmix.gof.test(local.inbu, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+#?Nmix.gof.test()
+Nmix.chisq(local.inbu)
+```
+
+```{r}
+### not using yet
+#backTransform(linearComb(disturbance.inbu, coefficients = c(1,0), type= "det"))
+##YAY!
+#backTransform(linearComb(disturbance.inbu, coefficients = c(1,0,0), type= "state"))
+
+#or:
+#newData.inbu<-data.frame(TimeSinceT=0, TimeSinceB=0:20)
+#round(predict(disturbance.inbu, type="state", newdata=newData.inbu, appendData=TRUE, 2))
+##or "det"
+##confint(disturbance.inbu,type="det")
+```
+
+INBU Summary:
+P distribution
+DCs: detect2 best (- noise, + date, +-+ time2), global second
+SCs using detect2 model:
+with updated quad time: local, life history, disturbance, treatment...
+  local best (- with Ldepth, - with YearB)
+  life history 4th (- with YearB),
+  disturbance third (- with YearB),
+  treatment second (+ with Treatment 3B, - with YearB)
+
+
+# NOBO #
+# (grasslands - open woodlands, ground nester, ground forager, plants) 
+# covariates: low BA, fires/disturbance, litter, low-medium HW cover?
+
+```{r}
+nobo.abund<- csvToUMF("nobo_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+#summary(nobo.abund)
+#str(nobo.abund)
+#scale all observation covariates (covs of detection)
+obsCovs(nobo.abund)= scale (obsCovs(nobo.abund))
+#select particular site covariates to scale below
+sc <- siteCovs(nobo.abund)
+sc[,c(6:77)] <- scale(sc[, c(6:77)])
+siteCovs(nobo.abund) <- sc
+
+```
+
+```{r}
+#test for NB or Poisson - most should use Poisson ... 
+testP.nobo <- pcount(~1 ~1, nobo.abund, mixture="P", K=4)
+testNB.nobo <- pcount(~1 ~1, nobo.abund, mixture="NB", K=4)
+fmsTEST <- fitList(testP.nobo, testNB.nobo)
+msTEST.nobo <- modSel(fmsTEST)
+msTEST.nobo
+## NB is best for this species. Change below to correspond!
+```
+
+```{r}
+#run this when have CSV with both years
+null.nobo <- pcount(~Jdate + Noise + Time ~1, nobo.abund, mixture="NB", K=40)
+year.nobo <- pcount(~Jdate + Noise + Time ~ YearCat, nobo.abund, mixture="NB", K=40)
+fms.year.nobo<- fitList(null.nobo, year.nobo)
+year.ms.nobo<-modSel(fms.year.nobo)
+year.ms.nobo
+```
+^ year definite effect, null is much over d2
+
+```{r}
+#date definite effect, not time
+det.date.nobo <- pcount(~ Jdate ~1, nobo.abund, mixture="P", K=15)
+det.date2.nobo <- pcount(~ Jdate + I(Jdate^2) ~1, nobo.abund, mixture="P", K=15)
+mstestDATE <- fitList(det.date.nobo, det.date2.nobo)
+DATEtest.nobo <- modSel(mstestDATE)
+DATEtest.nobo
+
+det.time.nobo <-pcount(~ Time ~1, nobo.abund, mixture="P",K=15)
+det.time2.nobo <-pcount(~ Time + I(Time^2) ~1, nobo.abund, mixture="P",K=15)
+mstestTIME <- fitList(det.time.nobo, det.time2.nobo)
+TIMEtest.nobo <- modSel(mstestTIME)
+TIMEtest.nobo
+```
+
+```{r}
+#detection covariates first
+det.null.nobo <- pcount(~1 ~1, nobo.abund, mixture="NB", K=15)
+det.weather.nobo <- pcount(~ Wind + Sky ~1, nobo.abund, mixture="NB", K=15)
+det.global2.nobo <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time ~1, nobo.abund, mixture="NB", K=15)
+det.sound.nobo <- pcount(~ Noise + Wind ~1, nobo.abund, mixture="NB", K=15)
+det.date2.nobo <- pcount(~ Jdate + I(Jdate^2) ~1, nobo.abund, mixture="NB", K=15)
+det.detect2.nobo <- pcount(~ Jdate + I(Jdate^2) + Noise + Time ~1, nobo.abund, mixture="NB", K=15)
+det.notdate.nobo <-pcount(~ Wind + Sky + Noise ~1, nobo.abund, mixture="NB", K=15)
+det.time.nobo <-pcount(~ Time ~1, nobo.abund, mixture="NB",K=15)
+det.timing2.nobo <-pcount(~ Time + Jdate + I(Jdate^2) ~1, nobo.abund, mixture="NB", K=15)
+
+fmsDC <- fitList(det.null.nobo, det.weather.nobo, det.global2.nobo,
+                 det.sound.nobo, det.date2.nobo, det.detect2.nobo, det.notdate.nobo,
+                 det.time.nobo, det.timing2.nobo)
+msDC.nobo <- modSel(fmsDC)
+msDC.nobo
+#msDC.nobo@Full
+#summary: NB is better fit than Poisson.
+#Global is no longer best detection model.
+##     date2 best model, timing2 second model.
+```
+
+```{r}
+det.date2.nobo  # positive w date, - with date^2
+confint(det.date2.nobo, type="det",method="normal")
+confint(det.date2.nobo, type="state",method="normal")
+```
+
+```{r}
+det.timing2.nobo   # positive w date, - with date^2
+confint(det.timing2.nobo, type="det",method="normal")
+confint(det.timing2.nobo, type="state",method="normal")
+```
+
+```{r}
+# jdate variable - date2, averaged with timing2 model too
+det.date2.nobo <- pcount(~ Jdate + I(Jdate^2) ~1, nobo.abund, mixture="NB", K=15)
+det.timing2.nobo <-pcount(~ Time + Jdate + I(Jdate^2) ~1, nobo.abund, mixture="NB", K=15)
+
+#summary(inbu.abund)
+dms_top.nobo <- fitList(det.date2.nobo,det.timing2.nobo)
+ND.nobod  <-data.frame(Jdate=seq(-1.75,2.25,length=100),Time=0)
+nobo.est.date <- predict(dms_top.nobo, type="det",
+                                newdata=ND.nobod,appendData=TRUE)
+
+plot(Predicted~ Jdate, data=nobo.est.date, ylim=c(0,1), type="l", lwd=3,
+     xlab="Survey date", ylab="NOBO Detection Probability")
+##95% confidence intervals
+lines(lower~ Jdate, data=nobo.est.date,  type="l", lwd=3, col="darkgray")
+lines(upper~ Jdate, data=nobo.est.date, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+write.table(msDC.nobo@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/nobo_top_models_msDC.xls",sep="\t")
+```
+
+```{r}
+#yes: HW_dens_1050, FG_shrub, NHW_saplings
+#no: BA, FG_herb
+testR.nobo <- pcount(~1 ~BA, nobo.abund, mixture="P", K=4)
+testQ.nobo <- pcount(~1 ~BA + I(BA^2), nobo.abund, mixture="P", K=4)
+msBAtest <- fitList(testR.nobo, testQ.nobo)
+BAtest.nobo <- modSel(msBAtest)
+BAtest.nobo
+
+#yes
+testR.nobo <- pcount(~1 ~HW_dens_1050, nobo.abund, mixture="P", K=4)
+testQ.nobo <- pcount(~1 ~HW_dens_1050 + I(HW_dens_1050^2), nobo.abund, mixture="P", K=4)
+msHW1050test <- fitList(testR.nobo, testQ.nobo)
+HW1050test.nobo <- modSel(msHW1050test)
+HW1050test.nobo
+
+testR.nobo <- pcount(~1 ~FG_herb, nobo.abund, mixture="P", K=4)
+testQ.nobo <- pcount(~1 ~FG_herb + I(FG_herb^2), nobo.abund, mixture="P", K=4)
+msFGHtest <- fitList(testR.nobo, testQ.nobo)
+FGHtest.nobo <- modSel(msFGHtest)
+FGHtest.nobo
+
+testR.nobo <- pcount(~1 ~FG_shrub, nobo.abund, mixture="P", K=4)
+testQ.nobo <- pcount(~1 ~FG_shrub + I(FG_shrub^2), nobo.abund, mixture="P", K=4)
+msFGStest <- fitList(testR.nobo, testQ.nobo)
+FGStest.nobo <- modSel(msFGStest)
+FGStest.nobo
+
+testR.nobo <- pcount(~1 ~NHW_saplings, nobo.abund, mixture="P", K=4)
+testQ.nobo <- pcount(~1 ~NHW_saplings + I(NHW_saplings^2), nobo.abund, mixture="P", K=4)
+msHWStest <- fitList(testR.nobo, testQ.nobo)
+HWStest.nobo <- modSel(msHWStest)
+HWStest.nobo
+```
+
+```{r}
+#more appropriate detection covariates (now, date2 not global)
+null.nobo <- pcount(~ Jdate + I(Jdate^2) ~1, nobo.abund, mixture="NB", K=80)
+global.nobo <- pcount(~ Jdate + I(Jdate^2)
+                      ~ Treatment + Herbicide + BA +Ccover + TreeHt
+                       + Ldepth + Age + TimeSinceB + TimeSinceT + Nthins
+                       + HW_dens_1050 + I(HW_dens_1050^2)
+                      + FG_herb+ I(FG_herb^2) + FG_shrub
+                       + PISoils + NSoilTypes
+                       + Parea + ShapeIndex + YearCat
+                       , nobo.abund, mixture="NB", K=80)
+#FPSiteIndex taken out, TreeHt, NHW_saplings, NP_over_20cm, FG_herb, Rel_HW2P_canopy, Nsnags
+local.nobo <- pcount(~ Jdate + I(Jdate^2)
+                     ~ Ccover + TreeHt + Ldepth + YearCat
+                     , nobo.abund, mixture="NB", K=80) #can only include BA OR CCover
+lh.nobo <- pcount(~ Jdate + I(Jdate^2)
+                  ~ BA + Ldepth + HW_dens_1050 + I(HW_dens_1050^2) + FG_shrub + Age + YearCat
+                  , nobo.abund, mixture="NB", K=80)
+landmetrics.nobo <- pcount (~ Jdate + I(Jdate^2)
+                          ~ Parea + ShapeIndex + YearCat
+                        , nobo.abund, mixture="NB",K=80)
+landscape500.nobo <- pcount(~ Jdate + I(Jdate^2)
+                        ~ Grass500m + HighDev500m + Schrubs500m + Evergreen500m
+                        + Ag500m + YearCat
+                            , nobo.abund, mixture="NB", K=80)
+landscape1.nobo <- pcount(~ Jdate + I(Jdate^2)
+                       ~  Grass1km + HighDev1km + Schrubs1km + Evergreen1km + YearCat
+                          , nobo.abund, mixture="NB", K=80)
+landscape5.nobo <- pcount(~ Jdate + I(Jdate^2)
+                       ~ Grass5km + HighDev5km + Schrubs5km + Evergreen5km + YearCat
+                          , nobo.abund, mixture="NB", K=80)
+landscape30.nobo <- pcount(~ Jdate + I(Jdate^2)
+                       ~ Grass30km + HighDev30km + Evergreen30km + YearCat
+                           , nobo.abund, mixture="NB", K=80) #removed Protected
+treatment.nobo <- pcount(~ Jdate + I(Jdate^2)
+                         ~ Nburns + Nthins + YearCat
+                         , nobo.abund, mixture ="NB", K=80)  #this one I made Nburns instead of treatment for ones with many many burns
+management.nobo <- pcount(~ Jdate + I(Jdate^2)
+                          ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide + YearCat
+                          , nobo.abund, mixture="NB", K=80)
+disturbance.nobo <- pcount(~ Jdate + I(Jdate^2)
+                           ~ TimeSinceB + TimeSinceT + YearCat
+                           , nobo.abund, mixture="NB", K=80)
+siteprod.nobo <- pcount(~ Jdate + I(Jdate^2)
+                        ~ PISoils + NSoilTypes + YearCat
+                        , nobo.abund, mixture="NB", K=80)  #no FPSiteIndex
+#upstate.nobo <- pcount(~ Jdate + Wind + Sky + Noise +Time ~ X + Y + Z, nobo.abund, mixture="NB", K=40)
+coord.nobo <- pcount (~Jdate + I(Jdate^2)
+                      ~ Latitude + Longitude + YearCat
+                      ,nobo.abund, mixture="P", K=80)
+
+fms <- fitList(null.nobo, local.nobo, lh.nobo, landmetrics.nobo,
+               landscape500.nobo, landscape1.nobo, landscape5.nobo, landscape30.nobo,
+               treatment.nobo, management.nobo, disturbance.nobo,
+                siteprod.nobo, coord.nobo)
+ms.nobo <- modSel(fms) #note this does not include FPSiteIndex or upstate OR GLOBAL
+ms.nobo
+#ms.nobo@Full
+```
+
+```{r}
+landscape1.nobo
+confint(landscape1.nobo, type="state",method="normal")
+```
+
+```{r}
+write.table(ms.nobo@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/nobo_top_models_ms.xls",sep="\t")
+```
+
+```{r}
+#landscape 1 model - evergreen1km is + but this figure isn't working....
+landscape1.nobo <- pcount(~ Jdate + I(Jdate^2)
+                       ~  Grass1km + HighDev1km + Schrubs1km + Evergreen1km + YearCat
+                          , nobo.abund, mixture="NB", K=80)
+
+ND.nobo <-data.frame(Evergreen1km=seq(min(sc$Evergreen1km),max(sc$Evergreen1km),length=100),Schrubs1km=0,Grass1km=0,HighDev1km=0,YearCat=0)
+nobo.est.evergreen <- predict(landscape1.nobo, type="state",
+newdata=ND.nobo,appendData=TRUE, mixture="NB")
+
+plot(Predicted~ Evergreen1km, data=nobo.est.evergreen, ylim=c(0,10), type="l", lwd=3,
+xlab="Evergreen habitat within 1km of site", ylab="Est. NOBO Abundance")
+##95% confidence intervals
+lines(lower~ Evergreen1km, data=nobo.est.evergreen, type="l", lwd=3, col="darkgray")
+lines(upper~ Evergreen1km, data=nobo.est.evergreen, type="l", lwd=3, col="darkgray")
+```
+#what's up with this figure?
+
+```{r, echo=FALSE}
+Nmix.gof.test(landscape1.nobo, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+#?Nmix.gof.test()
+Nmix.chisq(landscape1.nobo)
+```
+
+NOBO summary:
+NB distribution
+DCs: date2 () best, timing2 second model ()
+date2 best & timing2 second best (date + both)
+SCs using global:
+Landscape1km only best model (+ Evergreen1km, +YearB)
+
+
+
+#PIWA#
+# (forest, insects, tree nesting, bark forager, nest high in pines) 
+# covariates: HW2P ratio, canopy, tree ht, BA, 
+
+```{r}
+piwa.abund<- csvToUMF("piwa_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+##type may need to change for occupancy (occuRN, pcountOpen, or whichever used) ##
+#summary(piwa.abund)
+#str(piwa.abund)
+#scale all observation covariates (covs of detection)
+obsCovs(piwa.abund)= scale (obsCovs(piwa.abund))
+#select particular site covariates to scale below
+sc <- siteCovs(piwa.abund)
+sc[,c(6:77)] <- scale(sc[, c(6:77)])
+siteCovs(piwa.abund) <- sc
+```
+
+```{r}
+#run this when have CSV with both years
+null.piwa <- pcount(~Jdate + Noise + Time ~1, piwa.abund, mixture="P", K=40)
+year.piwa <- pcount(~Jdate + Noise + Time ~ YearCat, piwa.abund, mixture="P", K=40)
+fms.year.piwa<- fitList(null.piwa, year.piwa)
+year.ms.piwa<-modSel(fms.year.piwa)
+year.ms.piwa
+```
+^ null best model but year <2
+
+```{r}
+det.date.piwa <- pcount(~ Jdate ~1, piwa.abund, mixture="P", K=15)
+det.date2.piwa <- pcount(~ Jdate + I(Jdate^2) ~1, piwa.abund, mixture="P", K=15)
+mstestDATE <- fitList(det.date.piwa, det.date2.piwa)
+DATEtest.piwa <- modSel(mstestDATE)
+DATEtest.piwa
+
+det.time.piwa <-pcount(~ Time ~1, piwa.abund, mixture="P",K=15)
+det.time2.piwa <-pcount(~ Time + I(Time^2) ~1, piwa.abund, mixture="P",K=15)
+mstestTIME <- fitList(det.time.piwa, det.time2.piwa)
+TIMEtest.piwa <- modSel(mstestTIME)
+TIMEtest.piwa
+```
+
+```{r}
+#detection covariates first
+det.null.piwa <- pcount(~1 ~1, piwa.abund, mixture="P", K=15)
+det.weather.piwa <- pcount(~ Wind + Sky ~1, piwa.abund, mixture="P", K=15)
+det.global2.piwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2) ~1, piwa.abund, mixture="P", K=15)
+det.sound.piwa <- pcount(~ Noise + Wind ~1, piwa.abund, mixture="P", K=15)
+det.date2.piwa <- pcount(~ Jdate + I(Jdate^2) ~1, piwa.abund, mixture="P", K=15)
+det.detect2.piwa <- pcount(~ Jdate+ I(Jdate^2) + Noise + Time + I(Time^2) ~1, piwa.abund, mixture="P", K=15)
+det.notdate.piwa <-pcount(~ Wind + Sky + Noise ~1, piwa.abund, mixture="P", K=15)
+det.time2.piwa <-pcount(~ Time + I(Time^2) ~1, piwa.abund, mixture="P",K=15)
+det.timing2.piwa <-pcount(~ Time + I(Time^2) + Jdate+ I(Jdate^2) ~1, piwa.abund, mixture="P", K=15)
+
+fmsDC <- fitList(det.null.piwa, det.weather.piwa, det.global2.piwa,
+                 det.sound.piwa, det.date2.piwa, det.detect2.piwa, det.notdate.piwa,
+                 det.time2.piwa, det.timing2.piwa)
+msDC.piwa <- modSel(fmsDC)
+msDC.piwa
+#msDC.piwa@Full
+#summary: global best, date second, timing is third
+#changed with quadratics: global, timing2, then detect2
+```
+
+```{r}
+det.global2.piwa
+confint(det.global2.piwa, type="det",method="normal")
+confint(det.global2.piwa, type="state",method="normal")
+```
+global (- with Date & date^2, - with Sky, -time+time^2)
+```{r}
+det.timing2.piwa
+confint(det.timing2.piwa, type="det",method="normal")
+confint(det.timing2.piwa, type="state",method="normal")
+```
+ ^ timing model: +time^2, -date & date^2
+```{r}
+det.detect2.piwa
+confint(det.detect2.piwa, type="det",method="normal")
+confint(det.detect2.piwa, type="state",method="normal")
+```
+^ detect2 model: --date&date^2, +time^2
+
+```{r}
+write.table(msDC.piwa@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/PIWA_top_models_msDC.xls",sep="\t")
+```
+
+```{r}
+# jdate variable - averaged with global2, timing2, detect2 model
+det.global2.piwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2) ~1, piwa.abund, mixture="P", K=15)
+det.detect2.piwa <- pcount(~ Jdate+ I(Jdate^2) + Noise + Time + I(Time^2) ~1, piwa.abund, mixture="P", K=15)
+det.timing2.piwa <-pcount(~ Time + I(Time^2) + Jdate+ I(Jdate^2) ~1, piwa.abund, mixture="P", K=15)
+
+dms_top.piwa <- fitList(det.global2.piwa,det.timing2.piwa, det.detect2.piwa)
+ND.piwad  <-data.frame(Jdate=seq(-1.75,2.25,length=100),Time=0, Wind=0,Sky=0,Noise=0)
+piwa.est.date <- predict(dms_top.piwa, type="det",
+                                newdata=ND.piwad,appendData=TRUE)
+
+plot(Predicted~ Jdate, data=piwa.est.date, ylim=c(0,1), type="l", lwd=3,
+     xlab="Survey date", ylab="PIWA Detection Probability")
+##95% confidence intervals
+lines(lower~ Jdate, data=piwa.est.date,  type="l", lwd=3, col="darkgray")
+lines(upper~ Jdate, data=piwa.est.date, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+# time variable - averaged with global2, timing2, detect2 model
+det.global2.piwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2) ~1, piwa.abund, mixture="P", K=15)
+det.detect2.piwa <- pcount(~ Jdate+ I(Jdate^2) + Noise + Time + I(Time^2) ~1, piwa.abund, mixture="P", K=15)
+det.timing2.piwa <-pcount(~ Time + I(Time^2) + Jdate+ I(Jdate^2) ~1, piwa.abund, mixture="P", K=15)
+
+summary(obsCovs(piwa.abund))
+dms_top.piwa <- fitList(det.global2.piwa,det.timing2.piwa, det.detect2.piwa)
+ND.piwad2  <-data.frame(Time=seq(-1.5,2.5,length=100),Jdate=0, Wind=0,Sky=0,Noise=0)
+piwa.est.time <- predict(dms_top.piwa, type="det",
+                                newdata=ND.piwad2,appendData=TRUE)
+
+plot(Predicted~ Time, data=piwa.est.time, ylim=c(0,1), type="l", lwd=3,
+     xlab="Survey start time", ylab="PIWA Detection Probability")
+##95% confidence intervals
+lines(lower~ Time, data=piwa.est.time,  type="l", lwd=3, col="darkgray")
+lines(upper~ Time, data=piwa.est.time, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+# sky variable - only global
+det.global2.piwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2) ~1, piwa.abund, mixture="P", K=15)
+
+#summary(obsCovs(piwa.abund))
+
+ND.piwad3  <-data.frame(Sky=seq(-1.25,5,length=100),Jdate=0, Wind=0,Time=0,Noise=0)
+piwa.est.sky <- predict(det.global2.piwa, type="det",
+                                newdata=ND.piwad3,appendData=TRUE)
+
+plot(Predicted~ Sky, data=piwa.est.sky, ylim=c(0,1), type="l", lwd=3,
+     xlab="Sky (cloud cover)", ylab="PIWA Detection Probability")
+##95% confidence intervals
+lines(lower~ Sky, data=piwa.est.sky,  type="l", lwd=3, col="darkgray")
+lines(upper~ Sky, data=piwa.est.sky, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+#yes: BA, FG_shrub -- no to others
+testR.piwa <- pcount(~1 ~BA, piwa.abund, mixture="P", K=20)
+testQ.piwa <- pcount(~1 ~BA + I(BA^2), piwa.abund, mixture="P", K=20)
+msBAtest <- fitList(testR.piwa, testQ.piwa)
+BAtest.piwa <- modSel(msBAtest)
+BAtest.piwa
+
+testR.piwa <- pcount(~1 ~HW_dens_1050, piwa.abund, mixture="P", K=20)
+testQ.piwa <- pcount(~1 ~HW_dens_1050 + I(HW_dens_1050^2), piwa.abund, mixture="P", K=20)
+msHW1050test <- fitList(testR.piwa, testQ.piwa)
+HW1050test.piwa <- modSel(msHW1050test)
+HW1050test.piwa
+
+testR.piwa <- pcount(~1 ~FG_herb, piwa.abund, mixture="P", K=20)
+testQ.piwa <- pcount(~1 ~FG_herb + I(FG_herb^2), piwa.abund, mixture="P", K=20)
+msFGHtest <- fitList(testR.piwa, testQ.piwa)
+FGHtest.piwa <- modSel(msFGHtest)
+FGHtest.piwa
+
+testR.piwa <- pcount(~1 ~FG_shrub, piwa.abund, mixture="P", K=20)
+testQ.piwa <- pcount(~1 ~FG_shrub + I(FG_shrub^2), piwa.abund, mixture="P", K=20)
+msFGStest <- fitList(testR.piwa, testQ.piwa)
+FGStest.piwa <- modSel(msFGStest)
+FGStest.piwa
+
+testR.piwa <- pcount(~1 ~NHW_saplings, piwa.abund, mixture="P", K=20)
+testQ.piwa <- pcount(~1 ~NHW_saplings + I(NHW_saplings^2), piwa.abund, mixture="P", K=20)
+msHWStest <- fitList(testR.piwa, testQ.piwa)
+HWStest.piwa <- modSel(msHWStest)
+HWStest.piwa
+```
+
+```{r}
+#more appropriate detection covariates (global2 now)
+null.piwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2)
+                    ~1, piwa.abund, mixture="P", K=40)
+global.piwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2)
+                      ~ Treatment + Herbicide + BA + I(BA^2) + Ccover
+                       + Ldepth + TreeHt + TimeSinceB + TimeSinceT + Nthins
+                       + NP_over_20cm
+                       + Rel_HW2P_canopy + PISoils + NSoilTypes
+                       + Parea + ShapeIndex + YearCat
+                       , piwa.abund, mixture="P", K=40)  #FPSiteIndex taken out, Age, HWs, snags
+local.piwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2)
+                     ~ Ccover + TreeHt + Ldepth + YearCat
+                     , piwa.abund, mixture="P", K=40) #can only include BA OR CCover
+lh.piwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2)
+                  ~ Ccover + TreeHt + Rel_HW2P_canopy + NP_over_20cm + YearCat
+                  , piwa.abund, mixture="P", K=40)
+landmetrics.piwa <- pcount (~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2)               ~ Parea + ShapeIndex + YearCat
+                        , piwa.abund, mixture="P",K=40)
+landscape500.piwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2)
+                        ~ Evergreen500m + HighDev500m + YearCat
+                            , piwa.abund, mixture="P", K=40)
+landscape1.piwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2)
+                       ~ Evergreen1km + HighDev1km + YearCat
+                          , piwa.abund, mixture="P", K=40)
+landscape5.piwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2)
+                       ~ Evergreen5km + HighDev5km + YearCat
+                          , piwa.abund, mixture="P", K=40)
+landscape30.piwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2)
+                       ~ Evergreen30km + HighDev30km + YearCat
+                           , piwa.abund, mixture="P", K=40) #removed Protected
+treatment.piwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2)
+                         ~ Treatment + Nthins + YearCat
+                         , piwa.abund, mixture ="P", K=40)
+management.piwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2)
+                          ~ Treatment + BA + I(BA^2) + TimeSinceB + TimeSinceT + Herbicide + YearCat
+                          , piwa.abund, mixture="P", K=40)
+disturbance.piwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2)
+                           ~ TimeSinceB + TimeSinceT + YearCat
+                           , piwa.abund, mixture="P", K=40)
+siteprod.piwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2)
+                        ~ PISoils + NSoilTypes + YearCat
+                        , piwa.abund, mixture="P", K=40)  #Site Index out
+#upstate.piwa <- pcount(~ Jdate + Time ~ X + Y + Z, piwa.abund, mixture="P", K=40)
+coord.piwa<- pcount (~Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2)~ Latitude + Longitude + YearCat
+                      , piwa.abund, mixture="P", K=40)
+
+
+fms <- fitList(null.piwa, global.piwa, local.piwa, lh.piwa, landmetrics.piwa,
+               landscape500.piwa, landscape1.piwa, landscape5.piwa, landscape30.piwa,
+               treatment.piwa, management.piwa, disturbance.piwa,
+                siteprod.piwa, coord.piwa)
+ms.piwa <- modSel(fms) #note this does not include upstate
+ms.piwa
+#ms.piwa@Full
+#changed order!
+#summary: coord model, then landscape30, landscape5
+```
+
+```{r}
+coord.piwa    #+ with latitude
+confint(coord.piwa, type="state",method="normal")
+```
+
+```{r}
+#coords with latitude variable
+coord.piwa<- pcount (~Jdate + I(Jdate^2) + Wind + Sky + Noise
+                     +Time + I(Time^2)~ Latitude + Longitude + YearCat
+                      , piwa.abund, mixture="P", K=40)
+
+
+ND.piwa <-data.frame(Latitude=seq(min(sc$Latitude),max(sc$Latitude),length=100),Longitude=0,YearCat=0)
+piwa.est.lat <- predict(coord.piwa, type="state",
+newdata=ND.piwa,appendData=TRUE)
+
+plot(Predicted~ Latitude, data=piwa.est.lat, ylim=c(0,10), type="l", lwd=3,
+xlab="Latitude", ylab="Est. PIWA Abundance")
+##95% confidence intervals
+lines(lower~ Latitude, data=piwa.est.lat, type="l", lwd=3, col="darkgray")
+lines(upper~ Latitude, data=piwa.est.lat, type="l", lwd=3, col="darkgray")
+```
+
+
+```{r}
+landscape30.piwa    #- with highdev30
+confint(landscape30.piwa, type="state",method="normal")
+```
+
+```{r}
+# high dev variable with landscape 30km
+landscape30.piwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2)
+                       ~ Evergreen30km + HighDev30km + YearCat
+                           , piwa.abund, mixture="P", K=40) #removed Protected
+
+
+ND2.piwa <-data.frame(HighDev30km=seq(min(sc$HighDev30km),max(sc$HighDev30km),length=100),Evergreen30km=0,YearCat=0)
+piwa.est.hdev30 <- predict(landscape30.piwa, type="state", newdata=ND2.piwa,appendData=TRUE)
+
+plot(Predicted~ HighDev30km, data=piwa.est.hdev30, ylim=c(0,10), type="l", lwd=3,
+xlab="Med/High Developed Cover within 30km of site", ylab="Est. PIWA Abundance")
+##95% confidence intervals
+lines(lower~ HighDev30km, data=piwa.est.hdev30, type="l", lwd=3, col="darkgray")
+lines(upper~ HighDev30km, data=piwa.est.hdev30, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+landscape5.piwa       #- with evergreen
+confint(landscape5.piwa, type="state",method="normal")
+```
+
+```{r}
+# evergreen variable with landscape 5km
+landscape5.piwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise +Time + I(Time^2)
+                       ~ Evergreen5km + HighDev5km + YearCat
+                          , piwa.abund, mixture="P", K=40)
+
+ND3.piwa <-data.frame(Evergreen5km=seq(min(sc$Evergreen5km),max(sc$Evergreen5km),length=100),HighDev5km=0,YearCat=0)
+piwa.est.evergreen5 <- predict(landscape5.piwa, type="state", newdata=ND3.piwa,appendData=TRUE)
+
+plot(Predicted~ Evergreen5km, data=piwa.est.evergreen5, ylim=c(0,10), type="l", lwd=3,
+xlab="Evergreen Cover within 5km of site", ylab="Est. PIWA Abundance")
+##95% confidence intervals
+lines(lower~ Evergreen5km, data=piwa.est.evergreen5, type="l", lwd=3, col="darkgray")
+lines(upper~ Evergreen5km, data=piwa.est.evergreen5, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+write.table(ms.piwa@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/piwa_top_models_ms.xls",sep="\t")
+```
+
+```{r, echo=FALSE}
+Nmix.gof.test(coord.piwa, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+#?Nmix.gof.test()
+Nmix.chisq(coord.piwa)
+```
+
+```{r, echo=FALSE}
+Nmix.gof.test(landscape30.piwa, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+#?Nmix.gof.test()
+Nmix.chisq(landscape30.piwa)
+```
+
+```{r, echo=FALSE}
+Nmix.gof.test(landscape5.piwa, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+#?Nmix.gof.test()
+Nmix.chisq(landscape5.piwa)
+```
+
+PIWA Summary
+P distribution
+DCs: -now global (--date&date^2, - time+time^2, - with sky),
+then timing2 (+time^2, -date & date^2), then detect2 (same as timing)
+SCs with global:
+    Coordinates (+ with latitude)
+    Landscape30 (- with HighDev 30)
+    Landscape5 (- with Evergreen5km)
+
+
+
+#PRWA#
+# (foliage gleaner, insects, shrub/tree nester 1-45', open wood warbler, ESS/second growth brushy/bushy habitat)
+# covariates: grasses, understory growth, midstory shrub density, 
+
+```{r}
+prwa.abund<- csvToUMF("prwa_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+#summary(prwa.abund)
+#str(prwa.abund)
+#scale all observation covariates (covs of detection)
+obsCovs(prwa.abund)= scale (obsCovs(prwa.abund))
+#select particular site covariates to scale below
+sc <- siteCovs(prwa.abund)
+sc[,c(6:77)] <- scale(sc[, c(6:77)])
+siteCovs(prwa.abund) <- sc
+```
+
+```{r}
+#run this when have CSV with both years
+null.prwa <- pcount(~Jdate + Noise + Time ~1, prwa.abund, mixture="P", K=40)
+year.prwa <- pcount(~Jdate + Noise + Time ~ YearCat, prwa.abund, mixture="P", K=40)
+fms.year.prwa<- fitList(null.prwa, year.prwa)
+year.ms.prwa<-modSel(fms.year.prwa)
+year.ms.prwa
+
+```
+^ null ranked higher but year d1.52
+
+```{r}
+#test for NB or Poisson - most should use Poisson
+testP.prwa <- pcount(~1 ~1, prwa.abund, mixture="P", K=4)
+testNB.prwa <- pcount(~1 ~1, prwa.abund, mixture="NB", K=4)
+fmsTEST <- fitList(testP.prwa, testNB.prwa)
+msTEST.prwa <- modSel(fmsTEST)
+msTEST.prwa
+#NB is best for prwa. Changed below to correspond!
+```
+
+
+```{r}
+det.date.prwa <- pcount(~ Jdate ~1, prwa.abund, mixture="NB", K=15)
+det.date2.prwa <- pcount(~ Jdate + I(Jdate^2) ~1, prwa.abund, mixture="NB", K=15)
+mstestDATE <- fitList(det.date.prwa, det.date2.prwa)
+DATEtest.prwa <- modSel(mstestDATE)
+DATEtest.prwa
+
+det.time.prwa <-pcount(~ Time ~1, prwa.abund, mixture="NB",K=15)
+det.time2.prwa <-pcount(~ Time + I(Time^2) ~1, prwa.abund, mixture="NB",K=15)
+mstestTIME <- fitList(det.time.prwa, det.time2.prwa)
+TIMEtest.prwa <- modSel(mstestTIME)
+TIMEtest.prwa
+```
+
+
+```{r}
+#detection covariates first
+det.null.prwa <- pcount(~1 ~1, prwa.abund, mixture="NB", K=15)
+det.weather.prwa <- pcount(~ Wind + Sky ~1, prwa.abund, mixture="NB", K=15)
+det.global2.prwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise + Time ~1, prwa.abund, mixture="NB", K=15)
+det.sound.prwa <- pcount(~ Noise + Wind ~1, prwa.abund, mixture="NB", K=15)
+det.date2.prwa <- pcount(~ Jdate + I(Jdate^2) ~1, prwa.abund, mixture="NB", K=15)
+det.detect2.prwa <- pcount(~ Jdate + I(Jdate^2) + Noise + Time ~1, prwa.abund, mixture="NB", K=15)
+det.notdate.prwa <-pcount(~ Wind + Sky + Noise ~1, prwa.abund, mixture="NB", K=15)
+det.time.prwa <-pcount(~ Time ~1, prwa.abund, mixture="NB", K=15)
+det.timing2.prwa <-pcount(~ Time + Jdate + I(Jdate^2) ~1, prwa.abund, mixture="NB", K=15)
+
+fmsDC <- fitList(det.null.prwa, det.weather.prwa, det.global2.prwa,
+               det.sound.prwa, det.date2.prwa, det.detect2.prwa, det.notdate.prwa,
+               det.time.prwa, det.timing2.prwa)
+msDC.prwa <- modSel(fmsDC)
+msDC.prwa
+#msDC.prwa@Full
+#summary: first time, then detect, then timing
+# def changed: detect2, global2, timing2, then time.
+```
+
+```{r}
+det.detect2.prwa   #positive with time
+confint(det.detect2.prwa, type="det",method="normal")
+confint(det.detect2.prwa, type="state",method="normal")
+```
+
+```{r}
+det.global2.prwa   #positive with time, - with jdate^2
+confint(det.global2.prwa, type="det",method="normal")
+confint(det.global2.prwa, type="state",method="normal")
+```
+
+```{r}
+det.timing2.prwa   #positiv with time ... NOT date here
+confint(det.timing2.prwa, type="det",method="normal")
+confint(det.timing2.prwa, type="state",method="normal")
+```
+
+```{r}
+det.time.prwa   #positive with time
+confint(det.time.prwa, type="det",method="normal")
+confint(det.time.prwa, type="state",method="normal")
+```
+
+```{r}
+# time variable - averaged with detect2, global2, timing2, time model
+det.global2.prwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise + Time ~1, prwa.abund, mixture="NB", K=15)
+det.detect2.prwa <- pcount(~ Jdate + I(Jdate^2) + Noise + Time ~1, prwa.abund, mixture="NB", K=15)
+det.time.prwa <-pcount(~ Time ~1, prwa.abund, mixture="NB", K=15)
+det.timing2.prwa <-pcount(~ Time + Jdate + I(Jdate^2) ~1, prwa.abund, mixture="NB", K=15)
+
+summary(obsCovs(prwa.abund))
+dms_top.prwad <- fitList(det.global2.prwa,det.timing2.prwa, det.detect2.prwa, det.time.prwa)
+ND.prwad  <-data.frame(Time=seq(-1.5,2.5,length=100),Jdate=0, Wind=0,Sky=0,Noise=0)
+prwa.est.time <- predict(dms_top.prwad, type="det",
+                                newdata=ND.prwad,appendData=TRUE)
+
+plot(Predicted~ Time, data=prwa.est.time, ylim=c(0,1), type="l", lwd=3,
+     xlab="Survey start time", ylab="PRWA Detection Probability")
+##95% confidence intervals
+lines(lower~ Time, data=prwa.est.time,  type="l", lwd=3, col="darkgray")
+lines(upper~ Time, data=prwa.est.time, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+#date^2 within global model
+det.global2.prwa <- pcount(~ Jdate + I(Jdate^2) + Wind + Sky + Noise + Time ~1, prwa.abund, mixture="NB", K=15)
+
+summary(obsCovs(prwa.abund))
+ND.prwad2  <-data.frame(Jdate=seq(-1.75,2.25,length=100),Time=0, Wind=0,Sky=0,Noise=0)
+prwa.est.date <- predict(det.global2.prwa, type="det",
+                                newdata=ND.prwad2,appendData=TRUE)
+
+plot(Predicted~ Jdate, data=prwa.est.date, ylim=c(0,1), type="l", lwd=3,
+     xlab="Survey date", ylab="PRWA Detection Probability")
+##95% confidence intervals
+lines(lower~ Jdate, data=prwa.est.date,  type="l", lwd=3, col="darkgray")
+lines(upper~ Jdate, data=prwa.est.date, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+write.table(msDC.prwa@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/prwa_top_models_msDC.xls",sep="\t")
+```
+
+```{r}
+#HW_dens_1050 is better quadratic; others not
+testR.prwa <- pcount(~1 ~BA, prwa.abund, mixture="NB", K=4)
+testQ.prwa <- pcount(~1 ~BA + I(BA^2), prwa.abund, mixture="NB", K=4)
+msBAtest <- fitList(testR.prwa, testQ.prwa)
+BAtest.prwa <- modSel(msBAtest)
+BAtest.prwa
+
+testR.prwa <- pcount(~1 ~HW_dens_1050, prwa.abund, mixture="NB", K=4)
+testQ.prwa <- pcount(~1 ~HW_dens_1050 + I(HW_dens_1050^2), prwa.abund, mixture="NB", K=4)
+msHW1050test <- fitList(testR.prwa, testQ.prwa)
+HW1050test.prwa <- modSel(msHW1050test)
+HW1050test.prwa
+
+testR.prwa <- pcount(~1 ~FG_herb, prwa.abund, mixture="NB", K=4)
+testQ.prwa <- pcount(~1 ~FG_herb + I(FG_herb^2), prwa.abund, mixture="NB", K=4)
+msFGHtest <- fitList(testR.prwa, testQ.prwa)
+FGHtest.prwa <- modSel(msFGHtest)
+FGHtest.prwa
+
+testR.prwa <- pcount(~1 ~FG_shrub, prwa.abund, mixture="NB", K=4)
+testQ.prwa <- pcount(~1 ~FG_shrub + I(FG_shrub^2), prwa.abund, mixture="NB", K=4)
+msFGStest <- fitList(testR.prwa, testQ.prwa)
+FGStest.prwa <- modSel(msFGStest)
+FGStest.prwa
+
+testR.prwa <- pcount(~1 ~NHW_saplings, prwa.abund, mixture="NB", K=4)
+testQ.prwa <- pcount(~1 ~NHW_saplings + I(NHW_saplings^2), prwa.abund, mixture="NB", K=4)
+msHWStest <- fitList(testR.prwa, testQ.prwa)
+HWStest.prwa <- modSel(msHWStest)
+HWStest.prwa
+```
+
+```{r}
+#more appropriate detection covariates (Detect2)  #NB
+null.prwa <- pcount(~ Jdate + I(Jdate^2) + Noise + Time
+                    ~1, prwa.abund, mixture="NB", K=60)
+global.prwa <- pcount(~ Jdate + I(Jdate^2) + Noise + Time
+                      ~ Treatment + Herbicide + BA +Ccover
+                      + Ldepth + TreeHt + Age + TimeSinceB + TimeSinceT + Nthins
+                      + HW_dens_1050 + I(HW_dens_1050^2)
+                      + FG_herb + NHW_saplings + NP_over_20cm
+                      + PISoils  + NSoilTypes
+                      + Parea + ShapeIndex + YearCat
+                      , prwa.abund, mixture="NB", K=60)  # FPSiteIndex, Nsnags, Rel_HW2P_canopy 
+local.prwa <- pcount(~ Jdate + I(Jdate^2) + Noise + Time
+                     ~ Ccover + TreeHt + Ldepth + YearCat
+                     , prwa.abund, mixture="NB", K=60) #can only include BA OR CCover
+lh.prwa <- pcount(~ Jdate + I(Jdate^2) + Noise + Time
+                  ~ Age + FG_herb + HW_dens_1050 + I(HW_dens_1050^2)
+                  + NHW_saplings + NP_over_20cm + YearCat
+                  , prwa.abund, mixture="NB", K=60)
+landmetrics.prwa <- pcount (~ Jdate + I(Jdate^2) + Noise + Time
+                            ~ Parea + ShapeIndex + YearCat
+                            , prwa.abund, mixture="NB",K=60)
+landscape500.prwa <- pcount(~ Jdate + I(Jdate^2) + Noise + Time
+                            ~ Evergreen500m + Grass500m + HighDev500m + Schrubs500m + YearCat
+                            , prwa.abund, mixture="NB", K=60)
+landscape1.prwa <- pcount(~ Jdate + I(Jdate^2) + Noise + Time
+                          ~ Evergreen1km + Grass1km + HighDev1km + Schrubs1km + YearCat
+                          , prwa.abund, mixture="NB", K=60)
+landscape5.prwa <- pcount(~ Jdate + I(Jdate^2) + Noise + Time
+                          ~ Evergreen5km + Grass5km + HighDev5km + Schrubs5km + YearCat
+                          , prwa.abund, mixture="NB", K=60)
+landscape30.prwa <- pcount(~ Jdate + I(Jdate^2) + Noise + Time
+                           ~ Evergreen30km + Grass30km + HighDev30km + YearCat
+                           , prwa.abund, mixture="NB", K=60) #rmoved Protected
+treatment.prwa <- pcount(~ Jdate + I(Jdate^2) + Noise + Time
+                         ~ Treatment + Nthins + YearCat
+                         , prwa.abund, mixture ="NB", K=60)
+management.prwa <- pcount(~ Jdate + I(Jdate^2) + Noise + Time
+                          ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide + YearCat
+                          , prwa.abund, mixture="NB", K=60)
+disturbance.prwa <- pcount(~ Jdate + I(Jdate^2) + Noise + Time
+                           ~ TimeSinceB + TimeSinceT + YearCat
+                           , prwa.abund, mixture="NB", K=60)
+siteprod.prwa <- pcount(~ Jdate + I(Jdate^2) + Noise + Time
+                        ~ PISoils + NSoilTypes + YearCat
+                        , prwa.abund, mixture="NB", K=60)
+#upstate.prwa <- pcount(~ Jdate + I(Jdate^2) + Noise + Time ~ X + Y + Z, prwa.abund, mixture="NB", K=40)
+coord.prwa <- pcount (~Jdate + I(Jdate^2) + Noise + Time ~ Latitude + Longitude + YearCat
+                      , prwa.abund, mixture="P", K=60)
+
+
+fms <- fitList(null.prwa, global.prwa, local.prwa, lh.prwa, landmetrics.prwa,
+               landscape500.prwa, landscape1.prwa, landscape5.prwa, landscape30.prwa,
+               treatment.prwa, management.prwa, disturbance.prwa,
+               siteprod.prwa, coord.prwa)
+ms.prwa <- modSel(fms) #note this does not include UPSTATE
+ms.prwa
+#ms.prwa@Full
+#now landscape 1km, then 5km
+```
+
+```{r}
+landscape1.prwa            #+evergreen, - highdev
+confint(landscape1.prwa, type="state",method="normal")
+```
+
+```{r}
+#landscape1km - evergreen
+landscape1.prwa <- pcount(~ Jdate + I(Jdate^2) + Noise + Time
+                          ~ Evergreen1km + Grass1km + HighDev1km
+                          + Schrubs1km + YearCat
+                          , prwa.abund, mixture="NB", K=60)
+
+ND.prwa <-data.frame(Evergreen1km=seq(min(sc$Evergreen1km),max(sc$Evergreen1km),length=100),Grass1km=0,HighDev1km=0,Schrubs1km=0,YearCat=0)
+prwa.est.evergreen1 <- predict(landscape1.prwa, type="state",
+newdata=ND.prwa,appendData=TRUE)
+
+plot(Predicted~ Evergreen1km, data=prwa.est.evergreen1, ylim=c(0,10), type="l", lwd=3,
+xlab="Evergreen habitat within 1km of site", ylab="Est. PRWA Abundance")
+##95% confidence intervals
+lines(lower~ Evergreen1km, data=prwa.est.evergreen1, type="l", lwd=3, col="darkgray")
+lines(upper~ Evergreen1km, data=prwa.est.evergreen1, type="l", lwd=3, col="darkgray")
+```
+^ what's wrong with this? same as nobo problem
+
+```{r}
+#landscape1km - highdev
+landscape1.prwa <- pcount(~ Jdate + I(Jdate^2) + Noise + Time
+                          ~ Evergreen1km + Grass1km + HighDev1km
+                          + Schrubs1km + YearCat
+                          , prwa.abund, mixture="NB", K=60)
+
+ND.prwa2 <-data.frame(HighDev1km=seq(min(sc$HighDev1km),max(sc$HighDev1km),length=100),Grass1km=0,Evergreen1km=0,Schrubs1km=0,YearCat=0)
+prwa.est.hdev1 <- predict(landscape1.prwa, type="state",
+newdata=ND.prwa2,appendData=TRUE)
+
+plot(Predicted~ HighDev1km, data=prwa.est.hdev1, ylim=c(0,10), type="l", lwd=3,
+xlab="Med/High developed cover within 1km of site", ylab="Est. PRWA Abundance")
+##95% confidence intervals
+lines(lower~ HighDev1km, data=prwa.est.hdev1, type="l", lwd=3, col="darkgray")
+lines(upper~ HighDev1km, data=prwa.est.hdev1, type="l", lwd=3, col="darkgray")
+```
+
+
+```{r}
+landscape5.prwa         #+evergreen, - grass,
+confint(landscape5.prwa, type="state",method="normal")
+```
+
+```{r}
+#landscape5km - evergreen
+landscape5.prwa <- pcount(~ Jdate + I(Jdate^2) + Noise + Time
+                          ~ Evergreen5km + Grass5km + HighDev5km
+                          + Schrubs5km + YearCat
+                          , prwa.abund, mixture="NB", K=60)
+
+ND.prwa3 <-data.frame(Evergreen5km=seq(min(sc$Evergreen5km),max(sc$Evergreen5km),length=100),Grass5km=0,HighDev5km=0,Schrubs5km=0,YearCat=0)
+prwa.est.evergreen5 <- predict(landscape5.prwa, type="state",
+newdata=ND.prwa3,appendData=TRUE)
+
+plot(Predicted~ Evergreen5km, data=prwa.est.evergreen5, ylim=c(0,10), type="l", lwd=3,
+xlab="Evergreen habitat within 5km of site", ylab="Est. PRWA Abundance")
+##95% confidence intervals
+lines(lower~ Evergreen5km, data=prwa.est.evergreen5, type="l", lwd=3, col="darkgray")
+lines(upper~ Evergreen5km, data=prwa.est.evergreen5, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+#landscape5km - grass
+landscape5.prwa <- pcount(~ Jdate + I(Jdate^2) + Noise + Time
+                          ~ Evergreen5km + Grass5km + HighDev5km
+                          + Schrubs5km + YearCat
+                          , prwa.abund, mixture="NB", K=60)
+
+ND.prwa4 <-data.frame(Grass5km=seq(min(sc$Grass5km),max(sc$Grass5km),length=100),Evergreen5km=0,HighDev5km=0,Schrubs5km=0,YearCat=0)
+prwa.est.grass5 <- predict(landscape5.prwa, type="state",
+newdata=ND.prwa4,appendData=TRUE)
+
+plot(Predicted~ Grass5km, data=prwa.est.grass5, ylim=c(0,10), type="l", lwd=3,
+xlab="Grassland habitat within 5km of site", ylab="Est. PRWA Abundance")
+##95% confidence intervals
+lines(lower~ Grass5km, data=prwa.est.grass5, type="l", lwd=3, col="darkgray")
+lines(upper~ Grass5km, data=prwa.est.grass5, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+write.table(ms.prwa@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/PRWA_top_models_ms.xls",sep="\t")
+```
+
+```{r, echo=FALSE}
+Nmix.gof.test(landscape1.prwa, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+#?Nmix.gof.test()
+Nmix.chisq(landscape1.prwa)
+```
+
+```{r, echo=FALSE}
+Nmix.gof.test(landscape5.prwa, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+#?Nmix.gof.test()
+Nmix.chisq(landscape5.prwa)
+```
+PRWA summary:
+NB distribution
+DCs: detect2 (+time), global2 (+time,-date2), timing(+time), time(+time)
+SCs using time:
+  landscape1 (+ evergreen, - highdev)
+  landcsape5 (+ evergreen, - grass)
+  
+
+#RBWO#
+#(forest-dwelling, insectivore, cavity-nester, bark-forager) 
+# covariates: tree age, treeht, canopy cover, big trees, understory doesn't matter
+
+```{r}
+rbwo.abund<- csvToUMF("rbwo_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+#summary(rbwo.abund) #det at 45 sites!
+#str(rbwo.abund)
+#scale all observation covariates (covs of detection)
+obsCovs(rbwo.abund)= scale (obsCovs(rbwo.abund))
+#select particular site covariates to scale below
+sc <- siteCovs(rbwo.abund)
+sc[,c(6:77)] <- scale(sc[, c(6:77)])
+siteCovs(rbwo.abund) <- sc
+```
+
+```{r}
+#run this when have CSV with both years
+null.rbwo <- pcount(~Jdate + Noise + Time ~1, rbwo.abund, mixture="P", K=40)
+year.rbwo <- pcount(~Jdate + Noise + Time ~ YearCat, rbwo.abund, mixture="P", K=40)
+fms.year.rbwo<- fitList(null.rbwo, year.rbwo)
+year.ms.rbwo<-modSel(fms.year.rbwo)
+year.ms.rbwo
+```
+^ null model ranked higher but year is d1.76
+
+```{r}
+#time but not date
+det.date.rbwo <- pcount(~ Jdate ~1, rbwo.abund, mixture="P", K=15)
+det.date2.rbwo <- pcount(~ Jdate + I(Jdate^2) ~1, rbwo.abund, mixture="P", K=15)
+mstestDATE <- fitList(det.date.rbwo, det.date2.rbwo)
+DATEtest.rbwo <- modSel(mstestDATE)
+DATEtest.rbwo
+
+det.time.rbwo <-pcount(~ Time ~1, rbwo.abund, mixture="P",K=15)
+det.time2.rbwo <-pcount(~ Time + I(Time^2) ~1, rbwo.abund, mixture="P",K=15)
+mstestTIME <- fitList(det.time.rbwo, det.time2.rbwo)
+TIMEtest.rbwo <- modSel(mstestTIME)
+TIMEtest.rbwo
+```
+
+```{r}
+#detection covariates first
+det.null.rbwo <- pcount(~1 ~1, rbwo.abund, mixture="P", K=15)
+det.weather.rbwo <- pcount(~ Wind + Sky ~1, rbwo.abund, mixture="P", K=15)
+det.global2.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time + I(Time^2) ~1, rbwo.abund, mixture="P", K=15)
+det.sound.rbwo <- pcount(~ Noise + Wind ~1, rbwo.abund, mixture="P", K=15)
+det.date.rbwo <- pcount(~ Jdate ~1, rbwo.abund, mixture="P", K=15)
+det.detect2.rbwo <- pcount(~ Jdate + Noise + Time + I(Time^2) ~1, rbwo.abund, mixture="P", K=15)
+det.notdate.rbwo <-pcount(~ Wind + Sky + Noise ~1, rbwo.abund, mixture="P", K=15)
+det.time2.rbwo <-pcount(~ Time + I(Time^2) ~1, rbwo.abund, mixture="P",K=15)
+det.timing2.rbwo <-pcount(~ Time + I(Time^2) + Jdate ~1, rbwo.abund, mixture="P", K=15)
+
+fmsDC <- fitList(det.null.rbwo, det.weather.rbwo, det.global2.rbwo,
+               det.sound.rbwo, det.date.rbwo, det.detect2.rbwo, det.notdate.rbwo,
+               det.time2.rbwo, det.timing2.rbwo)
+msDC.rbwo <- modSel(fmsDC)
+msDC.rbwo
+#msDC.rbwo@Full
+#summary: global best, time one shortly after (didnt change with quadratic)
+```
+
+```{r}
+det.global2.rbwo  #- with Sky, + with time-time2
+confint(det.global2.rbwo, type="det",method="normal")
+confint(det.global2.rbwo, type="state",method="normal")
+```
+
+```{r}
+det.time2.rbwo        #+ with time-time2
+confint(det.time2.rbwo, type="det",method="normal")
+confint(det.time2.rbwo, type="state",method="normal")
+```
+
+```{r}
+# time variable - averaged with global2, time2 model
+det.global2.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time + I(Time^2) ~1, rbwo.abund, mixture="P", K=15)
+det.time2.rbwo <-pcount(~ Time + I(Time^2) ~1, rbwo.abund, mixture="P",K=15)
+
+#summary(obsCovs(rbwo.abund))
+dms_top.rbwod <- fitList(det.global2.rbwo,det.time2.rbwo)
+ND.rbwod  <-data.frame(Time=seq(-1.5,2.5,length=100),Jdate=0, Wind=0,Sky=0,Noise=0)
+rbwo.est.time <- predict(dms_top.rbwod, type="det",
+                                newdata=ND.rbwod,appendData=TRUE)
+
+plot(Predicted~ Time, data=rbwo.est.time, ylim=c(0,1), type="l", lwd=3,
+     xlab="Survey start time", ylab="RBWO Detection Probability")
+##95% confidence intervals
+lines(lower~ Time, data=rbwo.est.time,  type="l", lwd=3, col="darkgray")
+lines(upper~ Time, data=rbwo.est.time, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+# sky variable - only global
+det.global2.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time + I(Time^2) ~1, rbwo.abund, mixture="P", K=15)
+
+#summary(obsCovs(rbwo.abund))
+
+ND.rbwod2  <-data.frame(Sky=seq(-1.25,5,length=100),Jdate=0, Wind=0,Time=0,Noise=0)
+rbwo.est.sky <- predict(det.global2.rbwo, type="det",
+                                newdata=ND.rbwod2,appendData=TRUE)
+
+plot(Predicted~ Sky, data=rbwo.est.sky, ylim=c(0,1), type="l", lwd=3,
+     xlab="Sky (cloud cover)", ylab="RBWO Detection Probability")
+##95% confidence intervals
+lines(lower~ Sky, data=rbwo.est.sky,  type="l", lwd=3, col="darkgray")
+lines(upper~ Sky, data=rbwo.est.sky, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+write.table(msDC.rbwo@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/rbwo_top_models_msDC.xls",sep="\t")
+```
+
+```{r}
+#only FG_shrub better quadratic
+testR.rbwo <- pcount(~1 ~BA, rbwo.abund, mixture="P", K=4)
+testQ.rbwo <- pcount(~1 ~BA + I(BA^2), rbwo.abund, mixture="P", K=4)
+msBAtest <- fitList(testR.rbwo, testQ.rbwo)
+BAtest.rbwo <- modSel(msBAtest)
+BAtest.rbwo
+
+testR.rbwo <- pcount(~1 ~HW_dens_1050, rbwo.abund, mixture="P", K=4)
+testQ.rbwo <- pcount(~1 ~HW_dens_1050 + I(HW_dens_1050^2), rbwo.abund, mixture="P", K=4)
+msHW1050test <- fitList(testR.rbwo, testQ.rbwo)
+HW1050test.rbwo <- modSel(msHW1050test)
+HW1050test.rbwo
+
+testR.rbwo <- pcount(~1 ~FG_herb, rbwo.abund, mixture="P", K=4)
+testQ.rbwo <- pcount(~1 ~FG_herb + I(FG_herb^2), rbwo.abund, mixture="P", K=4)
+msFGHtest <- fitList(testR.rbwo, testQ.rbwo)
+FGHtest.rbwo <- modSel(msFGHtest)
+FGHtest.rbwo
+
+#yes
+testR.rbwo <- pcount(~1 ~FG_shrub, rbwo.abund, mixture="P", K=4)
+testQ.rbwo <- pcount(~1 ~FG_shrub + I(FG_shrub^2), rbwo.abund, mixture="P", K=4)
+msFGStest <- fitList(testR.rbwo, testQ.rbwo)
+FGStest.rbwo <- modSel(msFGStest)
+FGStest.rbwo
+
+testR.rbwo <- pcount(~1 ~NHW_saplings, rbwo.abund, mixture="P", K=4)
+testQ.rbwo <- pcount(~1 ~NHW_saplings + I(NHW_saplings^2), rbwo.abund, mixture="P", K=4)
+msHWStest <- fitList(testR.rbwo, testQ.rbwo)
+HWStest.rbwo <- modSel(msHWStest)
+HWStest.rbwo
+```
+
+```{r} 
+#now site covs using detection covariates (global2 DC)
+null.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time + I(Time^2) ~1
+                    , rbwo.abund, mixture="P", K=120)
+global.rbwo <- pcount(~ Jdate + Wind + Sky + Noise+ Time + I(Time^2)
+                      ~ Treatment + Herbicide + BA + Nsnags +Ccover
+                       + Ldepth + TreeHt + Age + TimeSinceB + TimeSinceT + Nthins
+                       + HW_dens_1050 + FG_herb + FG_shrub + I(FG_shrub^2) + NHW_saplings + NP_over_20cm
+                       + Rel_HW2P_canopy + PISoils + NSoilTypes
+                       + Parea + ShapeIndex + YearCat
+                       , rbwo.abund, mixture="P", K=120) #FPSiteIndex removed
+local.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time + I(Time^2) 
+                     ~ Ccover + TreeHt + Ldepth + YearCat
+                     , rbwo.abund, mixture="P", K=120) #can only include BA OR CCover
+lh.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time + I(Time^2) 
+                  ~ TreeHt + Ccover + NP_over_20cm + Rel_HW2P_canopy + YearCat
+                  , rbwo.abund, mixture="P", K=120)
+landmetrics.rbwo <- pcount (~ Jdate + Wind + Sky + Noise + Time + I(Time^2)
+                          ~ Parea + ShapeIndex + YearCat
+                        , rbwo.abund, mixture="P", K=120)
+landscape500.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time + I(Time^2)
+                        ~ Evergreen500m + HighDev500m + Schrubs500m + Ag500m  + YearCat
+                            , rbwo.abund, mixture="P", K=120)
+landscape1.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time + I(Time^2)
+                       ~ Evergreen1km + HighDev1km + Schrubs1km + YearCat
+                          , rbwo.abund, mixture="P", K=120)
+landscape5.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time + I(Time^2)
+                       ~ Evergreen5km + HighDev5km + Schrubs5km + YearCat
+                          , rbwo.abund, mixture="P", K=120)
+landscape30.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time + I(Time^2) 
+                       ~ Evergreen30km + HighDev30km + YearCat
+                           , rbwo.abund, mixture="P", K=120) #removed Protected30
+treatment.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time + I(Time^2) 
+                         ~ Treatment + Nthins + YearCat
+                         , rbwo.abund, mixture ="P", K=120)
+management.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time + I(Time^2) 
+                          ~ Treatment + BA + TimeSinceB + TimeSinceT + Herbicide + YearCat
+                          , rbwo.abund, mixture="P", K=120)
+disturbance.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time + I(Time^2) 
+                           ~ TimeSinceB + TimeSinceT + YearCat
+                           , rbwo.abund, mixture="P", K=120)
+siteprod.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time + I(Time^2) 
+                        ~ PISoils + NSoilTypes + YearCat
+                        , rbwo.abund, mixture="P", K=120) #FPSiteIndex removed
+upstate.rbwo <- pcount(~ Jdate + Wind + Sky + Noise + Time + I(Time^2)
+                       ~ Parea + HighDev5km + YearCat
+                       , rbwo.abund, mixture="P", K=120) #5km was pretty arbitrary
+coord.rbwo <- pcount (~Jdate + Wind + Sky + Noise + Time + I(Time^2)
+                      ~ Latitude + Longitude + YearCat
+                      , rbwo.abund, mixture="P", K=80)
+
+fms <- fitList(null.rbwo, global.rbwo, local.rbwo, lh.rbwo, landmetrics.rbwo,
+               landscape500.rbwo, landscape1.rbwo, landscape5.rbwo, landscape30.rbwo,
+               treatment.rbwo, management.rbwo, disturbance.rbwo,
+                siteprod.rbwo, upstate.rbwo, coord.rbwo)
+ms.rbwo <- modSel(fms) #remember FPSiteIndex removed from global & siteprod
+ms.rbwo
+#ms.rbwo@Full
+#summary: coord is only top model (still)
+```
+
+```{r}
+coord.rbwo
+confint(coord.rbwo, type="state",method="normal")
+```
+
+```{r}
+summary(sc$Latitude)
+#coords with latitude variable
+coord.rbwo <- pcount (~Jdate + Wind + Sky + Noise + Time + I(Time^2)
+                      ~ Latitude + Longitude + YearCat
+                      , rbwo.abund, mixture="P", K=80)
+
+
+ND.rbwo <-data.frame(Latitude=seq(min(sc$Latitude),max(sc$Latitude),length=100),Longitude=0,YearCat=0)
+rbwo.est.lat <- predict(coord.rbwo, type="state",
+newdata=ND.rbwo,appendData=TRUE)
+
+plot(Predicted~ Latitude, data=rbwo.est.lat, ylim=c(0,10), type="l", lwd=3,
+xlab="Latitude", ylab="Est. RBWO Abundance")
+##95% confidence intervals
+lines(lower~ Latitude, data=rbwo.est.lat, type="l", lwd=3, col="darkgray")
+lines(upper~ Latitude, data=rbwo.est.lat, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+write.table(ms.rbwo@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/rbwo_top_models_ms.xls",sep="\t")
+```
+
+```{r, echo=FALSE}
+Nmix.gof.test(coord.rbwo, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+#?Nmix.gof.test()
+Nmix.chisq(coord.rbwo)
+```
+
+RBWO Summary:
+P distribution
+DCs: global (sky -, +time&time2-, then time (+time&time2-)
+SCs using global2:
+    Coord is only top model (- with Latitude)
+    
+
+#YBCH#
+#(foliage gleaner, shrub nester 1-8' max, scrub habitat, insects)
+# covariates: shrub/midstory density, forbs, 
+
+```{r}
+ybch.abund<- csvToUMF("ybch_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+#summary(ybch.abund)
+#str(ybch.abund)
+#scale all observation covariates (covs of detection)
+obsCovs(ybch.abund)= scale (obsCovs(ybch.abund))
+#select particular site covariates to scale below
+sc <- siteCovs(ybch.abund)
+sc[,c(6:77)] <- scale(sc[, c(6:77)])
+siteCovs(ybch.abund) <- sc
+```
+
+```{r}
+#run this when have CSV with both years
+null.ybch <- pcount(~Jdate + Noise + Time ~1, ybch.abund, mixture="P", K=40)
+year.ybch <- pcount(~Jdate + Noise + Time ~ YearCat, ybch.abund, mixture="P", K=40)
+fms.year.ybch<- fitList(null.ybch, year.ybch)
+year.ms.ybch<-modSel(fms.year.ybch)
+year.ms.ybch
+```
+^ null ranked first but year is 1.96
+
+```{r}
+#neither sig
+det.date.ybch <- pcount(~ Jdate ~1, ybch.abund, mixture="P", K=15)
+det.date2.ybch <- pcount(~ Jdate + I(Jdate^2) ~1, ybch.abund, mixture="P", K=15)
+mstestDATE <- fitList(det.date.ybch, det.date2.ybch)
+DATEtest.ybch <- modSel(mstestDATE)
+DATEtest.ybch
+
+det.time.ybch <-pcount(~ Time ~1, ybch.abund, mixture="P",K=15)
+det.time2.ybch <-pcount(~ Time + I(Time^2) ~1, ybch.abund, mixture="P",K=15)
+mstestTIME <- fitList(det.time.ybch, det.time2.ybch)
+TIMEtest.ybch <- modSel(mstestTIME)
+TIMEtest.ybch
+```
+
+```{r}
+#detection covariates first
+det.null.ybch <- pcount(~1 ~1, ybch.abund, mixture="P", K=15)
+det.weather.ybch <- pcount(~ Wind + Sky ~1, ybch.abund, mixture="P", K=15)
+det.global.ybch <- pcount(~ Jdate + Wind + Sky + Noise +Time ~1, ybch.abund, mixture="P", K=15)
+det.sound.ybch <- pcount(~ Noise + Wind ~1, ybch.abund, mixture="P", K=15)
+det.date.ybch <- pcount(~ Jdate ~1, ybch.abund, mixture="P", K=15)
+det.detect.ybch <- pcount(~ Jdate + Noise + Time ~1, ybch.abund, mixture="P", K=15)
+det.notdate.ybch <-pcount(~ Wind + Sky + Noise ~1, ybch.abund, mixture="P", K=15)
+det.time.ybch <-pcount(~ Time ~1, ybch.abund, mixture="P",K=15)
+det.timing.ybch <-pcount(~ Time + Jdate ~1, ybch.abund, mixture="P", K=15)
+
+fmsDC <- fitList(det.null.ybch, det.weather.ybch, det.global.ybch,
+                 det.sound.ybch, det.date.ybch, det.detect.ybch, det.notdate.ybch,
+                 det.time.ybch, det.timing.ybch)
+msDC.ybch <- modSel(fmsDC)
+msDC.ybch
+#msDC.ybch@Full
+#summary: 1st detect (Jdate + Noise +Time), 2nd is global (1.85)
+```
+
+```{r}
+det.detect.ybch   #+ w date and - with noise
+confint(det.detect.ybch, type="det",method="normal")
+confint(det.detect.ybch, type="state",method="normal")
+```
+
+```{r}
+det.global.ybch   #+ w date and - with noise
+confint(det.global.ybch, type="det",method="normal")
+confint(det.global.ybch, type="state",method="normal")
+```
+
+```{r}
+#+ with date - model-averaged with detect & global
+det.detect.ybch <- pcount(~ Jdate + Noise + Time ~1, ybch.abund, mixture="P", K=15)
+det.global.ybch <- pcount(~ Jdate + Wind + Sky + Noise +Time ~1, ybch.abund, mixture="P", K=15)
+
+#summary(ybch.abund)
+dms_top.ybchd <- fitList(det.global.ybch, det.detect.ybch)
+ND.ybchd  <-data.frame(Jdate=seq(-1.75,2.25,length=100),Time=0, Wind=0,Sky=0,Noise=0)
+ybch.est.date <- predict(dms_top.ybchd, type="det",
+                                newdata=ND.ybchd,appendData=TRUE)
+
+plot(Predicted~ Jdate, data=ybch.est.date, ylim=c(0,1), type="l", lwd=3,
+     xlab="Survey date", ylab="YBCH Detection Probability")
+##95% confidence intervals
+lines(lower~ Jdate, data=ybch.est.date,  type="l", lwd=3, col="darkgray")
+lines(upper~ Jdate, data=ybch.est.date, type="l", lwd=3, col="darkgray")
+
+```
+
+```{r}
+#- with noise - model-averaged with detect & global
+det.detect.ybch <- pcount(~ Jdate + Noise + Time ~1, ybch.abund, mixture="P", K=15)
+det.global.ybch <- pcount(~ Jdate + Wind + Sky + Noise +Time ~1, ybch.abund, mixture="P", K=15)
+
+#summary(obsCovs(ybch.abund))
+dms_top.ybchd <- fitList(det.detect.ybch,det.global.ybch)
+ND.ybchd2  <-data.frame(Noise=seq(-1.75,2.25,length=100),Time=0,Jdate=0, Wind=0, Sky=0)
+ybch.est.noise <- predict(dms_top.ybchd, type="det",
+                                newdata=ND.ybchd2,appendData=TRUE)
+
+plot(Predicted~ Noise, data=ybch.est.noise, ylim=c(0,1), type="l", lwd=3,
+     xlab="Ambient noise", ylab="YBCH Detection Probability")
+##95% confidence intervals
+lines(lower~ Noise, data=ybch.est.noise,  type="l", lwd=3, col="darkgray")
+lines(upper~ Noise, data=ybch.est.noise, type="l", lwd=3, col="darkgray")
+
+```
+
+```{r}
+write.table(msDC.ybch@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/ybch_top_models_msDC.xls",sep="\t")
+```
+
+```{r}
+#FG herb better quadratic, only one
+testR.ybch <- pcount(~1 ~BA, ybch.abund, mixture="P", K=4)
+testQ.ybch <- pcount(~1 ~BA + I(BA^2), ybch.abund, mixture="P", K=4)
+msBAtest <- fitList(testR.ybch, testQ.ybch)
+BAtest.ybch <- modSel(msBAtest)
+BAtest.ybch
+
+testR.ybch <- pcount(~1 ~HW_dens_1050, ybch.abund, mixture="P", K=4)
+testQ.ybch <- pcount(~1 ~HW_dens_1050 + I(HW_dens_1050^2), ybch.abund, mixture="P", K=4)
+msHW1050test <- fitList(testR.ybch, testQ.ybch)
+HW1050test.ybch <- modSel(msHW1050test)
+HW1050test.ybch
+
+testR.ybch <- pcount(~1 ~FG_herb, ybch.abund, mixture="P", K=4)
+testQ.ybch <- pcount(~1 ~FG_herb + I(FG_herb^2), ybch.abund, mixture="P", K=4)
+msFGHtest <- fitList(testR.ybch, testQ.ybch)
+FGHtest.ybch <- modSel(msFGHtest)
+FGHtest.ybch
+
+testR.ybch <- pcount(~1 ~FG_shrub, ybch.abund, mixture="P", K=4)
+testQ.ybch <- pcount(~1 ~FG_shrub + I(FG_shrub^2), ybch.abund, mixture="P", K=4)
+msFGStest <- fitList(testR.ybch, testQ.ybch)
+FGStest.ybch <- modSel(msFGStest)
+FGStest.ybch
+
+testR.ybch <- pcount(~1 ~NHW_saplings, ybch.abund, mixture="P", K=4)
+testQ.ybch <- pcount(~1 ~NHW_saplings + I(NHW_saplings^2), ybch.abund, mixture="P", K=4)
+msHWStest <- fitList(testR.ybch, testQ.ybch)
+HWStest.ybch <- modSel(msHWStest)
+HWStest.ybch
+```
+
+```{r}
+# SCs with appropriate detection covariates (Jdate + Noise + Time )
+null.ybch <- pcount(~ Jdate + Noise + Time ~1, ybch.abund, mixture="P", K=40)
+global.ybch <- pcount(~ Jdate + Noise + Time
+                      ~ Treatment + Herbicide + BA + Ccover
+                      + Ldepth + TreeHt + Age + TimeSinceB + TimeSinceT + Nthins
+                      + HW_dens_1050 + FG_herb + I(FG_herb^2)
+                      + FG_shrub + NHW_saplings
+                      + Rel_HW2P_canopy + PISoils + NSoilTypes
+                      + Parea + ShapeIndex + YearCat
+                      , ybch.abund, mixture="P", K=40)  #FPSiteIndex, snags, 
+local.ybch <- pcount(~ Jdate + Noise + Time
+                     ~ Ccover + TreeHt + Ldepth + YearCat
+                     , ybch.abund, mixture="P", K=40) #can only include BA OR CCover
+lh.ybch <- pcount(~ Jdate + Noise + Time
+                  ~ BA + FG_herb + I(FG_herb^2) + FG_shrub 
+                  + HW_dens_1050 + NHW_saplings
+                  + Rel_HW2P_canopy + YearCat
+                  , ybch.abund, mixture="P", K=40)
+landmetrics.ybch <- pcount (~ Jdate + Noise + Time
+                            ~ Parea + ShapeIndex + YearCat
+                            , ybch.abund, mixture="P",K=40)
+landscape500.ybch <- pcount(~ Jdate + Noise + Time
+                            ~ Evergreen500m + Grass500m + HighDev500m + Schrubs500m
+                            + Ag500m + OpenDev500m + YearCat
+                            , ybch.abund, mixture="P", K=40)
+landscape1.ybch <- pcount(~ Jdate + Noise + Time
+                          ~ Evergreen1km + Grass1km + HighDev1km + Schrubs1km
+                          + OpenDev1km + YearCat
+                          , ybch.abund, mixture="P", K=40)
+landscape5.ybch <- pcount(~ Jdate + Noise + Time
+                          ~ Evergreen5km + Grass5km + HighDev5km + Schrubs5km + YearCat
+                          , ybch.abund, mixture="P", K=40)
+landscape30.ybch <- pcount(~ Jdate + Noise + Time
+                           ~ Evergreen30km + Grass30km + YearCat
+                           , ybch.abund, mixture="P", K=40)
+treatment.ybch <- pcount(~ Jdate + Noise + Time
+                         ~ Treatment + Nthins + YearCat
+                         , ybch.abund, mixture ="P", K=40)
+management.ybch <- pcount(~ Jdate + Noise + Time
+                          ~ Treatment + BA + TimeSinceB + TimeSinceT 
+                          + Herbicide + YearCat
+                          , ybch.abund, mixture="P", K=40)
+disturbance.ybch <- pcount(~ Jdate + Noise + Time
+                           ~ TimeSinceB + TimeSinceT + YearCat
+                           , ybch.abund, mixture="P", K=40)
+siteprod.ybch <- pcount(~ Jdate + Noise + Time ~ PISoils + NSoilTypes + YearCat
+                        , ybch.abund, mixture="P", K=40) #FPSiteIndex
+#upstate.ybch <- pcount(~ Jdate + Noise + Time ~ X + Y + Z, ybch.abund, mixture="P", K=40)
+coord.ybch <- pcount (~Jdate + Noise + Time ~ Latitude + Longitude + YearCat
+                      , ybch.abund, mixture="P", K=40)
+
+
+fmsYBCH <- fitList(null.ybch, global.ybch, local.ybch, lh.ybch, landmetrics.ybch,
+               landscape500.ybch, landscape1.ybch, landscape5.ybch, landscape30.ybch,
+               treatment.ybch, management.ybch, disturbance.ybch,
+               siteprod.ybch, coord.ybch)
+ms.ybch <- modSel(fmsYBCH) #note this does not include upstate
+ms.ybch
+#ms.ybch@Full
+#Summary: Landscape1 is only top model (same still)
+```
+
+```{r}
+landscape1.ybch  #pos with schrubs, - with opendev
+confint(landscape1.ybch, type="state",method="normal")
+```
+
+```{r}
+# landscape 1: schrubs1km+
+landscape1.ybch <- pcount(~ Jdate + Noise + Time
+                          ~ Evergreen1km + Grass1km + HighDev1km + Schrubs1km
+                          + OpenDev1km + YearCat
+                          , ybch.abund, mixture="P", K=40)
+
+ND.ybch <-data.frame(Schrubs1km=seq(min(sc$Schrubs1km),max(sc$Schrubs1km),length=100),OpenDev1km=0,Evergreen1km=0, Grass1km=0,HighDev1km=0,YearCat=0)
+ybch.est.schrubs1 <- predict(landscape1.ybch, type="state",
+newdata=ND.ybch,appendData=TRUE)
+
+plot(Predicted~ Schrubs1km, data=ybch.est.schrubs1, ylim=c(0,10), type="l", lwd=3,
+xlab="Shrub/scrub habitat within 1km of site", ylab="Est. YBCH Abundance")
+##95% confidence intervals
+lines(lower~ Schrubs1km, data=ybch.est.schrubs1, type="l", lwd=3, col="darkgray")
+lines(upper~ Schrubs1km, data=ybch.est.schrubs1, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+# landscape 1: opendev1km+
+landscape1.ybch <- pcount(~ Jdate + Noise + Time
+                          ~ Evergreen1km + Grass1km + HighDev1km + Schrubs1km
+                          + OpenDev1km + YearCat
+                          , ybch.abund, mixture="P", K=40)
+
+ND.ybch2 <-data.frame(OpenDev1km=seq(min(sc$OpenDev1km),max(sc$OpenDev1km),length=100),Schrubs1km=0,Evergreen1km=0, Grass1km=0,HighDev1km=0,YearCat=0)
+ybch.est.odev1 <- predict(landscape1.ybch, type="state",
+newdata=ND.ybch2,appendData=TRUE)
+
+plot(Predicted~ OpenDev1km, data=ybch.est.odev1, ylim=c(0,10), type="l", lwd=3,
+xlab="Low-level/open development within 1km of site", ylab="Est. YBCH Abundance")
+##95% confidence intervals
+lines(lower~ OpenDev1km, data=ybch.est.odev1, type="l", lwd=3, col="darkgray")
+lines(upper~ OpenDev1km, data=ybch.est.odev1, type="l", lwd=3, col="darkgray")
+```
+
+```{r}
+write.table(ms.ybch@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/Project-Specific/R work/USDA-songbirds/USDA-songbirds/ybch_top_models_ms.xls",sep="\t")
+```
+
+
+```{r, echo=FALSE}
+Nmix.gof.test(landscape1.ybch, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+Nmix.chisq(landscape1.ybch)
+```
+
+YBCH Summary
+P distribution
+DCs: detect first (+ date, then - noise), then global
+SCs using detect model:
+    Landscape1km only top model (+Scrubs, -OpenDev)
+    
+------------------------------------------------------------------
+
+#DETECTION PROBABILITIES#
+```{r}
+#noise
+plot(Predicted~ Noise, data=ybch.est.noise, ylim=c(0,1), type="l", lwd=3, col="coral2",
+     xlab="Ambient noise", ylab="Detection Probability")
+lines(Predicted~ Noise, data=inbu.est.noise, ylim=c(0,1), type="l", lwd=3, col="blue3",
+     xlab="Ambient noise", ylab="Detection Probability")
+
+leg.txt1=("Yellow-breasted Chat")
+leg.txt2=("Indigo Bunting")
+legend(x=0.5, y=0.95, leg.txt1, text.col = c("coral2"), bty="n")
+legend(x=0.5, y=0.9, leg.txt2, text.col = c("blue3"), bty="n")
+
+
+#sky
+plot(Predicted~ Sky, data=piwa.est.sky, ylim=c(0,1), type="l", lwd=3, col="aquamarine4",
+     xlab="Sky (increasing cloud cover)", ylab="Detection Probability")
+lines(Predicted~ Sky, data=rbwo.est.sky, ylim=c(0,1), type="l", lwd=3, col= "brown",
+     xlab="Sky (increasing cloud cover)", ylab="Detection Probability")
+
+leg.txt3=("Pine Warbler")
+leg.txt4=("Red-bellied Woodpecker")
+legend(x=2.2, y=0.95, leg.txt3, text.col = c("aquamarine4"), bty="n")
+legend(x=2.2, y=0.9, leg.txt4, text.col = c("brown"), bty="n")
+
+
+
+#date
+plot(Predicted~ Jdate, data=bhnu.est.date, ylim=c(0,1), type="l", lwd=3, col="gray55",
+     xlab="Survey date", ylab="Detection Probability")
+lines(Predicted~ Jdate, data=cawr.est.date, ylim=c(0,1), type="l", lwd=3, col="plum",
+     xlab="Survey date", ylab="Detection Probability")
+lines(Predicted~ Jdate, data=inbu.est.date, ylim=c(0,1), type="l", lwd=3, col="blue3",
+     xlab="Survey date", ylab="Detection Probability")
+lines(Predicted~ Jdate, data=nobo.est.date, ylim=c(0,1), type="l", lwd=3, col="tan1",
+     xlab="Survey date", ylab="Detection Probability")
+lines(Predicted~ Jdate, data=piwa.est.date, ylim=c(0,1), type="l", lwd=3, col="aquamarine4",
+     xlab="Survey date", ylab="Detection Probability")
+lines(Predicted~ Jdate, data=prwa.est.date, ylim=c(0,1), type="l", lwd=3, col="khaki3",
+     xlab="Survey date", ylab="Detection Probability")
+lines(Predicted~ Jdate, data=ybch.est.date, ylim=c(0,1), type="l", lwd=3, col="coral2",
+     xlab="Survey date", ylab="Detection Probability")
+
+leg.txt1=("Brown-headed Nuthatch")
+leg.txt2=("Carolina Wren")
+leg.txt3=("Indigo Bunting")
+leg.txt4=("Northern Bobwhite")
+leg.txt5=("Pine Warbler")
+leg.txt6=("Prairie Warbler")
+leg.txt7=("Yellow-breasted Chat")
+legend(x=-0.6, y=1, leg.txt5, text.col = c("aquamarine4"), bty="n")
+legend(x=-0.6, y=0.95, leg.txt2, text.col = c("plum"), bty="n")
+legend(x=-0.6, y=0.9, leg.txt1, text.col = c("gray55"), bty="n")
+
+legend(x=0.9, y=1.01, leg.txt3, text.col = c("blue3"), bty="n")
+legend(x=0.9, y=0.95, leg.txt7, text.col = c("coral2"), bty="n")
+legend(x=0.9, y=0.9, leg.txt6, text.col = c("khaki3"), bty="n")
+legend(x=0.9, y=0.85, leg.txt4, text.col = c("tan1"), bty="n")
+
+
+#time
+plot(Predicted~ Time, data=bhnu.est.time, ylim=c(0,1), type="l", lwd=3, col="gray55",
+     xlab="Survey start time", ylab="Detection Probability")
+lines(Predicted~ Time, data=inbu.est.time, ylim=c(0,1), type="l", lwd=3, col="blue3",
+     xlab="Survey start time", ylab="Detection Probability")
+lines(Predicted~ Time, data=piwa.est.time, ylim=c(0,1), type="l", lwd=3, col="aquamarine4",
+     xlab="Survey start time", ylab="Detection Probability")
+lines(Predicted~ Time, data=prwa.est.time, ylim=c(0,1), type="l", lwd=3, col="khaki3",
+     xlab="Survey start time", ylab="Detection Probability")
+lines(Predicted~ Time, data=rbwo.est.time, ylim=c(0,1), type="l", lwd=3, col="brown",
+     xlab="Survey start time", ylab="Detection Probability")
+
+leg.txt1=("Brown-headed Nuthatch")
+leg.txt3=("Indigo Bunting")
+leg.txt5=("Pine Warbler")
+leg.txt6=("Prairie Warbler")
+leg.txt8=("Red-bellied Woodpecker")
+legend(x=.95, y=1.05, leg.txt1, text.col = c("gray55"), bty="n")
+legend(x=0, y=0.9, leg.txt3, text.col = c("blue3"), bty="n")
+legend(x=0, y=0.975, leg.txt5, text.col = c("aquamarine4"), bty="n")
+legend(x=.95, y=0.970, leg.txt6, text.col = c("khaki3"), bty="n")
+legend(x=.95, y=0.9, leg.txt8, text.col = c("brown"), bty="n")
+
+```
+
+```{r}
+library(gridExtra)
+```
+
+
+Effect size figures for site covariates:
+#Local
+```{r}
+###graphing CI
+##if different number of covariates, change the 5s to match
+datap <- data.frame(covariate= character(4), coef= numeric(4), se = numeric(4))
+datap$covariate=c('Ldepth','Nsnags','BA','Rel_HW2P_canopy')
+datap$coef=c(-.249,.208,-.408,-0.369)
+datap$se=c(.110,.098,.157,0.117)
+
+#xlim and ylim ranges will likey need to be changed to reflect your confidence intervals
+par(mar=c(5,7,4,5)+0.1)
+x=1:4
+plot(datap$coef, y=1:4,yaxt='n', 
+     xlim=range(c(-1,1)),
+     pch=19, ylim=range(c(.5,4.5)), xlab='Effect size', ylab=NA,
+     main="Parameter Effects")
+
+axis(2, at = c(4,3,2,1), labels = c("HW:pine ratio","Basal area", "# Snags", "Litter depth"), las=1)
+axis(4, at = c(4,3,2,1), labels = c("BHNU","EABL","EABL","INBU"), las=1)
+# horizontal error bars
+arrows(datap$coef-(2*(datap$se)), x, datap$coef+(2*(datap$se)),x, length=0.05, angle=90, code=3)
+abline(v=0, lty=2)
+```
+
+#Landscape
+
+```{r}
+###graphing CI
+##if different number of covariates, change the 5s to match
+datap <- data.frame(covariate= character(14), coef= numeric(14), se = numeric(14))
+datap$covariate=c('Latitude','Latitude','HighDev30km','Grass5km','Ag5km','Evergreen5km','Evergreen5km','Evergreen1km','Evergreen1km','Evergreen1km','HighDev1km','HighDev1km','OpenDev1km','Schrubs1km')
+datap$coef=c(-.249,.207,-.210,-.517,.151,-.191,.456,.463,.743,0.215,-1,0.157,-.361,.312)
+datap$se=c(0.084,0.075,0.083,.199,.072,0.080,.188,.152,.208,0.093,0,0.063,.124,.086)
+
+#xlim and ylim ranges will likey need to be changed to reflect your confidence intervals
+par(mar=c(5,8,4,5)+0.1)
+x=1:14
+plot(datap$coef, y=1:14,yaxt='n', 
+     xlim=range(c(-1,1.1)),
+     pch=19, ylim=range(c(.5,14.5)), xlab='Effect size', ylab=NA,
+     main="Parameter Effects")
+
+axis(2, at = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14), labels = c("Latitude","Latitude","HighDev.30km","Grass.5km","Ag.5km","Evergreen.5km","Evergreen.5km","Evergreen.1km","Evergreen.1km","Evergreen.1km","HighDev.1km","HighDev.1km","OpenDev.1km","Scrub/Shrub.1km"), las=1)
+axis(4, at = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14), labels = c("RBWO","PIWA","PIWA","PRWA","CAWR","PIWA","PRWA","PRWA","NOBO","BHNU","PRWA","BHNU","YBCH","YBCH"), las=1)
+# horizontal error bars
+arrows(datap$coef-(2*(datap$se)), x, datap$coef+(2*(datap$se)),x, length=0.05, angle=90, code=3)
+abline(v=0, lty=2)
+```
+
+
+#Management
+
+```{r}
+datap <- data.frame(covariate= character(1), coef= numeric(1), se = numeric(1))
+datap$covariate=c('TimeSinceB')
+datap$coef=c(-0.367)
+datap$se=c(0.131)
+
+#xlim and ylim ranges will likey need to be changed to reflect your confidence intervals
+par(mar=c(5,7,4,5)+0.1)
+x=1:1
+plot(datap$coef, y=1:1,yaxt='n', 
+     xlim=range(c(-1,1)),
+     pch=19, ylim=range(c(.5,1.5)), xlab='Effect size', ylab=NA,
+     main="Parameter Effects")
+
+axis(2, at = c(1), labels = c("TimeSinceBurn"), las=1)
+axis(4, at = c(1), labels = c("EAWP"), las=1)
+# horizontal error bars
+arrows(datap$coef-(2*(datap$se)), x, datap$coef+(2*(datap$se)),x, length=0.05, angle=90, code=3)
+abline(v=0, lty=2)
+
+
+bhnu.abund<- csvToUMF("bhnu_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+obsCovs(bhnu.abund)= scale (obsCovs(bhnu.abund))
+sc <- siteCovs(bhnu.abund)
+sc[,c(6:77)] <- scale(sc[, c(6:77)])
+siteCovs(bhnu.abund) <- sc
+
+#for figures:  treatment model (Treatment)
+treatment.bhnu <- pcount(~ Jdate + Noise + Time
+                         ~ Treatment + Nthins + YearCat
+                         , bhnu.abund, mixture ="P", K=40)
+
+##
+error.bar <- function(x, y, upper, lower=upper, length=0.1,...){
+  if(length(x) != length(y) | length(y) !=length(lower) | length(lower) != length(upper))
+    stop("vectors must be same length")
+  arrows(x,y+upper, x, y-lower, angle=90, code=3, length=length, ...)
+}
+##
+
+ND.bhnu  <- data.frame(Treatment=factor(c("0B","1B","2B","3B")),
+                       Nthins=0, YearCat=0)
+bhnu.est.tx <- predict(treatment.bhnu, type="state",
+                       newdata=ND.bhnu,appendData=TRUE)
+
+data.mean<-bhnu.est.tx$Predicted
+data.sd<-bhnu.est.tx$SE
+
+bar.p1 <-barplot(data.mean,
+                names.arg=c("0B","1B","2B","3B"),
+                ylim = c(0, 8), ylab="Est. BHNU Abundance", xlab="Treatment",
+                #cex.names = 1.5, cex.axis=1.5, cex.lab=1.5, 
+                col="darkblue")
+error.bar(bar.p1,data.mean,data.sd) #sd
+
+eawp.abund<- csvToUMF("eawp_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+obsCovs(eawp.abund)= scale (obsCovs(eawp.abund))
+sc <- siteCovs(eawp.abund)
+sc[,c(6:77)] <- scale(sc[, c(6:77)])
+siteCovs(eawp.abund) <- sc
+
+#treatment model (treatment variable)
+treatment.eawp <- pcount(~ Wind + Sky
+                         ~ Treatment + Nthins + YearCat
+                         , eawp.abund, mixture ="P", K=40)
+
+ND.eawp  <- data.frame(Treatment=factor(c("0B","1B","2B","3B")),
+                       Nthins=0, YearCat=0)
+eawp.est.tx <- predict(treatment.eawp, type="state",
+                       newdata=ND.eawp,appendData=TRUE)
+
+data.mean2<-eawp.est.tx$Predicted
+data.sd2<-eawp.est.tx$SE
+
+bar.p2 <-barplot(data.mean2,
+                names.arg=c("0B","1B","2B","3B"),
+                ylim = c(0, 8), ylab="Est. EAWP Abundance", xlab="Treatment",
+                #cex.names = 1.5, cex.axis=1.5, cex.lab=1.5, 
+                col="darkblue")
+error.bar(bar.p2,data.mean2,data.sd2) #sd
+
+
+
+inbu.abund<- csvToUMF("inbu_abund.csv", long = FALSE, type = "unmarkedFramePCount")
+obsCovs(inbu.abund)= scale (obsCovs(inbu.abund))
+sc <- siteCovs(inbu.abund)
+sc[,c(6:77)] <- scale(sc[, c(6:77)]) #from 26 to 74 +landscape+soils
+siteCovs(inbu.abund) <- sc
+
+#treatment model (treatment variable)
+treatment.inbu <- pcount(~ Jdate + Noise + Time + I(Time^2)
+                         ~ Treatment + Nthins + YearCat
+                         , inbu.abund, mixture ="P", K=40)
+
+ND.inbu  <- data.frame(Treatment=factor(c("0B","1B","2B","3B")),
+                       Nthins=0, YearCat=0)
+inbu.est.tx <- predict(treatment.inbu, type="state",
+                       newdata=ND.inbu,appendData=TRUE)
+
+data.mean3<-inbu.est.tx$Predicted
+data.sd3<-inbu.est.tx$SE
+
+bar.p3 <-barplot(data.mean3,
+                names.arg=c("0B","1B","2B","3B"),
+                ylim = c(0, 8), ylab="Est. INBU Abundance", xlab="Treatment",
+                #cex.names = 1.5, cex.axis=1.5, cex.lab=1.5, 
+                col="darkblue")
+error.bar(bar.p3,data.mean3,data.sd3) #sd
+
+```
