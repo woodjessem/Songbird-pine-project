@@ -103,3 +103,19 @@ Nmix.chisq(landscape5.prwa)
 
 #forum on using 1 vs other:
     # https://groups.google.com/forum/#!topic/unmarked/vVvpDr123lI 
+
+
+fitstats <- function(greenberg.cavity) {
+  observed <- getY(greenberg.cavity@data)
+  expected <- fitted(greenberg.cavity)
+  resids <- residuals(greenberg.cavity)
+  sse <- sum(resids^2, na.rm=TRUE)
+  chisq <- sum((observed[,1:3] - expected[,1:3])^2 / expected[,1:3])
+  freeTuke <- sum((sqrt(observed[,1:3]) - sqrt(expected[,1:3]))^2)
+  out <- c(SSE=sse, Chisq=chisq, freemanTukey=freeTuke)
+  return(out)
+}
+pb <- parboot(greenberg.cavity, fitstats, nsim=25, report=1)
+plot(pb, main="")
+pb
+

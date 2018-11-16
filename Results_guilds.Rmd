@@ -351,10 +351,24 @@ lines(upper~ NSoilTypes, data=cn.est.soils, type="l", lwd=3, col="darkgray")
 ```
 
 ```{r}
-#put species' top model in place of "landscape5.prwa" & up nsim
-Nmix.gof.test(landmetrics.cavity, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+Nmix.gof.test(landmetrics.cavity, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
 #?Nmix.gof.test()
-Nmix.chisq(local.cavity)
+Nmix.chisq(siteprod.cavity)
+```
+
+```{r}
+fitstats <- function(landmetrics.cavity) {
+  observed <- getY(landmetrics.cavity@data)
+  expected <- fitted(landmetrics.cavity)
+  resids <- residuals(landmetrics.cavity)
+  sse <- sum(resids^2, na.rm=TRUE)
+  chisq <- sum((observed[,1:3] - expected[,1:3])^2 / expected[,1:3])
+  freeTuke <- sum((sqrt(observed[,1:3]) - sqrt(expected[,1:3]))^2)
+  out <- c(SSE=sse, Chisq=chisq, freemanTukey=freeTuke)
+  return(out)
+}
+pb <- parboot(landmetrics.cavity, fitstats, nsim=25, report=1)
+plot(pb, main="")
 ```
 
 # Cavity-nesters (n=16) Summary: #
@@ -608,7 +622,7 @@ lines(upper~ Parea, data=tn.est.area, type="l", lwd=3, col="darkgray")
 
 ```{r}
 #put species' top model in place of "landscape5.prwa" & up nsim
-Nmix.gof.test(landmetrics.tree, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+Nmix.gof.test(landmetrics.tree, nsim = 50, plot.hist = TRUE, report = TRUE) #increase nsim
 #?Nmix.gof.test()
 Nmix.chisq(landmetrics.tree)
 ```
@@ -1110,7 +1124,7 @@ lines(upper~ OpenDev1km, data=ground.est.odev1, type="l", lwd=3, col="darkgray")
 
 ```{r}
 #put species' top model in place of "landscape5.prwa" & up nsim
-Nmix.gof.test(greenberg.shrub, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+Nmix.gof.test(landscape1.ground, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
 #?Nmix.gof.test()
 Nmix.chisq(greenberg.shrub)
 ```
@@ -1359,17 +1373,11 @@ lines(upper~ HighDev30km, data=bf.est.hdev, type="l", lwd=3, col="darkgray")
 
 ```{r}
 #put species' top model in place of "landscape5.prwa" & up nsim
-Nmix.gof.test(null.bf, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+Nmix.gof.test(coord.bf, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
 #?Nmix.gof.test()
 Nmix.chisq(null.bf)
 ```
 
-```{r}
-#put species' top model in place of "landscape5.prwa" & up nsim
-Nmix.gof.test(landscape30.bf, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
-#?Nmix.gof.test()
-Nmix.chisq(landscape30.bf)
-```
 Bark foragers (n=10) Summary:
 P distribution
 DCs: Global is best and only under d2.0
@@ -1629,14 +1637,14 @@ lines(upper~ Ag500m, data=fg.est.ag500, type="l", lwd=3, col="darkgray")
 
 ```{r}
 #put species' top model in place of "landscape5.prwa" & up nsim
-Nmix.gof.test(landscape1.fg, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+Nmix.gof.test(landscape1.fg, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
 #?Nmix.gof.test()
 Nmix.chisq(landscape1.fg)
 ```
 
 ```{r}
 #put species' top model in place of "landscape5.prwa" & up nsim
-Nmix.gof.test(landscape500.fg, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+Nmix.gof.test(landscape500.fg, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
 #?Nmix.gof.test()
 Nmix.chisq(landscape500.fg)
 ```
@@ -1946,7 +1954,7 @@ lines(upper~ Ccover, data=gf.est.ccover, type="l", lwd=3, col="darkgray")
 
 ```{r}
 #put species' top model in place of "landscape5.prwa" & up nsim
-Nmix.gof.test(local.gf, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+Nmix.gof.test(local.gf, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
 #?Nmix.gof.test()
 Nmix.chisq(local.gf)
 ```

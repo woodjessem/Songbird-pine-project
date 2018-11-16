@@ -1,7 +1,7 @@
 ---
 title: "All_SPP"
 author: "Jesse Wood"
-date: "September 13, 2018"
+date: "Oct 23, 2018"
 output: word_document
 ---
 
@@ -448,15 +448,17 @@ write.table(ms.bhnu@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/P
 
 ```{r, echo=FALSE}
 #put species' top model in place of "landscape5.prwa" & up nsim
-Nmix.gof.test(treatment.bhnu, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+Nmix.gof.test(treatment.bhnu, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
 #?Nmix.gof.test()
 Nmix.chisq(treatment.bhnu)
 ```
 
 ```{r, echo=FALSE}
-Nmix.gof.test(lh.bhnu, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
-#?Nmix.gof.test()
-Nmix.chisq(lh.bhnu)
+Nmix.gof.test(lh.bhnu, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
+```
+
+```{r, echo=FALSE}
+Nmix.gof.test(landscape1.bhnu, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
 ```
 
 bhnu summary:
@@ -711,7 +713,12 @@ write.table(ms.cawr@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/P
 
 ```{r, echo=FALSE}
 #put species' top model in place of "landscape5.prwa" & up nsim
-Nmix.gof.test(upstate.cawr, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+Nmix.gof.test(null.cawr, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
+```
+
+```{r, echo=FALSE}
+#put species' top model in place of "landscape5.prwa" & up nsim
+Nmix.gof.test(upstate.cawr, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
 #?Nmix.gof.test()
 Nmix.chisq(upstate.cawr)
 ```
@@ -954,9 +961,7 @@ write.table(msN.cach@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/
 
 ```{r, echo=FALSE}
 #put species' top model in place of "landscape5.prwa" & up nsim
-Nmix.gof.test(Nsiteprod.cach, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
-#?Nmix.gof.test()
-Nmix.chisq(Nsiteprod.cach)
+Nmix.gof.test(Nlandscape1.cach, nsim = 50, plot.hist = TRUE, report = NULL)
 ```
 
 ```{r}
@@ -1281,7 +1286,7 @@ write.table(ms.eabl@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/P
 ```
 
 ```{r, echo=FALSE}
-Nmix.gof.test(lh.eabl, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+Nmix.gof.test(lh.eabl, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
 #?Nmix.gof.test()
 Nmix.chisq(lh.eabl)
 ```
@@ -1519,15 +1524,13 @@ write.table(ms.eawp@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/P
 ```
 
 ```{r, echo=FALSE}
-Nmix.gof.test(treatment.eawp, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+Nmix.gof.test(treatment.eawp, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
 #?Nmix.gof.test()
 Nmix.chisq(treatment.eawp)
 ```
 
 ```{r, echo=FALSE}
-Nmix.gof.test(disturbance.eawp, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
-#?Nmix.gof.test()
-Nmix.chisq(disturbance.eawp)
+Nmix.gof.test(disturbance.eawp, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
 ```
 
 EAWP Summary
@@ -1840,7 +1843,7 @@ error.bar(bar.p,data.mean,data.sd) #sd
 
 
 ```{r, echo=FALSE}
-Nmix.gof.test(local.inbu, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+Nmix.gof.test(treatment.inbu, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
 #?Nmix.gof.test()
 Nmix.chisq(local.inbu)
 ```
@@ -2101,7 +2104,7 @@ lines(upper~ Evergreen1km, data=nobo.est.evergreen, type="l", lwd=3, col="darkgr
 #what's up with this figure?
 
 ```{r, echo=FALSE}
-Nmix.gof.test(landscape1.nobo, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+Nmix.gof.test(landscape1.nobo, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
 #?Nmix.gof.test()
 Nmix.chisq(landscape1.nobo)
 ```
@@ -2419,21 +2422,17 @@ write.table(ms.piwa@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/P
 ```
 
 ```{r, echo=FALSE}
-Nmix.gof.test(coord.piwa, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+Nmix.gof.test(coord.piwa, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
 #?Nmix.gof.test()
 Nmix.chisq(coord.piwa)
 ```
 
 ```{r, echo=FALSE}
-Nmix.gof.test(landscape30.piwa, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
-#?Nmix.gof.test()
-Nmix.chisq(landscape30.piwa)
+Nmix.gof.test(landscape30.piwa, nsim = 50, plot.hist = TRUE, report = NULL)
 ```
 
 ```{r, echo=FALSE}
-Nmix.gof.test(landscape5.piwa, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
-#?Nmix.gof.test()
-Nmix.chisq(landscape5.piwa)
+Nmix.gof.test(landscape5.piwa, nsim = 50, plot.hist = TRUE, report = NULL)
 ```
 
 PIWA Summary
@@ -2769,15 +2768,13 @@ write.table(ms.prwa@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/P
 ```
 
 ```{r, echo=FALSE}
-Nmix.gof.test(landscape1.prwa, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+Nmix.gof.test(landscape1.prwa, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
 #?Nmix.gof.test()
 Nmix.chisq(landscape1.prwa)
 ```
 
 ```{r, echo=FALSE}
-Nmix.gof.test(landscape5.prwa, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
-#?Nmix.gof.test()
-Nmix.chisq(landscape5.prwa)
+Nmix.gof.test(landscape5.prwa, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
 ```
 PRWA summary:
 NB distribution
@@ -3024,7 +3021,7 @@ write.table(ms.rbwo@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/P
 ```
 
 ```{r, echo=FALSE}
-Nmix.gof.test(coord.rbwo, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+Nmix.gof.test(coord.rbwo, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
 #?Nmix.gof.test()
 Nmix.chisq(coord.rbwo)
 ```
@@ -3295,7 +3292,7 @@ write.table(ms.ybch@Full, file="C:/Users/woodj/Documents/GRAD SCHOOL - CLEMSON/P
 
 
 ```{r, echo=FALSE}
-Nmix.gof.test(landscape1.ybch, nsim = 25, plot.hist = TRUE, report = NULL) #increase nsim
+Nmix.gof.test(landscape1.ybch, nsim = 50, plot.hist = TRUE, report = NULL) #increase nsim
 Nmix.chisq(landscape1.ybch)
 ```
 

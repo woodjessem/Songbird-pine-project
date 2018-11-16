@@ -443,7 +443,7 @@ posthoc2
 #plot_model(Tx3)
 
 figx <- plot_model(Tx3, type="int", terms=c("Treatment","YearCat"))
-figx + labs(x= "Burn treatment * Survey year", y="Species Richness") + set_theme(title.color = "white") + xlim(c("0B","1B","2B","3B"))
+figx + labs(x= "Burn treatment * Survey year", y="Species Richness") + set_theme(title.color = "white") + xlim(c("0B","1B","2B","3B")) + coord_cartesian(ylim=c(18,36)) + scale_y_continuous(breaks=seq(18, 36, 6))
 #base=theme_classic() and also axis.tickslen=0 would make background white instead of gray and hides grid lines - so issue isn't as apparent. but all other figure backgrounds ARE gray so I would like to be consistent...
 #plot.margins = ?
 

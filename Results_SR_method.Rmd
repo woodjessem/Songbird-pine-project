@@ -1495,7 +1495,13 @@ confint(evaluationpc3d, level=0.95)
 ```{r}
 fig3 <- plot_model(evaluationpc3d, type="pred", terms=c("Sdate")) #, colors="cadetblue"
 fig3<- fig3 + labs(x= "Survey date (in season)", y="PC Species Richness  (visit 3)") + set_theme(title.color = "white")
+fig3 <- fig3 + scale_color_sjplot(palette = "metro ui") + scale_fill_sjplot(palette = "metro ui", discrete = TRUE, reverse = FALSE)
 fig3
+
+#fig3 <- plot_model(evaluationpc3d, type="pred", terms=c("Sdate"))
+#fig3 <- fig3 + set_theme(base=theme_classic()) #scale_color_sjplot(palette = "metro ui") + scale_fill_sjplot(palette = "metro ui", discrete = TRUE, reverse = FALSE)
+#fig3<- fig3 + labs(x= "Survey date (in season)", y="PC Species Richness  (visit 3)") + set_theme(base = theme_classic(), title.color = "white", scale_color_sjplot(palette = "deep reefs"), scale_fill_sjplot(palette = "deep reefs", discrete=TRUE, reverse=FALSE))
+#fig3
                                                                                               
 #+ geom_polygon(aes(group=methodYSR3pc$Sdate),color="cadetblue")  
 #+sjp.grpfrq($Sdate,geom.colors="cadetblue")  
@@ -1508,16 +1514,18 @@ print(ggplot(data=methodYSR3pc,aes(x=Sdate,y=SR)) + geom_line(size=1, color="cad
       +geom_smooth(method=evaluationpc3d,fullrange=TRUE,color="cadetblue",size=0.5) +
            labs(x="Survey date (in season)",y="PC Species Richness  (visit 3)"))
 
-print(qplot(x = Sdate, y = SR, color = Sdate, data = evaluationpc3d, geom = "smooth"))
+print(qplot(x = Sdate, y = SR, color = "cadetblue", data = evaluationpc3d, geom = "smooth"))
 
+print(plot(evaluationpc3d))
 
+se<-0.07558
 #Plot it up!
 Plot.T<-ggplot(data=methodYSR3pc, aes(x=Sdate, y=SR))+
       coord_cartesian(ylim = c(10,18))+  
       geom_line(size=1, color="cadetblue")+
       geom_ribbon(aes(ymin=SR-se, ymax=SR+se,fill=Sdate),alpha=.2)+
-      ylab("GPA")+
-      xlab("Work Ethic")+
+      ylab("Species Richness")+
+      xlab("Survey date")+
       theme_grey()+ 
         theme(panel.grid.major=element_blank(),
         panel.grid.minor=element_blank())+
