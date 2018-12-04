@@ -786,7 +786,7 @@ visit1SRtype
 levels(methodYSR1$Type)
 
 fig2<-plot_model(evaluationYV1B, type="int", terms=c("Type","Year"))
-fig2<-fig2 + labs(x= "Type", y="Species Richness  (visit 1)") + theme(panel.grid.minor.x = element_blank()) + xlim(c("AC","PC"))
+fig2<-fig2 + labs(x= "Type", y="Species Richness  (visit 1)") + theme(panel.grid.minor.x = element_blank()) + xlim(c("AC","PC")) + coord_cartesian(ylim=c(12, 34))+ scale_y_continuous(breaks=seq(10, 35, 4))
 fig2
 ```
 
@@ -1274,7 +1274,7 @@ matplot(residuals(evaluationYV9B))
 
 #interlude to break apart method, but still keep both years in
 ```{r}
-methodYSR2pc <-read.csv("17_18_2by2_ACPC_SR_pc.csv") #SR by count #1 each
+methodYSR2pc <-read.csv("17_18_2by2_ACPC_SR_pc.csv") #SR by count #2 each
 evaluationpc2t<-lm(SR ~ Stime + Year, methodYSR2pc)  #no time effect
 summary(evaluationpc2t)
 confint(evaluationpc2t, level=0.95)

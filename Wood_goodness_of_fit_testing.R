@@ -1,3 +1,6 @@
+#two different methods (at least) for goodness of fit testing
+#however, each ACTUAL GoF test is included in the appropriate species/guild file
+
 install("installr")
 # installing/loading the package:
 if(!require(installr)) {

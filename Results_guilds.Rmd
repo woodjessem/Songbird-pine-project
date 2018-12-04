@@ -469,6 +469,7 @@ det.detect2.tree
 confint(det.detect2.tree, type="det",method="normal")
 confint(det.detect2.tree, type="state",method="normal")
 ```
+
 ```{r}
 det.date2.tree <- pcount(~ Jdate + I(Jdate^2) ~1, tree.abund, mixture="P", K=50)
 det.detect2.tree <- pcount(~ Jdate + I(Jdate^2) + Noise + Time + I(Time^2) ~1, tree.abund, mixture="P", K=50)
